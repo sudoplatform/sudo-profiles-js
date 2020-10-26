@@ -1,0 +1,5 @@
+mutation getOwnershipProof($input: GetOwnershipProofInput!) {
+  getOwnershipProof(input: $input) {
+    jwt
+  }
+}

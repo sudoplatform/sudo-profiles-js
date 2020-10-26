@@ -1,0 +1,115 @@
+type Mutation {
+  createSudo(input: CreateSudoInput!): Sudo
+  updateSudo(input: UpdateSudoInput!): Sudo
+  deleteSudo(input: DeleteSudoInput!): Sudo
+  getOwnershipProof(input: GetOwnershipProofInput!): OwnershipProof
+  redeemToken(input: RedeemTokenInput!): [Entitlement!]!
+  internalProcessCreateSudoEvent(input: ProcessCreateSudoEventInput!): Sudo
+    @aws_iam
+  internalProcessDeleteSudoEvent(input: ProcessDeleteSudoEventInput!): Sudo
+    @aws_iam
+}
+input RedeemTokenInput {
+  token: String!
+  type: String!
+}
+input GetOwnershipProofInput {
+  sudoId: ID!
+  audience: String!
+}
+input SecureClaimInput {
+  name: String!
+  version: Int!
+  algorithm: String!
+  keyId: String!
+  base64Data: String!
+}
+input SecureS3ObjectInput {
+  name: String!
+  version: Int!
+  algorithm: String!
+  keyId: String!
+  bucket: String!
+  region: String!
+  key: String!
+}
+type SecureClaim @aws_iam @aws_cognito_user_pools {
+  name: String!
+  version: Int!
+  algorithm: String!
+  keyId: String!
+  base64Data: String!
+}
+type SecureS3Object @aws_iam @aws_cognito_user_pools {
+  name: String!
+  version: Int!
+  algorithm: String!
+  keyId: String!
+  bucket: String!
+  region: String!
+  key: String!
+}
+type Entitlement {
+  name: String!
+  value: Int!
+}
+type Attribute @aws_iam @aws_cognito_user_pools {
+  name: String!
+  value: String!
+}
+type Sudo @aws_iam @aws_cognito_user_pools {
+  id: ID!
+  claims: [SecureClaim!]!
+  objects: [SecureS3Object!]!
+  metadata: [Attribute!]!
+  createdAtEpochMs: Float!
+  updatedAtEpochMs: Float!
+  version: Int!
+  owner: ID!
+}
+type OwnershipProof {
+  jwt: String!
+}
+type Query {
+  getSudo(id: ID!): Sudo
+  listSudos(limit: Int, nextToken: String): ModelSudoConnection
+}
+type Subscription {
+  onCreateSudo(owner: ID!): Sudo
+    @aws_subscribe(mutations: ["createSudo", "internalProcessCreateSudoEvent"])
+  onUpdateSudo(owner: ID!): Sudo @aws_subscribe(mutations: ["updateSudo"])
+  onDeleteSudo(owner: ID!): Sudo
+    @aws_subscribe(mutations: ["deleteSudo", "internalProcessDeleteSudoEvent"])
+}
+type ModelSudoConnection {
+  items: [Sudo!]
+  nextToken: String
+}
+input CreateSudoInput {
+  claims: [SecureClaimInput!]!
+  objects: [SecureS3ObjectInput!]!
+}
+input UpdateSudoInput {
+  id: ID!
+  claims: [SecureClaimInput!]
+  objects: [SecureS3ObjectInput!]
+  expectedVersion: Int!
+}
+input DeleteSudoInput {
+  id: ID!
+  expectedVersion: Int!
+}
+input AttributeInput {
+  name: String!
+  value: String!
+}
+input ProcessCreateSudoEventInput {
+  owner: ID!
+  claims: [SecureClaimInput!]!
+  objects: [SecureS3ObjectInput!]!
+  metadata: [AttributeInput!]!
+}
+input ProcessDeleteSudoEventInput {
+  id: ID!
+  owner: ID!
+}

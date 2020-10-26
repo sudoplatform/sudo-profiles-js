@@ -1,0 +1,29 @@
+query GetSudo($id: ID!) {
+  getSudo(id: $id) {
+    id
+    claims {
+      name
+      version
+      keyId
+      algorithm
+      base64Data
+    }
+    objects {
+      name
+      version
+      algorithm
+      keyId
+      bucket
+      region
+      key
+    }
+    metadata {
+      name
+      value
+    }
+    createdAtEpochMs
+    updatedAtEpochMs
+    version
+    owner
+  }
+}

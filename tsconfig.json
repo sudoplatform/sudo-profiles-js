@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "allowJs": false,
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "downlevelIteration": true,
+    "esModuleInterop": true,
+    "importHelpers": true,
+    "lib": ["dom", "es2017", "esnext.asynciterable"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "lib",
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "strict": true,
+    "target": "es2017",
+    "typeRoots": ["./node_modules/@types", "./typings"],
+  },
+  "include": ["src/**/*.ts", "tests/integration/unit/sudo-profiles-client.spec.ts"],
+  "exclude": ["node_modules", "typings"]
+}

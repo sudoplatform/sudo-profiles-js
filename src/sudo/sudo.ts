@@ -1,0 +1,249 @@
+import { ClaimVisibility } from './sudo-profiles-client'
+
+export enum FetchOption {
+  /**
+   * Returns Sudos from the local cache only.
+   */
+  CacheOnly = 'cache-only',
+  /**
+   * Fetches Sudos from the backend and ignores any cached entries.
+   */
+  RemoteOnly = 'network-only',
+}
+
+/**
+ * String value.
+ */
+export class StringClaimValue {
+  public value: string | undefined = undefined
+  constructor(val: string) {
+    this.value = val
+  }
+}
+
+/**
+ * Blob value represented as a URI.
+ * Typically a file location of the blob
+ * or a file to upload.
+ */
+export class BlobClaimValue {
+  public value: URL | undefined = undefined
+  public file: File | undefined = undefined
+  constructor(val: URL, file?: File) {
+    this.value = val
+    this.file = file
+  }
+}
+
+/**
+ * Represents a claim or identity attribute associated with a Sudo.
+ * @param name Claim name.
+ * @param visibility Claim visibility.
+ * @param value Claim value.
+ */
+export class Claim {
+  name: string
+  visibility: ClaimVisibility
+  value: BlobClaimValue | StringClaimValue
+
+  constructor(
+    name: string,
+    visibility: ClaimVisibility,
+    value: BlobClaimValue | StringClaimValue,
+  ) {
+    this.name = name
+    this.visibility = visibility
+    this.value = value
+  }
+}
+
+/**
+ * Base class for a Sudo
+ */
+export abstract class Base {
+  id?: string = undefined
+  version: number = 1
+  createdAt: Date
+  updatedAt: Date
+
+  constructor(
+    id?: string,
+    version: number = 1,
+    createdAt: Date = new Date(0),
+    updatedAt: Date = new Date(0),
+  ) {
+    this.version = version
+    this.createdAt = createdAt
+    this.updatedAt = updatedAt
+    this.id = id
+  }
+}
+
+/**
+ * Represents a Sudo.
+ *
+ * @param id globally unique identifier of this Sudo. This is generated and set by Sudo service.
+ * @param version current version of this Sudo.
+ * @param createdAt date and time at which this Sudo was created.
+ * @param updatedAt date and time at which this Sudo was last updated.
+ * @param claims claims.
+ * @param metadata arbitrary metadata set by the backend..
+ */
+export class Sudo extends Base {
+  private static TITLE = 'title'
+  private static FIRST_NAME = 'firstName'
+  private static LAST_NAME = 'lastName'
+  private static LABEL = 'label'
+  private static NOTES = 'notes'
+  private static AVATAR = 'avatar'
+  private static EXTERNAL_ID = 'ExternalId'
+
+  private _metadata: Map<string, string> = new Map<string, string>()
+  private _claims: Map<string, Claim> = new Map<string, Claim>()
+
+  constructor(
+    id?: string,
+    version: number = 1,
+    createdAt: Date = new Date(0),
+    updatedAt: Date = new Date(0),
+    metadata: Map<string, string> = new Map<string, string>(),
+    claims: Map<string, Claim> = new Map<string, Claim>(),
+  ) {
+    super(id, version, createdAt, updatedAt)
+
+    this._metadata = metadata
+    this._claims = claims
+  }
+
+  /**
+   * Title
+   */
+  public get title(): string | undefined {
+    return this._claims.get(Sudo.TITLE)?.value.value as string | undefined
+  }
+  public set title(value: string | undefined) {
+    if (value) {
+      this._claims.set(
+        Sudo.TITLE,
+        new Claim(
+          Sudo.TITLE,
+          ClaimVisibility.Private,
+          new StringClaimValue(value),
+        ),
+      )
+    }
+  }
+
+  /**
+   * First name
+   */
+  public get firstName(): string | undefined {
+    return this._claims.get(Sudo.FIRST_NAME)?.value.value as string | undefined
+  }
+  public set firstName(value: string | undefined) {
+    if (value) {
+      this._claims.set(
+        Sudo.FIRST_NAME,
+        new Claim(
+          Sudo.FIRST_NAME,
+          ClaimVisibility.Private,
+          new StringClaimValue(value),
+        ),
+      )
+    }
+  }
+
+  /**
+   * Last name
+   */
+  public get lastName(): string | undefined {
+    return this._claims.get(Sudo.LAST_NAME)?.value.value as string | undefined
+  }
+  public set lastName(value: string | undefined) {
+    if (value) {
+      this._claims.set(
+        Sudo.LAST_NAME,
+        new Claim(
+          Sudo.LAST_NAME,
+          ClaimVisibility.Private,
+          new StringClaimValue(value),
+        ),
+      )
+    }
+  }
+
+  /**
+   * Label
+   */
+  public get label(): string | undefined {
+    return this._claims.get(Sudo.LABEL)?.value.value as string | undefined
+  }
+  public set label(value: string | undefined) {
+    if (value) {
+      this._claims.set(
+        Sudo.LABEL,
+        new Claim(
+          Sudo.LABEL,
+          ClaimVisibility.Private,
+          new StringClaimValue(value),
+        ),
+      )
+    }
+  }
+
+  /**
+   * Notes.
+   */
+  public get notes(): string | undefined {
+    return this._claims.get(Sudo.NOTES)?.value.value as string | undefined
+  }
+  public set notes(value: string | undefined) {
+    if (value) {
+      this._claims.set(
+        Sudo.NOTES,
+        new Claim(
+          Sudo.NOTES,
+          ClaimVisibility.Private,
+          new StringClaimValue(value),
+        ),
+      )
+    }
+  }
+
+  /**
+   * Avatar image URI.
+   */
+  public get avatar(): URL | undefined {
+    return this._claims.get(Sudo.AVATAR)?.value.value as URL | undefined
+  }
+  public set avatar(value: URL | undefined) {
+    if (value) {
+      this._claims.set(
+        Sudo.AVATAR,
+        new Claim(
+          Sudo.AVATAR,
+          ClaimVisibility.Private,
+          new BlobClaimValue(value),
+        ),
+      )
+    }
+  }
+
+  /**
+   * External ID associated with this Sudo.
+   */
+  public get externalId(): string | undefined {
+    return this._metadata.get(Sudo.EXTERNAL_ID)
+  }
+
+  /**
+   * Claims
+   */
+  public get claims(): Map<string, Claim> {
+    return this._claims
+  }
+
+  public set claims(value: Map<string, Claim>) {
+    this._claims = value
+  }
+}
