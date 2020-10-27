@@ -1,6 +1,6 @@
 {
   "name": "@sudoplatform/sudo-profiles",
-  "version": "0.0.5",
+  "version": "1.0.1",
   "author": "Anonyome Labs, Inc.",
   "repository": {
     "type": "git",
@@ -12,11 +12,12 @@
     "lint": "yarn lint:eslint && yarn lint:prettier",
     "lint:eslint": "eslint \"{bin,integration-tests,src}/**/*.{ts,tsx}\"",
     "lint:prettier": "prettier -l \"{bin,integration-tests,src}/**/*.{js,json,jsx,ts,tsx}\" --write ",
-    "test": "yarn test:unit-test",
-    "test:unit-test": "jest test/unit",
+    "test": "yarn unit-test && yarn integration-test",
+    "unit-test": "/bin/bash -c 'jest test/unit'",
+    "integration-test": "/bin/bash -c 'jest test/integration'",
     "build": "yarn clean && yarn build:gen && yarn build:transpile && yarn build:verify && yarn build:declarations && yarn build:docs",
     "build:gen": "graphql-codegen -c codegen.yml",
-    "build:verify": "yarn audit && yarn lint && yarn test",
+    "build:verify": "yarn audit && yarn lint",
     "build:transpile": "babel src --out-dir lib --extensions '.ts'",
     "build:declarations": "yarn tsc --emitDeclarationOnly",
     "build:docs": "typedoc --mode library --excludePrivate --out docs src/index.ts"

@@ -1,32 +1,44 @@
 import { DefaultConfigurationManager } from '@sudoplatform/sudo-common'
 import { DefaultSudoUserClient } from '@sudoplatform/sudo-user'
+import { ApolloError } from 'apollo-client'
+import { AWSAppsyncGraphQLError } from 'aws-appsync/lib/types'
+import { GraphQLError } from 'graphql'
+import {
+  anything,
+  deepEqual,
+  instance,
+  mock,
+  reset,
+  verify,
+  when,
+} from 'ts-mockito'
+import config from '../../config/sudoplatformconfig.json'
 import { DefaultKeyManager } from '../../src/core/key-manager'
 import { KeyStore } from '../../src/core/key-store'
-import {
-  QueryCache, DefaultQueryCache,
-} from '../../src/core/query-cache'
-import {
-  FatalError,
-  IllegalArgumentException,
-  GRAPHQL_ERROR_POLICY_ERROR,
-  GRAPHQL_ERROR_CONDITIONAL_CHECK_FAILED,
-  GRAPHQL_ERROR_SERVER_ERROR,
-  PolicyFailedException,
-  InternalServerException,
-  ConditionalCheckFailedException,
-} from '../../src/global/error'
-import { Claim, StringClaimValue, Sudo } from '../../src/sudo/sudo'
-import { ClaimVisibility, DefaultSudoProfilesClient } from '../../src/sudo/sudo-profiles-client'
-import { mock, instance, when, reset, anything, verify, deepEqual, } from 'ts-mockito'
+import { DefaultQueryCache, QueryCache } from '../../src/core/query-cache'
 import {
   CreateSudoDocument,
   GetOwnershipProofDocument,
-  Sudo as GQLSudo, UpdateSudoDocument,
+  RedeemTokenDocument,
+  Sudo as GQLSudo,
+  UpdateSudoDocument,
 } from '../../src/gen/graphql-types'
-import { AWSAppsyncGraphQLError } from 'aws-appsync/lib/types'
-import { GraphQLError } from 'graphql'
-import { ApolloError } from 'apollo-client'
+import {
+  ConditionalCheckFailedException,
+  FatalError,
+  GRAPHQL_ERROR_CONDITIONAL_CHECK_FAILED,
+  GRAPHQL_ERROR_POLICY_ERROR,
+  GRAPHQL_ERROR_SERVER_ERROR,
+  IllegalArgumentException,
+  InternalServerException,
+  PolicyFailedException,
+} from '../../src/global/error'
 import { AesSecurityProvider } from '../../src/security/aesSecurityProvider'
+import { Claim, StringClaimValue, Sudo } from '../../src/sudo/sudo'
+import {
+  ClaimVisibility,
+  DefaultSudoProfilesClient,
+} from '../../src/sudo/sudo-profiles-client'
 import { Base64 } from '../../src/utils/base64'
 
 const globalAny: any = global
@@ -39,63 +51,34 @@ const apiClient = {
   query: jest.fn(),
 }
 
-const createBackendError: (path: string[], errorType: string, rest?: any) => AWSAppsyncGraphQLError = (path = [], errorType, rest = {}) => {
+const createBackendError: (
+  path: string[],
+  errorType: string,
+  rest?: any,
+) => AWSAppsyncGraphQLError = (path = [], errorType, rest = {}) => {
   const error = {
-      path,
-      data: null,
-      errorType,
-      errorInfo: null,
-      locations: [{ line: 2, column: 3 }],
-      message: "Some error message",
-      ...rest,
-  } as AWSAppsyncGraphQLError;
+    path,
+    data: null,
+    errorType,
+    errorInfo: null,
+    locations: [{ line: 2, column: 3 }],
+    message: 'Some error message',
+    ...rest,
+  } as AWSAppsyncGraphQLError
 
-  return error;
+  return error
 }
 
-const createGraphQLError: (error: GraphQLError) => ApolloError = backendError => new ApolloError({
-  graphQLErrors: [{ ...backendError }],
-  networkError: null,
-  errorMessage: `GraphQL error: ${backendError.message}`
-})
+const createGraphQLError: (error: GraphQLError) => ApolloError = (
+  backendError,
+) =>
+  new ApolloError({
+    graphQLErrors: [{ ...backendError }],
+    networkError: null,
+    errorMessage: `GraphQL error: ${backendError.message}`,
+  })
 
-const queryCache: QueryCache = mock(DefaultQueryCache) 
-
-const config = {
-  federatedSignIn: {
-    appClientId: '120q904mra9d5l4psmvdbrgm49',
-    signInRedirectUri: 'http://localhost:3000/callback',
-    signOutRedirectUri: 'http://localhost:3000/',
-    webDomain: 'id-dev-fsso-sudoplatform.auth.us-east-1.amazoncognito.com',
-    identityProvider: 'Auth0',
-  },
-  apiService: {
-    apiUrl:
-      'https://xy7zw5ys7rahrponv7h26vjn6y.appsync-api.us-east-1.amazonaws.com/graphql',
-    region: 'us-east-1',
-  },
-  identityService: {
-    region: 'us-east-1',
-    poolId: 'us-east-1_ZiPDToF73',
-    clientId: '120q904mra9d5l4psmvdbrgm49',
-    identityPoolId: 'us-east-1:8fe6d8ed-cd77-4622-b1bb-3f0c147638ad',
-    apiUrl:
-      'https://mqn7cjrzcrd75jpsma3xw4744a.appsync-api.us-east-1.amazonaws.com/graphql',
-    apiKey: 'da2-xejsa343urfifmzkycmz3rqdom',
-    bucket: 'ids-userdata-id-dev-fsso-userdatabucket2d841c35-j9x47k5042fk',
-    transientBucket:
-      'ids-userdata-id-dev-fsso-transientuserdatabucket0-1enoeyoho1sjl',
-    registrationMethods: ['TEST', 'FSSO'],
-  },
-  secureVaultService: {
-    region: 'us-east-1',
-    poolId: 'us-east-1_6NalHLdlq',
-    clientId: 'pcg1ma18cluamqrif79viaj04',
-    apiUrl:
-      'https://u2ysyzwojzaahbsq5toulhdt4e.appsync-api.us-east-1.amazonaws.com/graphql',
-    pbkdfRounds: 100000,
-  },
-}
+const queryCache: QueryCache = mock(DefaultQueryCache)
 
 DefaultConfigurationManager.getInstance().setConfig(JSON.stringify(config))
 
@@ -107,7 +90,6 @@ const symmetricKey = '14A9B3C3540142A11E70ACBB1BD8969F'
 profilesKeyManager.setSymmetricKeyId(symmetricKeyId)
 profilesKeyManager.insertKey(symmetricKeyId, textEncoder.encode(symmetricKey))
 const aesSecurityProviderMock: AesSecurityProvider = mock()
-
 
 const sudoProfilesClient = new DefaultSudoProfilesClient(
   sudoUserClient,
@@ -125,9 +107,7 @@ afterEach((): void => {
 
 describe('SudoProfilesClient', () => {
   describe('createSudo()', () => {
-
     it('should execute mutation', async () => {
-
       apiClient.mutate.mockResolvedValue({
         data: {
           createSudo: {
@@ -149,13 +129,13 @@ describe('SudoProfilesClient', () => {
           input: {
             claims: [],
             objects: [],
-          }
-        }
+          },
+        },
       })
       expect(result).toBeDefined()
       expect(result.id).toBe('SUDO_ID')
     })
- 
+
     it('should throw IllegalArgumentException when symmetric key id not set', async () => {
       const profilesKeyManagerUnit = new DefaultKeyManager(new KeyStore())
       const sudoProfilesClientUnit = new DefaultSudoProfilesClient(
@@ -165,12 +145,18 @@ describe('SudoProfilesClient', () => {
         config as any,
       )
 
-      expect(async () => { await sudoProfilesClientUnit.createSudo(new Sudo()) }).rejects.toThrow(IllegalArgumentException)
+      await expect(
+        sudoProfilesClientUnit.createSudo(new Sudo()),
+      ).rejects.toThrow(IllegalArgumentException)
     })
 
     it('should throw PolicyFailedException when mutation fails', async () => {
-      const backendError = createBackendError(['createSudo'], GRAPHQL_ERROR_POLICY_ERROR, { message: 'GraphQL error: createSudo' })
-      
+      const backendError = createBackendError(
+        ['createSudo'],
+        GRAPHQL_ERROR_POLICY_ERROR,
+        { message: 'GraphQL error: createSudo' },
+      )
+
       apiClient.mutate.mockImplementation(() => {
         throw createGraphQLError(backendError)
       })
@@ -181,21 +167,24 @@ describe('SudoProfilesClient', () => {
       } catch (error) {
         expect(error).toBeInstanceOf(PolicyFailedException)
       }
-
     })
 
     it('should throw FatalError when mutation succeeds but graph response contains no data', async () => {
       apiClient.mutate.mockResolvedValue({
-        data: {}
+        data: {},
       })
 
-      expect(async () => { await sudoProfilesClient.createSudo(new Sudo()) }).rejects.toThrow(FatalError)
+      await expect(sudoProfilesClient.createSudo(new Sudo())).rejects.toThrow(
+        FatalError,
+      )
     })
   })
 
   describe('updateSudo()', () => {
     it('should throw IllegalArgumentException when sudo id not set', async () => {
-      expect(async () => { await sudoProfilesClient.updateSudo(new Sudo()) }).rejects.toThrow(IllegalArgumentException)
+      await expect(sudoProfilesClient.updateSudo(new Sudo())).rejects.toThrow(
+        IllegalArgumentException,
+      )
     })
 
     it('should execute mutation with string claims', async () => {
@@ -218,13 +207,23 @@ describe('SudoProfilesClient', () => {
 
       const newSudo = new Sudo('SUDO_ID', 1)
       newSudo.claims = new Map([
-        ['firstName', new Claim('fistName', ClaimVisibility.Private, new StringClaimValue('Homer'))],
+        [
+          'firstName',
+          new Claim(
+            'fistName',
+            ClaimVisibility.Private,
+            new StringClaimValue('Homer'),
+          ),
+        ],
       ])
 
       when(queryCache.add(anything())).thenResolve()
-      when(aesSecurityProviderMock.encrypt(symmetricKeyId, deepEqual(dataToEncrypt))).thenResolve(
-        encryptedData
-      )
+      when(
+        aesSecurityProviderMock.encrypt(
+          symmetricKeyId,
+          deepEqual(dataToEncrypt),
+        ),
+      ).thenResolve(encryptedData)
 
       const result = await sudoProfilesClient.updateSudo(newSudo)
 
@@ -234,16 +233,18 @@ describe('SudoProfilesClient', () => {
           input: {
             id: 'SUDO_ID',
             expectedVersion: 1,
-            claims: [{
-              name: 'firstName',
-              version: 1,
-              algorithm: 'AES/CBC/PKCS7Padding',
-              keyId: symmetricKeyId,
-              base64Data: Base64.encode(encryptedData)
-            }],
+            claims: [
+              {
+                name: 'firstName',
+                version: 1,
+                algorithm: 'AES/CBC/PKCS7Padding',
+                keyId: symmetricKeyId,
+                base64Data: Base64.encode(encryptedData),
+              },
+            ],
             objects: [],
-          }
-        }
+          },
+        },
       })
 
       verify(queryCache.add(anything())).once()
@@ -255,8 +256,12 @@ describe('SudoProfilesClient', () => {
     })
 
     it('should throw ConditionalCheckFailedException when mutation fails', async () => {
-      const backendError = createBackendError(['updateSudo'], GRAPHQL_ERROR_CONDITIONAL_CHECK_FAILED, { message: 'GraphQL error: updateSudo' })
-      
+      const backendError = createBackendError(
+        ['updateSudo'],
+        GRAPHQL_ERROR_CONDITIONAL_CHECK_FAILED,
+        { message: 'GraphQL error: updateSudo' },
+      )
+
       apiClient.mutate.mockImplementation(() => {
         throw createGraphQLError(backendError)
       })
@@ -271,12 +276,13 @@ describe('SudoProfilesClient', () => {
 
     it('should throw FatalError when mutation succeeds but graph response contains no data', async () => {
       apiClient.mutate.mockResolvedValue({
-        data: {}
+        data: {},
       })
 
-      expect(async () => { await sudoProfilesClient.updateSudo(new Sudo('SUDO_ID')) }).rejects.toThrow(FatalError)
+      await expect(
+        sudoProfilesClient.updateSudo(new Sudo('SUDO_ID')),
+      ).rejects.toThrow(FatalError)
     })
-
   })
 
   describe('getOwnershipProof()', () => {
@@ -312,21 +318,59 @@ describe('SudoProfilesClient', () => {
     })
   })
 
+  describe('redeem()', () => {
+    it('should execute mutation', async () => {
+      apiClient.mutate.mockImplementation(async (opts) => {
+        return {
+          data: {
+            redeemToken: [
+              {
+                name: 'sudoplatform.sudo.max',
+                value: 0,
+              },
+            ],
+          },
+        }
+      })
+
+      const entitlements = await sudoProfilesClient.redeem(
+        'sudoplatform.sudo.max=0',
+        'entitlements',
+      )
+
+      expect(apiClient.mutate).toHaveBeenCalledWith({
+        mutation: RedeemTokenDocument,
+        variables: {
+          input: {
+            token: 'sudoplatform.sudo.max=0',
+            type: 'entitlements',
+          },
+        },
+      })
+
+      expect(entitlements).toBeTruthy()
+      expect(entitlements.length).toEqual(1)
+      expect(entitlements[0].name).toEqual('sudoplatform.sudo.max')
+      expect(entitlements[0].value).toEqual(0)
+    })
+  })
+
   describe('listSudos()', () => {
     it('should execute query', async () => {
-
       const mockSudoList: GQLSudo[] = [
         {
           __typename: 'Sudo',
           id: 'SUDO_ID',
-          claims: [{
-            __typename: 'SecureClaim',
-            name: 'firstName',
-            version: 1,
-            algorithm: 'AES/CBC/PKCS7Padding',
-            keyId: '1234',
-            base64Data: '0D+a9Q6pcJpVItUqRafDfmlYMKGUgK6T36pMG1KUW/M=',
-          },],
+          claims: [
+            {
+              __typename: 'SecureClaim',
+              name: 'firstName',
+              version: 1,
+              algorithm: 'AES/CBC/PKCS7Padding',
+              keyId: '1234',
+              base64Data: '0D+a9Q6pcJpVItUqRafDfmlYMKGUgK6T36pMG1KUW/M=',
+            },
+          ],
           objects: [],
           metadata: [],
           createdAtEpochMs: 1602657822,
@@ -346,9 +390,14 @@ describe('SudoProfilesClient', () => {
         }
       })
 
-      when(aesSecurityProviderMock.decrypt(symmetricKeyId, deepEqual(Base64.decode('0D+a9Q6pcJpVItUqRafDfmlYMKGUgK6T36pMG1KUW/M=')))).thenResolve(
-        new TextEncoder().encode('Homer')
-      )
+      when(
+        aesSecurityProviderMock.decrypt(
+          symmetricKeyId,
+          deepEqual(
+            Base64.decode('0D+a9Q6pcJpVItUqRafDfmlYMKGUgK6T36pMG1KUW/M='),
+          ),
+        ),
+      ).thenResolve(new TextEncoder().encode('Homer'))
 
       const sudos = await sudoProfilesClient.listSudos()
 
@@ -370,7 +419,11 @@ describe('SudoProfilesClient', () => {
   })
 
   it('should throw InternalServerException when query fails', async () => {
-    const backendError = createBackendError(['listSudo'], GRAPHQL_ERROR_SERVER_ERROR, { message: 'GraphQL error: listSudo' })
+    const backendError = createBackendError(
+      ['listSudo'],
+      GRAPHQL_ERROR_SERVER_ERROR,
+      { message: 'GraphQL error: listSudo' },
+    )
 
     apiClient.query.mockImplementation(() => {
       throw createGraphQLError(backendError)
@@ -386,9 +439,9 @@ describe('SudoProfilesClient', () => {
 
   it('should throw FatalError when mutation succeeds but graph response contains no data', async () => {
     apiClient.query.mockResolvedValue({
-      data: {}
+      data: {},
     })
 
-    expect(async () => { await sudoProfilesClient.listSudos() }).rejects.toThrow(FatalError)
+    await expect(sudoProfilesClient.listSudos()).rejects.toThrow(FatalError)
   })
 })

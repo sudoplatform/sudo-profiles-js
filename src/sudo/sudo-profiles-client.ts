@@ -1,49 +1,56 @@
 import {
-  CreateSudoMutation,
-  CreateSudoMutationVariables,
-  GetOwnershipProofInput,
-  GetOwnershipProofMutationVariables,
-  GetOwnershipProofMutation,
-  CreateSudoInput,
-  CreateSudoDocument,
-  GetOwnershipProofDocument,
-  ListSudosDocument,
-  ListSudosQuery,
-  SecureClaimInput,
-  SecureS3ObjectInput,
-  UpdateSudoInput,
-  UpdateSudoMutation,
-  UpdateSudoDocument,
-  UpdateSudoMutationVariables,
-  Sudo as GQLSudo,
-} from '../gen/graphql-types'
-import {
-  DefaultApiClientManager,
   ApiClientConfig,
+  DefaultApiClientManager,
 } from '@sudoplatform/sudo-api-client'
 import { DefaultConfigurationManager } from '@sudoplatform/sudo-common'
 import { SudoUserClient } from '@sudoplatform/sudo-user'
-import {
-  FetchOption,
-  Sudo,
-  BlobClaimValue,
-  StringClaimValue,
-  Claim,
-} from './sudo'
-import { AWSAppSyncClient } from 'aws-appsync'
 import { InMemoryCache, NormalizedCacheObject } from 'apollo-cache-inmemory'
+import { AWSAppSyncClient } from 'aws-appsync'
+import { KeyManager } from '../core/key-manager'
+import { DefaultQueryCache, QueryCache } from '../core/query-cache'
+import { DefaultS3Client, S3Client } from '../core/s3Client'
+import {
+  CreateSudoDocument,
+  CreateSudoInput,
+  CreateSudoMutation,
+  CreateSudoMutationVariables,
+  GetOwnershipProofDocument,
+  GetOwnershipProofInput,
+  GetOwnershipProofMutation,
+  GetOwnershipProofMutationVariables,
+  ListSudosDocument,
+  ListSudosQuery,
+  RedeemTokenDocument,
+  RedeemTokenInput,
+  RedeemTokenMutation,
+  RedeemTokenMutationVariables,
+  SecureClaimInput,
+  SecureS3ObjectInput,
+  Sudo as GQLSudo,
+  UpdateSudoDocument,
+  UpdateSudoInput,
+  UpdateSudoMutation,
+  UpdateSudoMutationVariables,
+} from '../gen/graphql-types'
 import {
   FatalError,
   IllegalArgumentException,
   toPlatformExceptionOrThrow,
 } from '../global/error'
-import { KeyManager } from '../core/key-manager'
-import { SymmetricKeyEncryptionAlgorithm } from '../security/securityProvider'
 import { AesSecurityProvider } from '../security/aesSecurityProvider'
-import { SecurityProvider } from '../security/securityProvider'
+import {
+  SecurityProvider,
+  SymmetricKeyEncryptionAlgorithm,
+} from '../security/securityProvider'
 import { Base64 } from '../utils/base64'
-import { DefaultS3Client, S3Client } from '../core/s3Client'
-import { DefaultQueryCache, QueryCache } from '../core/query-cache'
+import { Entitlement } from './entitlement'
+import {
+  BlobClaimValue,
+  Claim,
+  FetchOption,
+  StringClaimValue,
+  Sudo,
+} from './sudo'
 
 export enum ClaimVisibility {
   /**
@@ -108,6 +115,16 @@ export interface SudoProfilesClient {
    *  @Throws {@link FatalError}
    */
   getOwnershipProof(sudoId: string, audience: string): Promise<string>
+
+  /**
+   * Redeem a token to be granted additional entitlements.
+   *
+   * @param token Token.
+   * @param type Token type. Currently only valid value is "entitlements" but this maybe extended in future.
+   *
+   * @return List<Entitlement>: A list of entitlements
+   */
+  redeem(token: string, type: string): Promise<Entitlement[]>
 
   /**
    * Retrieves all Sudos owned by the signed in user.
@@ -350,6 +367,37 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
     }
   }
 
+  public async redeem(token: string, type: string): Promise<Entitlement[]> {
+    console.log('Redeeming a token')
+
+    try {
+      const input: RedeemTokenInput = {
+        token,
+        type,
+      }
+
+      const variables: RedeemTokenMutationVariables = {
+        input,
+      }
+
+      const response = await this._apiClient.mutate<RedeemTokenMutation>({
+        mutation: RedeemTokenDocument,
+        variables,
+      })
+
+      const result = response.data?.redeemToken
+      if (!result) {
+        throw new FatalError('Mutation succeeded but output was null.')
+      } else {
+        return result.map((redeemToken) => {
+          return new Entitlement(redeemToken.name, redeemToken.value)
+        })
+      }
+    } catch (error) {
+      throw toPlatformExceptionOrThrow(error)
+    }
+  }
+
   public async listSudos(fetchPolicy?: FetchOption): Promise<Sudo[]> {
     console.log('Listing Sudos.')
 
@@ -363,6 +411,8 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
       const items = response.data?.listSudos?.items
       if (items) {
         sudos = await this.processListSudos(items, fetchPolicy)
+      } else {
+        throw new FatalError('Mutation succeeded but output was null.')
       }
 
       return sudos

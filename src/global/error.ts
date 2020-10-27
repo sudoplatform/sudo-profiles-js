@@ -7,6 +7,15 @@ export const GRAPHQL_ERROR_CONDITIONAL_CHECK_FAILED =
   'DynamoDB:ConditionalCheckFailedException'
 export const GRAPHQL_ERROR_SERVER_ERROR = 'sudoplatform.sudo.ServerError'
 
+type AppSyncGraphQLError = GraphQLError & {
+  errorType?: string | null
+}
+
+type GraphQLErrorParent = ApolloError & {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  graphQLErrors?: any[] | null
+}
+
 /**
  * Error for wrapping exceptions such as `ApolloException` and all other `Exceptions`
  */
@@ -75,12 +84,9 @@ export class GraphQlException extends SudoProfileException {
 }
 
 export function toSudoProfileException(
-  error: GraphQLError,
+  error: AppSyncGraphQLError,
 ): SudoProfileException {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const graphQlError = error as any
-
-  const errorType = graphQlError.errorType
+  const errorType = error.errorType
   console.log(
     `SudoProfileException: Type: ${errorType} Message: ${error.message}`,
   )
@@ -99,7 +105,11 @@ export function toSudoProfileException(
 }
 
 export function toPlatformExceptionOrThrow(error: Error): Error {
-  if (error instanceof ApolloError) {
+  const graphError = error as GraphQLErrorParent
+
+  if (graphError.graphQLErrors) {
+    return toSudoProfileException(graphError.graphQLErrors[0])
+  } else if (error instanceof ApolloError) {
     return toSudoProfileException(error.graphQLErrors[0])
   } else {
     console.log(error.message)
