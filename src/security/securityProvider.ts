@@ -1,5 +1,5 @@
 import { KeyManager } from '../core/key-manager'
-import { KeyStoreException } from '../global/error'
+import { KeyStoreError } from '../global/error'
 
 export enum SymmetricKeyEncryptionAlgorithm {
   AesCbcPkcs7Padding = 'AES/CBC/PKCS7Padding',
@@ -44,7 +44,7 @@ export class SecurityProviderBase {
   public async getSymmetricKey(keyId: string): Promise<ArrayBuffer> {
     const key = await this.keyManager.getKey(keyId)
     if (!key) {
-      throw new KeyStoreException('Symmetric key not found.')
+      throw new KeyStoreError('Symmetric key not found.')
     }
 
     return key

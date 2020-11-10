@@ -1,8 +1,10 @@
 import { NormalizedCacheObject } from 'apollo-cache-inmemory'
 import AWSAppSyncClient from 'aws-appsync'
+import { cloneDeep } from 'lodash'
 import { ListSudosQuery, ListSudosDocument, Sudo } from '../gen/graphql-types'
-import { toPlatformExceptionOrThrow } from '../global/error'
+import { graphQLErrorsToClientError } from '../global/error'
 import { FetchOption } from '../sudo/sudo'
+import { UnknownGraphQLError } from '@sudoplatform/sudo-common'
 
 /**
  * Wrapper interface for GraphQL client cache operations.
@@ -20,22 +22,43 @@ export class DefaultQueryCache implements QueryCache {
   constructor(private client: AWSAppSyncClient<NormalizedCacheObject>) {}
 
   public async add(item: Sudo): Promise<void> {
+    let cachedData
     try {
-      const cachedSudos = await this.client.query<ListSudosQuery>({
+      cachedData = await this.client.query<ListSudosQuery>({
         query: ListSudosDocument,
         fetchPolicy: FetchOption.CacheOnly,
       })
-
-      this.client.writeQuery({
-        query: ListSudosDocument,
-        data: {
-          __typename: 'ModelSudoConnection',
-          items: [cachedSudos.data.listSudos, item],
-          nextToken: null,
-        },
-      })
-    } catch (error) {
-      throw toPlatformExceptionOrThrow(error)
+    } catch (err) {
+      const error = err.graphQLErrors?.[0]
+      if (error) {
+        throw graphQLErrorsToClientError(error)
+      } else {
+        throw new UnknownGraphQLError(error)
+      }
     }
+
+    const clonedCachedData = cachedData.data?.listSudos?.items?.map((item) => {
+      return cloneDeep<Sudo>(item)
+    })
+    const clonedItem = cloneDeep(item)
+
+    const data: Sudo[] = []
+    if (clonedCachedData) {
+      data.concat(clonedCachedData)
+    }
+    data.push(clonedItem)
+
+    const mappedData = {
+      listSudos: {
+        __typename: 'ModelSudoConnection',
+        items: data,
+        nextToken: null,
+      },
+    }
+
+    this.client.writeQuery({
+      query: ListSudosDocument,
+      data: mappedData,
+    })
   }
 }

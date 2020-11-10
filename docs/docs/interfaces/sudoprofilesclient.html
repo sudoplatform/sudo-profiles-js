@@ -98,6 +98,11 @@
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="sudoprofilesclient.html#getownershipproof" class="tsd-kind-icon">get<wbr>Ownership<wbr>Proof</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="sudoprofilesclient.html#listsudos" class="tsd-kind-icon">list<wbr>Sudos</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="sudoprofilesclient.html#redeem" class="tsd-kind-icon">redeem</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="sudoprofilesclient.html#reset" class="tsd-kind-icon">reset</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="sudoprofilesclient.html#subscribe" class="tsd-kind-icon">subscribe</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="sudoprofilesclient.html#subscribeall" class="tsd-kind-icon">subscribe<wbr>All</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="sudoprofilesclient.html#unsubscribe" class="tsd-kind-icon">unsubscribe</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="sudoprofilesclient.html#unsubscribeall" class="tsd-kind-icon">unsubscribe<wbr>All</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="sudoprofilesclient.html#updatesudo" class="tsd-kind-icon">update<wbr>Sudo</a></li>
 							</ul>
 						</section>
@@ -116,7 +121,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:79</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:69</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -125,7 +130,19 @@
 								</div>
 								<dl class="tsd-comment-tags">
 									<dt>throws</dt>
-									<dd><p><a href="../classes/fatalerror.html">FatalError</a></p>
+									<dd><p>{@link IllegalStateError}</p>
+									</dd>
+									<dt>throws</dt>
+									<dd><p>{@link PolicyError}</p>
+									</dd>
+									<dt>throws</dt>
+									<dd><p>{@link ServiceError}</p>
+									</dd>
+									<dt>throws</dt>
+									<dd><p>{@link UnknownGraphQLError}</p>
+									</dd>
+									<dt>throws</dt>
+									<dd><p>{@link FatalError}</p>
 									</dd>
 								</dl>
 							</div>
@@ -153,7 +170,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:117</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:115</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -175,7 +192,13 @@
 								proof is issued, i.e. the user. &quot;aud&quot; is the target audience of the proof.</p>
 								<dl class="tsd-comment-tags">
 									<dt>throws</dt>
-									<dd><p><a href="../classes/fatalerror.html">FatalError</a></p>
+									<dd><p>{@link ServiceError}</p>
+									</dd>
+									<dt>throws</dt>
+									<dd><p>{@link UnknownGraphQLError}</p>
+									</dd>
+									<dt>throws</dt>
+									<dd><p>{@link FatalError}</p>
 									</dd>
 								</dl>
 							</div>
@@ -209,7 +232,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:138</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:143</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -218,7 +241,16 @@
 								</div>
 								<dl class="tsd-comment-tags">
 									<dt>throws</dt>
-									<dd><p><a href="../classes/fatalerror.html">FatalError</a></p>
+									<dd><p><a href="../classes/downloaderror.html">DownloadError</a></p>
+									</dd>
+									<dt>throws</dt>
+									<dd><p>{@link ServiceError}</p>
+									</dd>
+									<dt>throws</dt>
+									<dd><p>{@link UnknownGraphQLError}</p>
+									</dd>
+									<dt>throws</dt>
+									<dd><p>{@link FatalError}</p>
 									</dd>
 								</dl>
 							</div>
@@ -243,13 +275,24 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:127</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:129</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>Redeem a token to be granted additional entitlements.</p>
 								</div>
+								<dl class="tsd-comment-tags">
+									<dt>throws</dt>
+									<dd><p>{@link ServiceError}</p>
+									</dd>
+									<dt>throws</dt>
+									<dd><p>{@link UnknownGraphQLError}</p>
+									</dd>
+									<dt>throws</dt>
+									<dd><p>{@link FatalError}</p>
+									</dd>
+								</dl>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
@@ -272,6 +315,180 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="reset" class="tsd-anchor"></a>
+					<h3>reset</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">reset<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:148</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Reset any internal state and cached content.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="subscribe" class="tsd-anchor"></a>
+					<h3>subscribe</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">subscribe<span class="tsd-signature-symbol">(</span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, changeType<span class="tsd-signature-symbol">: </span><a href="../enums/changetype.html" class="tsd-signature-type">ChangeType</a>, subscriber<span class="tsd-signature-symbol">: </span><a href="sudosubscriber.html" class="tsd-signature-type">SudoSubscriber</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:171</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Subscribes to be notified of new, updated or deleted Sudos. Blob data is not downloaded automatically
+									so the caller is expected to use <code>listSudos</code> API if they need to access any associated blobs.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>throws</dt>
+									<dd><p>{@link NotSignedInError}</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>id: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>unique ID for the subscriber.</p>
+									</div>
+								</li>
+								<li>
+									<h5>changeType: <a href="../enums/changetype.html" class="tsd-signature-type">ChangeType</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>change type to subscribe to.</p>
+									</div>
+								</li>
+								<li>
+									<h5>subscriber: <a href="sudosubscriber.html" class="tsd-signature-type">SudoSubscriber</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>subscriber to notify.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="subscribeall" class="tsd-anchor"></a>
+					<h3>subscribe<wbr>All</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">subscribe<wbr>All<span class="tsd-signature-symbol">(</span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, subscriber<span class="tsd-signature-symbol">: </span><a href="sudosubscriber.html" class="tsd-signature-type">SudoSubscriber</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:159</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Subscribes to be notified of new, updated and deleted Sudos. Blob data is not downloaded automatically
+									so the caller is expected to use <code>listSudos</code> API if they need to access any associated blobs.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>throws</dt>
+									<dd><p>{@link NotSignedInError}</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>id: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>unique ID for the subscriber.</p>
+									</div>
+								</li>
+								<li>
+									<h5>subscriber: <a href="sudosubscriber.html" class="tsd-signature-type">SudoSubscriber</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>subscriber to notify.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="unsubscribe" class="tsd-anchor"></a>
+					<h3>unsubscribe</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">unsubscribe<span class="tsd-signature-symbol">(</span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, changeType<span class="tsd-signature-symbol">: </span><a href="../enums/changetype.html" class="tsd-signature-type">ChangeType</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:184</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Unsubscribes the specified subscriber so that it no longer receives notifications about
+									new, updated or deleted Sudos.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>id: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>unique ID for the subscriber.</p>
+									</div>
+								</li>
+								<li>
+									<h5>changeType: <a href="../enums/changetype.html" class="tsd-signature-type">ChangeType</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>change type to unsubscribe from.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="unsubscribeall" class="tsd-anchor"></a>
+					<h3>unsubscribe<wbr>All</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">unsubscribe<wbr>All<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:189</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Unsubscribe all subscribers from receiving notifications about new, updated or deleted Sudos.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
 					<a name="updatesudo" class="tsd-anchor"></a>
 					<h3>update<wbr>Sudo</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
@@ -281,7 +498,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:91</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:87</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -290,7 +507,25 @@
 								</div>
 								<dl class="tsd-comment-tags">
 									<dt>throws</dt>
-									<dd><p><a href="../classes/illegalargumentexception.html">IllegalArgumentException</a></p>
+									<dd><p>{@link IllegalArgumentException}</p>
+									</dd>
+									<dt>throws</dt>
+									<dd><p>{@link IllegalStateError}</p>
+									</dd>
+									<dt>throws</dt>
+									<dd><p>{@link VersionMismatchError}</p>
+									</dd>
+									<dt>throws</dt>
+									<dd><p><a href="../classes/uploaderror.html">UploadError</a></p>
+									</dd>
+									<dt>throws</dt>
+									<dd><p>{@link ServiceError}</p>
+									</dd>
+									<dt>throws</dt>
+									<dd><p>{@link UnknownGraphQLError}</p>
+									</dd>
+									<dt>throws</dt>
+									<dd><p>{@link FatalError}</p>
 									</dd>
 								</dl>
 							</div>
@@ -327,10 +562,13 @@
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
 					<li class=" tsd-kind-enum">
-						<a href="../enums/fetchoption.html" class="tsd-kind-icon">Fetch<wbr>Option</a>
+						<a href="../enums/changetype.html" class="tsd-kind-icon">Change<wbr>Type</a>
 					</li>
-					<li class=" tsd-kind-class">
-						<a href="../classes/conditionalcheckfailedexception.html" class="tsd-kind-icon">Conditional<wbr>Check<wbr>Failed<wbr>Exception</a>
+					<li class=" tsd-kind-enum">
+						<a href="../enums/connectionstate.html" class="tsd-kind-icon">Connection<wbr>State</a>
+					</li>
+					<li class=" tsd-kind-enum">
+						<a href="../enums/fetchoption.html" class="tsd-kind-icon">Fetch<wbr>Option</a>
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="../classes/defaultkeymanager.html" class="tsd-kind-icon">Default<wbr>Key<wbr>Manager</a>
@@ -339,34 +577,25 @@
 						<a href="../classes/defaultsudoprofilesclient.html" class="tsd-kind-icon">Default<wbr>Sudo<wbr>Profiles<wbr>Client</a>
 					</li>
 					<li class=" tsd-kind-class">
-						<a href="../classes/fatalerror.html" class="tsd-kind-icon">Fatal<wbr>Error</a>
+						<a href="../classes/deleteerror.html" class="tsd-kind-icon">Delete<wbr>Error</a>
 					</li>
 					<li class=" tsd-kind-class">
-						<a href="../classes/graphqlexception.html" class="tsd-kind-icon">Graph<wbr>QlException</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="../classes/illegalargumentexception.html" class="tsd-kind-icon">Illegal<wbr>Argument<wbr>Exception</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="../classes/internalserverexception.html" class="tsd-kind-icon">Internal<wbr>Server<wbr>Exception</a>
+						<a href="../classes/downloaderror.html" class="tsd-kind-icon">Download<wbr>Error</a>
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="../classes/keystore.html" class="tsd-kind-icon">Key<wbr>Store</a>
 					</li>
 					<li class=" tsd-kind-class">
-						<a href="../classes/keystoreexception.html" class="tsd-kind-icon">Key<wbr>Store<wbr>Exception</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="../classes/policyfailedexception.html" class="tsd-kind-icon">Policy<wbr>Failed<wbr>Exception</a>
+						<a href="../classes/keystoreerror.html" class="tsd-kind-icon">Key<wbr>Store<wbr>Error</a>
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="../classes/sudo.html" class="tsd-kind-icon">Sudo</a>
 					</li>
 					<li class=" tsd-kind-class">
-						<a href="../classes/sudonotfoundexception.html" class="tsd-kind-icon">Sudo<wbr>Not<wbr>Found<wbr>Exception</a>
+						<a href="../classes/sudonotfounderror.html" class="tsd-kind-icon">Sudo<wbr>Not<wbr>Found<wbr>Error</a>
 					</li>
 					<li class=" tsd-kind-class">
-						<a href="../classes/sudoprofileexception.html" class="tsd-kind-icon">Sudo<wbr>Profile<wbr>Exception</a>
+						<a href="../classes/uploaderror.html" class="tsd-kind-icon">Upload<wbr>Error</a>
 					</li>
 				</ul>
 				<ul class="current">
@@ -386,12 +615,30 @@
 								<a href="sudoprofilesclient.html#redeem" class="tsd-kind-icon">redeem</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="sudoprofilesclient.html#reset" class="tsd-kind-icon">reset</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="sudoprofilesclient.html#subscribe" class="tsd-kind-icon">subscribe</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="sudoprofilesclient.html#subscribeall" class="tsd-kind-icon">subscribe<wbr>All</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="sudoprofilesclient.html#unsubscribe" class="tsd-kind-icon">unsubscribe</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="sudoprofilesclient.html#unsubscribeall" class="tsd-kind-icon">unsubscribe<wbr>All</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
 								<a href="sudoprofilesclient.html#updatesudo" class="tsd-kind-icon">update<wbr>Sudo</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
+					<li class=" tsd-kind-interface">
+						<a href="sudosubscriber.html" class="tsd-kind-icon">Sudo<wbr>Subscriber</a>
+					</li>
 					<li class=" tsd-kind-variable">
 						<a href="../globals.html#graphql_error_conditional_check_failed" class="tsd-kind-icon">GRAPHQL_<wbr>ERROR_<wbr>CONDITIONAL_<wbr>CHECK_<wbr>FAILED</a>
 					</li>
@@ -405,10 +652,7 @@
 						<a href="../globals.html#graphql_error_sudo_not_found" class="tsd-kind-icon">GRAPHQL_<wbr>ERROR_<wbr>SUDO_<wbr>NOT_<wbr>FOUND</a>
 					</li>
 					<li class=" tsd-kind-function">
-						<a href="../globals.html#toplatformexceptionorthrow" class="tsd-kind-icon">to<wbr>Platform<wbr>Exception<wbr>OrThrow</a>
-					</li>
-					<li class=" tsd-kind-function">
-						<a href="../globals.html#tosudoprofileexception" class="tsd-kind-icon">to<wbr>Sudo<wbr>Profile<wbr>Exception</a>
+						<a href="../globals.html#graphqlerrorstoclienterror" class="tsd-kind-icon">graphQLErrors<wbr>ToClient<wbr>Error</a>
 					</li>
 				</ul>
 			</nav>

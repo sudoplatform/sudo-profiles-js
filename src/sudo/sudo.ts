@@ -9,6 +9,29 @@ export enum FetchOption {
    * Fetches Sudos from the backend and ignores any cached entries.
    */
   RemoteOnly = 'network-only',
+
+  /**
+   * Executes the full query against both the cache and your GraphQL server. The *query automatically updates if the result of the server-side * query modifies cached fields.
+   * Provides a fast response while also helping to keep cached data consistent  with server data.
+   */
+  CacheAndRemote = 'cache-and-network',
+
+  /**
+   * Similar to RemoteOnly except the query's result is not stored in the cache
+   */
+  NoCache = 'no-cache',
+
+  /**
+   * Executes the query against the cache. If all requested data is present in the cache, that data is returned. Otherwise, Apollo Client executes the query against your GraphQL server and returns that data after caching it.
+
+   * Prioritizes minimizing the number of network requests sent by your application.
+   * This is the default policy
+   */
+  CacheFirst = 'cache-first',
+}
+
+export enum ErrorOption {
+  All = 'all',
 }
 
 /**
@@ -27,9 +50,9 @@ export class StringClaimValue {
  * or a file to upload.
  */
 export class BlobClaimValue {
-  public value: URL | undefined = undefined
+  public value: string | undefined = undefined
   public file: File | undefined = undefined
-  constructor(val: URL, file?: File) {
+  constructor(val?: string, file?: File) {
     this.value = val
     this.file = file
   }
@@ -216,14 +239,20 @@ export class Sudo extends Base {
   public get avatar(): URL | undefined {
     return this._claims.get(Sudo.AVATAR)?.value.value as URL | undefined
   }
-  public set avatar(value: URL | undefined) {
+
+  public getAvatarFile(): File | undefined {
+    const blobClaim = this._claims.get(Sudo.AVATAR)?.value as BlobClaimValue
+    return !blobClaim ? undefined : blobClaim.file
+  }
+
+  public setAvatar(value: File): void {
     if (value) {
       this._claims.set(
         Sudo.AVATAR,
         new Claim(
           Sudo.AVATAR,
           ClaimVisibility.Private,
-          new BlobClaimValue(value),
+          new BlobClaimValue(undefined, value),
         ),
       )
     }

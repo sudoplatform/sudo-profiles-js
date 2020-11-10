@@ -14,7 +14,7 @@
     "lint:prettier": "prettier -l \"{bin,integration-tests,src}/**/*.{js,json,jsx,ts,tsx}\" --write ",
     "test": "yarn unit-test && yarn integration-test",
     "unit-test": "/bin/bash -c 'jest test/unit'",
-    "integration-test": "/bin/bash -c 'jest test/integration'",
+    "integration-test": "/bin/bash -c 'jest --runInBand test/integration' ",
     "build": "yarn clean && yarn build:gen && yarn build:transpile && yarn build:verify && yarn build:declarations && yarn build:docs",
     "build:gen": "graphql-codegen -c codegen.yml",
     "build:verify": "yarn audit && yarn lint",
@@ -51,11 +51,12 @@
     "io-ts": "^2.2.10",
     "io-ts-types": "^0.5.9",
     "jsonwebtoken": "^8.5.1",
+    "localforage": "^1.9.0",
     "lodash": "^4.17.19",
     "monocle-ts": "^2.3.3",
     "newtype-ts": "^0.3.4",
-    "node-localstorage": "^2.1.6",
-    "uuid": "^8.2.0"
+    "uuid": "^8.2.0",
+    "ws": "^7.3.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.5",
@@ -71,7 +72,7 @@
     "@graphql-codegen/typescript-operations": "^1.17.6",
     "@graphql-typed-document-node/apollo-client-2": "^0.0.1",
     "@sudoplatform/sudo-api-client": "^1.0.0",
-    "@sudoplatform/sudo-common": "^1.0.5",
+    "@sudoplatform/sudo-common": "^1.0.10",
     "@sudoplatform/sudo-user": "^1.0.11",
     "@types/jest": "^26.0.7",
     "@types/jsonwebtoken": "^8.5.0",
@@ -97,7 +98,7 @@
   },
   "peerDependencies": {
     "@sudoplatform/sudo-api-client": "^1.0.0",
-    "@sudoplatform/sudo-common": "^1.0.5",
+    "@sudoplatform/sudo-common": "^1.0.10",
     "@sudoplatform/sudo-user": "^1.0.11"
   }
 }

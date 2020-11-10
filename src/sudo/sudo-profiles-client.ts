@@ -1,42 +1,26 @@
+import { ApiClientConfig } from '@sudoplatform/sudo-api-client'
 import {
-  ApiClientConfig,
-  DefaultApiClientManager,
-} from '@sudoplatform/sudo-api-client'
-import { DefaultConfigurationManager } from '@sudoplatform/sudo-common'
+  DefaultConfigurationManager,
+  FatalError,
+  IllegalArgumentError,
+  IllegalStateError,
+  NotSignedInError,
+} from '@sudoplatform/sudo-common'
 import { SudoUserClient } from '@sudoplatform/sudo-user'
-import { InMemoryCache, NormalizedCacheObject } from 'apollo-cache-inmemory'
-import { AWSAppSyncClient } from 'aws-appsync'
+import localForage from 'localforage'
+import { ApiClient } from '../client/apiClient'
+import { IdentityServiceConfig } from '../core/identity-service-config'
 import { KeyManager } from '../core/key-manager'
-import { DefaultQueryCache, QueryCache } from '../core/query-cache'
+import { QueryCache } from '../core/query-cache'
 import { DefaultS3Client, S3Client } from '../core/s3Client'
 import {
-  CreateSudoDocument,
-  CreateSudoInput,
-  CreateSudoMutation,
-  CreateSudoMutationVariables,
-  GetOwnershipProofDocument,
-  GetOwnershipProofInput,
-  GetOwnershipProofMutation,
-  GetOwnershipProofMutationVariables,
-  ListSudosDocument,
-  ListSudosQuery,
-  RedeemTokenDocument,
-  RedeemTokenInput,
-  RedeemTokenMutation,
-  RedeemTokenMutationVariables,
+  OnCreateSudoSubscription,
+  OnDeleteSudoSubscription,
+  OnUpdateSudoSubscription,
   SecureClaimInput,
   SecureS3ObjectInput,
   Sudo as GQLSudo,
-  UpdateSudoDocument,
-  UpdateSudoInput,
-  UpdateSudoMutation,
-  UpdateSudoMutationVariables,
 } from '../gen/graphql-types'
-import {
-  FatalError,
-  IllegalArgumentException,
-  toPlatformExceptionOrThrow,
-} from '../global/error'
 import { AesSecurityProvider } from '../security/aesSecurityProvider'
 import {
   SecurityProvider,
@@ -44,6 +28,7 @@ import {
 } from '../security/securityProvider'
 import { Base64 } from '../utils/base64'
 import { Entitlement } from './entitlement'
+import { SubscriptionManager } from './SubscriptionManager'
 import {
   BlobClaimValue,
   Claim,
@@ -51,6 +36,7 @@ import {
   StringClaimValue,
   Sudo,
 } from './sudo'
+import { ChangeType, ConnectionState, SudoSubscriber } from './sudo-subscriber'
 
 export enum ClaimVisibility {
   /**
@@ -74,7 +60,11 @@ export interface SudoProfilesClient {
    *
    * @return Sudo: The new Sudo
    *
-   * @Throws {@link FatalError}
+   * @throws {@link IllegalStateError}
+   * @throws {@link PolicyError}
+   * @throws {@link ServiceError}
+   * @throws {@link UnknownGraphQLError}
+   * @throws {@link FatalError}
    */
   createSudo(sudo: Sudo): Promise<Sudo>
 
@@ -86,7 +76,13 @@ export interface SudoProfilesClient {
    *
    * @return Sudo: The updated Sudo
    *
-   * @Throws {@link IllegalArgumentException}
+   * @throws {@link IllegalArgumentException}
+   * @throws {@link IllegalStateError}
+   * @throws {@link VersionMismatchError}
+   * @throws {@link UploadError}
+   * @throws {@link ServiceError}
+   * @throws {@link UnknownGraphQLError}
+   * @throws {@link FatalError}
    */
   updateSudo(sudo: Sudo, keyId: string): Promise<Sudo>
 
@@ -112,7 +108,9 @@ export interface SudoProfilesClient {
    *
    *  @return String: The JWT
    *
-   *  @Throws {@link FatalError}
+   *  @throws {@link ServiceError}
+   *  @throws {@link UnknownGraphQLError}
+   *  @throws {@link FatalError}
    */
   getOwnershipProof(sudoId: string, audience: string): Promise<string>
 
@@ -123,6 +121,10 @@ export interface SudoProfilesClient {
    * @param type Token type. Currently only valid value is "entitlements" but this maybe extended in future.
    *
    * @return List<Entitlement>: A list of entitlements
+   *
+   *  @throws {@link ServiceError}
+   *  @throws {@link UnknownGraphQLError}
+   *  @throws {@link FatalError}
    */
   redeem(token: string, type: string): Promise<Entitlement[]>
 
@@ -133,59 +135,120 @@ export interface SudoProfilesClient {
    *
    * @return Sudo[]: An array of Sudos
    *
-   * @Throws {@link FatalError}
+   * @throws {@link DownloadError}
+   * @throws {@link ServiceError}
+   * @throws {@link UnknownGraphQLError}
+   * @throws {@link FatalError}
    */
   listSudos(fetchPolicy?: FetchOption): Promise<Sudo[]>
+
+  /**
+   * Reset any internal state and cached content.
+   */
+  reset(): Promise<void>
+
+  /**
+   * Subscribes to be notified of new, updated and deleted Sudos. Blob data is not downloaded automatically
+   * so the caller is expected to use `listSudos` API if they need to access any associated blobs.
+   *
+   * @param id unique ID for the subscriber.
+   * @param subscriber subscriber to notify.
+   *
+   * @throws {@link NotSignedInError}
+   */
+  subscribeAll(id: string, subscriber: SudoSubscriber): void
+
+  /**
+   * Subscribes to be notified of new, updated or deleted Sudos. Blob data is not downloaded automatically
+   * so the caller is expected to use `listSudos` API if they need to access any associated blobs.
+   *
+   * @param id unique ID for the subscriber.
+   * @param changeType change type to subscribe to.
+   * @param subscriber subscriber to notify.
+   *
+   * @throws {@link NotSignedInError}
+   */
+  subscribe(
+    id: string,
+    changeType: ChangeType,
+    subscriber: SudoSubscriber,
+  ): void
+
+  /**
+   * Unsubscribes the specified subscriber so that it no longer receives notifications about
+   * new, updated or deleted Sudos.
+   *
+   * @param id unique ID for the subscriber.
+   * @param changeType change type to unsubscribe from.
+   */
+  unsubscribe(id: string, changeType: ChangeType): void
+
+  /**
+   * Unsubscribe all subscribers from receiving notifications about new, updated or deleted Sudos.
+   */
+  unsubscribeAll(): void
 }
 
 export class DefaultSudoProfilesClient implements SudoProfilesClient {
-  private readonly _apiClient: AWSAppSyncClient<NormalizedCacheObject>
+  private readonly _apiClient: ApiClient
   private readonly _sudoUserClient: SudoUserClient
-  private readonly _config: ApiClientConfig
   private readonly _keyManager: KeyManager
   private readonly _s3Client: S3Client
-  private readonly _queryCache: QueryCache
   private readonly _securityProvider: SecurityProvider
+  private readonly _blobCache: LocalForage
+
+  private readonly _onCreateSudoSubscriptionManager: SubscriptionManager<
+    OnCreateSudoSubscription
+  >
+
+  private readonly _onUpdateSudoSubscriptionManager: SubscriptionManager<
+    OnUpdateSudoSubscription
+  >
+
+  private readonly _onDeleteSudoSubscriptionManager: SubscriptionManager<
+    OnDeleteSudoSubscription
+  >
 
   constructor(
     sudoUserClient: SudoUserClient,
     keyManager: KeyManager,
-    apiClient?: AWSAppSyncClient<NormalizedCacheObject>,
+    apiClient?: ApiClient,
     config?: ApiClientConfig,
     s3Client?: S3Client,
     queryCache?: QueryCache,
     securityProvider?: SecurityProvider,
+    blobCache?: LocalForage,
   ) {
     this._sudoUserClient = sudoUserClient
     this._keyManager = keyManager
 
-    this._config =
-      config ??
-      DefaultConfigurationManager.getInstance().bindConfigSet<ApiClientConfig>(
-        ApiClientConfig,
-        'apiService',
-      )
+    this._blobCache =
+      blobCache ??
+      localForage.createInstance({
+        name: 'sudoProfilesBlobCache',
+        driver: localForage.INDEXEDDB,
+      })
 
-    if (!apiClient) {
-      const defaultApiClientManager = DefaultApiClientManager.getInstance()
-        .setConfig(this._config)
-        .setAuthClient(this._sudoUserClient)
-        .getClient()
+    this._apiClient =
+      apiClient ??
+      new ApiClient(this._sudoUserClient, undefined, config, queryCache)
 
-      defaultApiClientManager.cache = new InMemoryCache()
-      this._apiClient = defaultApiClientManager
-    } else {
-      this._apiClient = apiClient
-    }
+    const identityServiceConfig = DefaultConfigurationManager.getInstance().bindConfigSet<
+      IdentityServiceConfig
+    >(IdentityServiceConfig, 'identityService')
 
-    //TODO: Setup S3Client if not passed in
     this._s3Client =
-      s3Client ?? new DefaultS3Client('some-region', 'some-bucket')
-
-    this._queryCache = queryCache ?? new DefaultQueryCache(this._apiClient)
+      s3Client ??
+      new DefaultS3Client(this._sudoUserClient, identityServiceConfig)
 
     this._securityProvider =
       securityProvider ?? new AesSecurityProvider(this._keyManager)
+
+    this._onCreateSudoSubscriptionManager = new SubscriptionManager<
+      OnCreateSudoSubscription
+    >()
+    this._onUpdateSudoSubscriptionManager = new SubscriptionManager()
+    this._onDeleteSudoSubscriptionManager = new SubscriptionManager()
   }
 
   public async createSudo(sudo: Sudo): Promise<Sudo> {
@@ -193,146 +256,111 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
 
     const keyId = await this.getSymmetricKeyId()
     if (!keyId) {
-      throw new IllegalArgumentException('Symmetric key missing.')
+      throw new IllegalStateError('Symmetric key missing.')
     }
 
-    try {
-      const input: CreateSudoInput = {
-        claims: [],
-        objects: [],
-      }
+    const createdSudo = await this._apiClient.createSudo({
+      claims: [],
+      objects: [],
+    })
 
-      const variables: CreateSudoMutationVariables = {
-        input,
-      }
+    sudo.id = createdSudo.id
+    sudo.version = createdSudo.version
+    sudo.createdAt = new Date(createdSudo.createdAtEpochMs)
+    sudo.updatedAt = new Date(createdSudo.updatedAtEpochMs)
 
-      const response = await this._apiClient.mutate<CreateSudoMutation>({
-        mutation: CreateSudoDocument,
-        variables,
-      })
-
-      const result = response.data?.createSudo
-      if (!result) {
-        throw new FatalError('Unexpected. No result data.')
-      } else {
-        sudo.id = result.id
-        sudo.version = result.version
-        sudo.createdAt = new Date(result.createdAtEpochMs)
-        sudo.updatedAt = new Date(result.updatedAtEpochMs)
-
-        return this.updateSudo(sudo)
-      }
-    } catch (error) {
-      throw toPlatformExceptionOrThrow(error)
-    }
+    return this.updateSudo(sudo)
   }
 
   public async updateSudo(sudo: Sudo): Promise<Sudo> {
     console.log('Updating Sudo.')
 
     if (!sudo.id) {
-      throw new IllegalArgumentException('Sudo ID was null')
+      throw new IllegalArgumentError('Sudo ID was null')
     }
 
     const keyId = await this.getSymmetricKeyId()
     if (!keyId) {
-      throw new IllegalArgumentException('Symmetric key missing.')
+      throw new IllegalStateError('Symmetric key missing.')
     }
 
-    try {
-      const secureClaims: Array<SecureClaimInput> = new Array<
-        SecureClaimInput
-      >()
-      const secureS3Objects: Array<SecureS3ObjectInput> = new Array<
-        SecureS3ObjectInput
-      >()
+    const secureClaims: Array<SecureClaimInput> = new Array<SecureClaimInput>()
+    const secureS3Objects: Array<SecureS3ObjectInput> = new Array<
+      SecureS3ObjectInput
+    >()
 
-      for (const [name, claim] of sudo.claims) {
-        if (claim.visibility === ClaimVisibility.Private) {
-          if (claim.value instanceof BlobClaimValue) {
-            if (claim.value.file) {
-              //TODO: store file in cache?
-
-              // Cache API
-              // is experimental and expected to change in the future
-              // Data doesn't expire in cache unless you delete it
-
-              // Web Storage (localstorage)
-              // is for name / value pairs and not good for large amounts of data (images)
-
-              // IndexedDB API
-              // Complex but a good candidate
-
-              try {
-                const data = await this.loadFileAsArray(claim.value.file)
-                if (!data) {
-                  console.log(
-                    'Could not load file for claim name: ' + claim.name,
-                  )
-                  continue
-                }
-
-                // const newClaim = new Claim(
-                //   name,
-                //   claim.visibility,
-                //   new BlobClaimValue(''),
-                // )
-                // sudo.claims.set(name, newClaim)
-
-                // const securityProvider = new AesSecurityProvider(this._keyStore)
-                // const encryptedData = await securityProvider.encrypt(keyId, data)
-
-                //TODO: upload to S3 bucket
-              } catch (error) {
-                //TODO: Remove blob from cache
-                throw error
-              }
-            }
-          } else if (claim.value instanceof StringClaimValue) {
-            if (!claim.value.value) {
+    for (const [name, claim] of sudo.claims) {
+      if (claim.visibility === ClaimVisibility.Private) {
+        if (claim.value instanceof BlobClaimValue) {
+          if (claim.value.file) {
+            const data = await this.loadFileAsArrayBuffer(claim.value.file)
+            if (!data) {
+              console.log('Could not load file for claim name: ' + claim.name)
               continue
             }
-            secureClaims.push(
-              await this.createSecureString(name, claim.value.value),
-            )
+
+            const cacheId = `sudo/${sudo.id}/${claim.name}`
+            await this._blobCache.setItem(cacheId, data)
+
+            try {
+              // Set claims value for viewing
+              const newClaim = new Claim(
+                name,
+                claim.visibility,
+                new BlobClaimValue(undefined, new File([data], cacheId)),
+              )
+              sudo.claims.set(name, newClaim)
+
+              // Setup blob claim for saving
+              const encryptedData = await this._securityProvider.encrypt(
+                keyId,
+                data,
+              )
+              const key = await this._s3Client.upload(encryptedData, cacheId)
+
+              const secureS3ObjectInput: SecureS3ObjectInput = {
+                name: name,
+                version: 1,
+                algorithm: SymmetricKeyEncryptionAlgorithm.AesCbcPkcs7Padding.toString(),
+                keyId: keyId,
+                bucket: this._s3Client.bucket,
+                region: this._s3Client.region,
+                key: key,
+              }
+              secureS3Objects.push(secureS3ObjectInput)
+            } catch (error) {
+              await this._blobCache.removeItem(cacheId)
+              throw error
+            }
           }
+        } else if (claim.value instanceof StringClaimValue) {
+          if (!claim.value.value) {
+            continue
+          }
+          secureClaims.push(
+            await this.createSecureString(name, claim.value.value),
+          )
         }
       }
-
-      console.log(`Creating sudo with ${secureClaims.length} claims`)
-
-      const input: UpdateSudoInput = {
-        id: sudo.id,
-        expectedVersion: sudo.version,
-        claims: secureClaims,
-        objects: secureS3Objects,
-      }
-
-      const variables: UpdateSudoMutationVariables = {
-        input,
-      }
-
-      const response = await this._apiClient.mutate<UpdateSudoMutation>({
-        mutation: UpdateSudoDocument,
-        variables,
-      })
-
-      const result = response.data?.updateSudo
-      if (!result) {
-        throw new FatalError('Mutation succeeded but output was null.')
-      } else {
-        sudo.id = result.id
-        sudo.version = result.version
-        sudo.createdAt = new Date(result.createdAtEpochMs)
-        sudo.updatedAt = new Date(result.updatedAtEpochMs)
-
-        await this._queryCache.add(result)
-
-        return sudo
-      }
-    } catch (error) {
-      throw toPlatformExceptionOrThrow(error)
     }
+
+    console.log(`Creating sudo with ${secureClaims.length} claims`)
+
+    const updatedSudo = await this._apiClient.updateSudo({
+      id: sudo.id,
+      expectedVersion: sudo.version,
+      claims: secureClaims,
+      objects: secureS3Objects,
+    })
+
+    sudo.id = updatedSudo.id
+    sudo.version = updatedSudo.version
+    sudo.createdAt = new Date(updatedSudo.createdAtEpochMs)
+    sudo.updatedAt = new Date(updatedSudo.updatedAtEpochMs)
+
+    await this._apiClient.queryCache.add(updatedSudo)
+
+    return sudo
   }
 
   public async getOwnershipProof(
@@ -341,84 +369,335 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
   ): Promise<string> {
     console.log('Calling getOwnerShipProof.')
 
-    try {
-      const input: GetOwnershipProofInput = {
-        sudoId,
-        audience,
-      }
+    const ownershipProof = await this._apiClient.getOwnershipProof({
+      sudoId,
+      audience,
+    })
 
-      const variables: GetOwnershipProofMutationVariables = {
-        input,
-      }
-
-      const response = await this._apiClient.mutate<GetOwnershipProofMutation>({
-        mutation: GetOwnershipProofDocument,
-        variables,
-      })
-
-      const result = response.data?.getOwnershipProof
-      if (!result) {
-        throw new FatalError('Unexpected: no result data.')
-      } else {
-        return result.jwt
-      }
-    } catch (error) {
-      throw toPlatformExceptionOrThrow(error)
-    }
+    return ownershipProof.jwt
   }
 
   public async redeem(token: string, type: string): Promise<Entitlement[]> {
     console.log('Redeeming a token')
 
-    try {
-      const input: RedeemTokenInput = {
-        token,
-        type,
-      }
+    const entitlement = await this._apiClient.redeem({
+      token,
+      type,
+    })
 
-      const variables: RedeemTokenMutationVariables = {
-        input,
-      }
-
-      const response = await this._apiClient.mutate<RedeemTokenMutation>({
-        mutation: RedeemTokenDocument,
-        variables,
-      })
-
-      const result = response.data?.redeemToken
-      if (!result) {
-        throw new FatalError('Mutation succeeded but output was null.')
-      } else {
-        return result.map((redeemToken) => {
-          return new Entitlement(redeemToken.name, redeemToken.value)
-        })
-      }
-    } catch (error) {
-      throw toPlatformExceptionOrThrow(error)
-    }
+    return entitlement.map((redeemToken) => {
+      return new Entitlement(redeemToken.name, redeemToken.value)
+    })
   }
 
   public async listSudos(fetchPolicy?: FetchOption): Promise<Sudo[]> {
     console.log('Listing Sudos.')
 
-    try {
-      const response = await this._apiClient.query<ListSudosQuery>({
-        query: ListSudosDocument,
-        fetchPolicy: fetchPolicy,
-      })
+    const sudos = await this._apiClient.listSudos(fetchPolicy)
 
-      let sudos: Sudo[] = []
-      const items = response.data?.listSudos?.items
-      if (items) {
-        sudos = await this.processListSudos(items, fetchPolicy)
-      } else {
-        throw new FatalError('Mutation succeeded but output was null.')
-      }
+    return sudos.length > 0
+      ? await this.processListSudos(sudos, fetchPolicy, true)
+      : []
+  }
 
-      return sudos
-    } catch (error) {
-      throw toPlatformExceptionOrThrow(error)
+  public async reset(): Promise<void> {
+    console.log('Resetting client.')
+
+    await this._apiClient.reset()
+    await this._blobCache.clear()
+  }
+
+  public subscribeAll(id: string, subscriber: SudoSubscriber): void {
+    this.subscribe(id, ChangeType.Create, subscriber)
+    this.subscribe(id, ChangeType.Update, subscriber)
+    this.subscribe(id, ChangeType.Delete, subscriber)
+  }
+
+  public subscribe(
+    id: string,
+    changeType: ChangeType,
+    subscriber: SudoSubscriber,
+  ): void {
+    console.log('Subscribing for Sudo change notifications.')
+
+    const owner = this._sudoUserClient.getSubject()
+    if (!owner) {
+      throw new NotSignedInError()
     }
+
+    switch (changeType) {
+      case ChangeType.Create:
+        this._onCreateSudoSubscriptionManager.replaceSubscriber(id, subscriber)
+        // if subscription manager watcher and subscription hasn't been setup yet
+        // create them and watch for sudo changes per `owner`
+        if (!this._onCreateSudoSubscriptionManager.watcher) {
+          this._onCreateSudoSubscriptionManager.watcher = this._apiClient.subscribeToOnCreateSudo(
+            owner,
+          )
+
+          this._onCreateSudoSubscriptionManager.subscription = this.executeCreateSudoSubscriptionWatcher()
+
+          this._onCreateSudoSubscriptionManager.connectionStatusChanged(
+            ConnectionState.Connected,
+          )
+        }
+        break
+      case ChangeType.Update:
+        this._onUpdateSudoSubscriptionManager.replaceSubscriber(id, subscriber)
+        // if subscription manager watcher and subscription hasn't been setup yet
+        // create them and watch for sudo changes per `owner`
+        if (!this._onUpdateSudoSubscriptionManager.watcher) {
+          this._onUpdateSudoSubscriptionManager.watcher = this._apiClient.subscribeToOnUpdateSudo(
+            owner,
+          )
+
+          this._onUpdateSudoSubscriptionManager.subscription = this.executeUpdateSudoSubscriptionWatcher()
+
+          this._onUpdateSudoSubscriptionManager.connectionStatusChanged(
+            ConnectionState.Connected,
+          )
+        }
+        break
+      case ChangeType.Delete:
+        this._onDeleteSudoSubscriptionManager.replaceSubscriber(id, subscriber)
+        // if subscription manager watcher and subscription hasn't been setup yet
+        // create them and watch for sudo changes per `owner`
+        if (!this._onDeleteSudoSubscriptionManager.watcher) {
+          this._onDeleteSudoSubscriptionManager.watcher = this._apiClient.subscribeToOnDeleteSudo(
+            owner,
+          )
+
+          this._onDeleteSudoSubscriptionManager.subscription = this.executeDeleteSudoSubscription()
+
+          this._onDeleteSudoSubscriptionManager.connectionStatusChanged(
+            ConnectionState.Connected,
+          )
+        }
+        break
+      default:
+    }
+  }
+
+  public unsubscribe(id: string, changeType: ChangeType): void {
+    console.log('Unsubscribing from Sudo change notifications.')
+
+    switch (changeType) {
+      case ChangeType.Create:
+        this._onCreateSudoSubscriptionManager.removeSubscriber(id)
+        break
+      case ChangeType.Update:
+        this._onUpdateSudoSubscriptionManager.removeSubscriber(id)
+        break
+      case ChangeType.Delete:
+        this._onDeleteSudoSubscriptionManager.removeSubscriber(id)
+        break
+    }
+  }
+
+  public unsubscribeAll(): void {
+    console.log('Unsubscribing all subscribers from Sudo change notifications.')
+
+    this._onCreateSudoSubscriptionManager.removeAllSubscribers()
+    this._onUpdateSudoSubscriptionManager.removeAllSubscribers()
+    this._onDeleteSudoSubscriptionManager.removeAllSubscribers()
+  }
+
+  private executeCreateSudoSubscriptionWatcher():
+    | ZenObservable.Subscription
+    | undefined {
+    const subscription = this._onCreateSudoSubscriptionManager.watcher?.subscribe(
+      {
+        complete: () => {
+          console.log('Completed onCreateSudo subscription')
+          // Subscription was terminated. Notify the subscribers.
+          this._onCreateSudoSubscriptionManager.connectionStatusChanged(
+            ConnectionState.Disconnected,
+          )
+        },
+        error: (error) => {
+          console.log('Failed to create a subscription', error)
+          //Notify the subscribers.
+          this._onCreateSudoSubscriptionManager.connectionStatusChanged(
+            ConnectionState.Disconnected,
+          )
+        },
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        next: async (result: any): Promise<void> => {
+          console.log('executing onCreateSudo subscription', result)
+          const data = (result.data as OnCreateSudoSubscription)?.onCreateSudo
+          if (!data) {
+            throw new FatalError(
+              'onCreateSudo subscription response contained error',
+            )
+          } else {
+            console.log('onCreateSudo subscription worked', data)
+            const items: GQLSudo[] = [data]
+            const sudos = await this.processListSudos(
+              items,
+              FetchOption.CacheOnly,
+              false,
+            )
+            if (sudos?.length > 0) {
+              // Add new item to cache
+              const sudo = sudos[0]
+              const cachedItems = await this._apiClient.getCachedQueryItems()
+              console.log(
+                `Found ${cachedItems?.length} in listsudosquery cache`,
+              )
+              if (cachedItems) {
+                cachedItems.push(items[0])
+
+                this._apiClient.replaceCachedQueryItems(cachedItems)
+              }
+
+              this._onCreateSudoSubscriptionManager.sudoChanged(
+                ChangeType.Create,
+                sudo,
+              )
+            } else {
+              console.log('No sudos found in cache')
+            }
+          }
+          return Promise.resolve()
+        },
+      },
+    )
+
+    return subscription
+  }
+
+  private executeUpdateSudoSubscriptionWatcher():
+    | ZenObservable.Subscription
+    | undefined {
+    const subscription = this._onUpdateSudoSubscriptionManager.watcher?.subscribe(
+      {
+        complete: () => {
+          console.log('Completed onUpdateSudo subscription')
+          // Subscription was terminated. Notify the subscribers.
+          this._onUpdateSudoSubscriptionManager.connectionStatusChanged(
+            ConnectionState.Disconnected,
+          )
+        },
+        error: (error) => {
+          console.log('Failed to update a subscription', error)
+          //Notify the subscribers.
+          this._onUpdateSudoSubscriptionManager.connectionStatusChanged(
+            ConnectionState.Disconnected,
+          )
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        next: async (result: any): Promise<void> => {
+          console.log('executing onUpdateSudo subscription', result)
+          const data = (result.data as OnUpdateSudoSubscription)?.onUpdateSudo
+          if (!data) {
+            throw new FatalError(
+              'onUpdateSudo subscription response contained error',
+            )
+          } else {
+            console.log('onUpdateSudo subscription worked', data)
+            const items: GQLSudo[] = [data]
+            const sudos = await this.processListSudos(
+              items,
+              FetchOption.CacheOnly,
+              false,
+            )
+
+            if (sudos?.length > 0) {
+              // Add new item to cache
+              const sudo = sudos[0]
+              const cachedItems = (
+                await this._apiClient.getCachedQueryItems()
+              ).filter((element) => {
+                return element.id !== items[0].id
+              })
+              console.log(
+                `Found ${cachedItems?.length} in listsudosquery cache`,
+              )
+              if (cachedItems) {
+                cachedItems.push(items[0])
+                this._apiClient.replaceCachedQueryItems(cachedItems)
+              }
+
+              this._onUpdateSudoSubscriptionManager.sudoChanged(
+                ChangeType.Update,
+                sudo,
+              )
+            } else {
+              console.log('No sudos found in cache')
+            }
+          }
+
+          return Promise.resolve()
+        },
+      },
+    )
+
+    return subscription
+  }
+
+  private executeDeleteSudoSubscription():
+    | ZenObservable.Subscription
+    | undefined {
+    const subscription = this._onDeleteSudoSubscriptionManager.watcher?.subscribe(
+      {
+        complete: () => {
+          console.log('Completed onDeleteSudo subscription')
+          // Subscription was terminated. Notify the subscribers.
+          this._onDeleteSudoSubscriptionManager.connectionStatusChanged(
+            ConnectionState.Disconnected,
+          )
+        },
+        error: (error) => {
+          console.log('Failed to update a subscription', error)
+          //Notify the subscribers.
+          this._onDeleteSudoSubscriptionManager.connectionStatusChanged(
+            ConnectionState.Disconnected,
+          )
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        next: async (result: any): Promise<void> => {
+          console.log('executing onDeleteSudo subscription', result)
+          const data = (result.data as OnDeleteSudoSubscription)?.onDeleteSudo
+          if (!data) {
+            throw new FatalError(
+              'onDeleteSudo subscription response contained error',
+            )
+          } else {
+            console.log('onDeleteSudo subscription worked', data)
+            const items: GQLSudo[] = [data]
+            const sudos = await this.processListSudos(
+              items,
+              FetchOption.CacheOnly,
+              false,
+            )
+            if (sudos?.length > 0) {
+              const sudo = sudos[0]
+              const cachedItems = await this._apiClient.getCachedQueryItems()
+              console.log(
+                `Found ${cachedItems?.length} in listsudosquery cache`,
+              )
+              if (cachedItems) {
+                this._apiClient.replaceCachedQueryItems(
+                  cachedItems.filter((element) => {
+                    return element.id !== sudo.id
+                  }),
+                )
+
+                this._onDeleteSudoSubscriptionManager.sudoChanged(
+                  ChangeType.Delete,
+                  sudo,
+                )
+              }
+            } else {
+              console.log('No sudos found in cache')
+            }
+          }
+          return Promise.resolve()
+        },
+      },
+    )
+    return subscription
   }
 
   /**
@@ -462,10 +741,51 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
         claimsMap,
       )
 
-      //TODO: Finish processing S3Object
       if (processS3Object) {
-        if (option === FetchOption.CacheOnly) {
-        } else {
+        console.log('Found S3objects to process: ', item.objects.length)
+        for (const secureObject of item.objects) {
+          // Check if we already have the S3 object in the cache. Return the cache entry
+          // if asked to fetch from cache but otherwise download the S3 object.
+          if (option === FetchOption.CacheOnly) {
+            const cacheId = this.getS3ObjectIdFromKey(secureObject.key)
+            if (!cacheId) {
+              console.log('Cannot determine the object ID from the key.')
+            } else {
+              const entry = (await this._blobCache.getItem(
+                cacheId,
+              )) as ArrayBuffer
+              if (entry) {
+                sudo.claims.set(
+                  secureObject.name,
+                  new Claim(
+                    secureObject.name,
+                    ClaimVisibility.Private,
+                    new BlobClaimValue(undefined, new File([entry], cacheId)),
+                  ),
+                )
+              }
+            }
+          } else {
+            const data = await this._s3Client.download(secureObject.key)
+            const decryptedData = await this._securityProvider.decrypt(
+              secureObject.keyId,
+              data,
+            )
+            const cacheId = this.getS3ObjectIdFromKey(secureObject.key)
+            if (!cacheId) {
+              throw new Error('Key not found for blob claim.')
+            }
+
+            await this._blobCache.setItem(cacheId, decryptedData)
+
+            const blobClaim = new Claim(
+              secureObject.name,
+              ClaimVisibility.Private,
+              new BlobClaimValue(undefined, new File([decryptedData], cacheId)),
+            )
+
+            sudo.claims.set(secureObject.name, blobClaim)
+          }
         }
       }
 
@@ -475,11 +795,21 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
     return sudos
   }
 
+  private getS3ObjectIdFromKey(key: string): string | undefined {
+    if (!key) {
+      return undefined
+    }
+    const components = key.split('/')
+    return components[components.length - 1]
+  }
+
   private async getSymmetricKeyId(): Promise<string | undefined> {
     return await this._keyManager.getSymmetricKeyId()
   }
 
-  private loadFileAsArray(file: File): Promise<ArrayBuffer | undefined> {
+  private async loadFileAsArrayBuffer(
+    file: File,
+  ): Promise<ArrayBuffer | undefined> {
     const reader = new FileReader()
 
     return new Promise((resolve, reject) => {

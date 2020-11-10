@@ -1,0 +1,29 @@
+subscription OnCreateSudo($owner: ID!) {
+  onCreateSudo(owner: $owner) {
+    id
+     claims {
+      name
+      version
+      algorithm
+      keyId
+      base64Data
+    }
+    objects {
+      name
+      version
+      algorithm
+      keyId
+      bucket
+      region
+      key
+    }
+    metadata {
+      name
+      value
+    }
+    createdAtEpochMs
+    updatedAtEpochMs
+    version
+    owner
+  }
+}

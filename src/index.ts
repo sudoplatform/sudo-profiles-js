@@ -4,6 +4,11 @@ export {
   DefaultSudoProfilesClient,
 } from './sudo/sudo-profiles-client'
 export { Sudo } from './sudo/sudo'
+export {
+  ChangeType,
+  ConnectionState,
+  SudoSubscriber,
+} from './sudo/sudo-subscriber'
 export { KeyStore } from './core/key-store'
 export { DefaultKeyManager } from './core/key-manager'
 export { FetchOption } from './sudo/sudo'

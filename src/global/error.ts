@@ -1,5 +1,10 @@
-import { ApolloError } from 'apollo-client'
-import { GraphQLError } from 'graphql'
+import {
+  AppSyncError,
+  PolicyError,
+  ServiceError,
+  UnknownGraphQLError,
+  VersionMismatchError,
+} from '@sudoplatform/sudo-common'
 
 export const GRAPHQL_ERROR_SUDO_NOT_FOUND = 'sudoplatform.sudo.SudoNotFound'
 export const GRAPHQL_ERROR_POLICY_ERROR = 'sudoplatform.PolicyFailed'
@@ -7,112 +12,67 @@ export const GRAPHQL_ERROR_CONDITIONAL_CHECK_FAILED =
   'DynamoDB:ConditionalCheckFailedException'
 export const GRAPHQL_ERROR_SERVER_ERROR = 'sudoplatform.sudo.ServerError'
 
-type AppSyncGraphQLError = GraphQLError & {
-  errorType?: string | null
-}
-
-type GraphQLErrorParent = ApolloError & {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  graphQLErrors?: any[] | null
-}
-
-/**
- * Error for wrapping exceptions such as `ApolloException` and all other `Exceptions`
- */
-export class FatalError extends Error {
-  constructor(message: string) {
-    super(message)
-    this.name = 'FatalError'
-  }
-}
-
-/**
- * Error when expected arguments are missing
- */
-export class IllegalArgumentException extends Error {
-  constructor(message: string) {
-    super(message)
-    this.name = 'IllegalArgumentException'
-  }
-}
-
 /**
  * Error when key not found in KeyStore
  */
-export class KeyStoreException extends Error {
+export class KeyStoreError extends Error {
   constructor(message: string) {
     super(message)
-    this.name = 'KeyStoreException'
+    this.name = 'KeyStoreError'
   }
 }
 
-export class SudoProfileException extends Error {}
-
-export class SudoNotFoundException extends SudoProfileException {
+/**
+ * Error when uploading a file to S3
+ */
+export class UploadError extends Error {
   constructor(message: string) {
     super(message)
-    this.name = 'SudoNotFoundException'
+    this.name = 'UploadError'
   }
 }
 
-export class PolicyFailedException extends SudoProfileException {
+/**
+ * Error when file not downloaded from S3
+ */
+export class DownloadError extends Error {
   constructor(message: string) {
     super(message)
-    this.name = 'PolicyFailedException'
+    this.name = 'DownloadError'
   }
 }
 
-export class ConditionalCheckFailedException extends SudoProfileException {
+/**
+ * Error when trying to delete a file from S3
+ */
+export class DeleteError extends Error {
   constructor(message: string) {
     super(message)
-    this.name = 'ConditionalCheckFailedException'
+    this.name = 'DeleteError'
   }
 }
 
-export class InternalServerException extends SudoProfileException {
+export class SudoNotFoundError extends Error {
   constructor(message: string) {
     super(message)
-    this.name = 'InternalServerException'
+    this.name = 'SudoNotFoundError'
   }
 }
 
-export class GraphQlException extends SudoProfileException {
-  constructor(message: string) {
-    super(message)
-    this.name = 'GraphQlException'
-  }
-}
-
-export function toSudoProfileException(
-  error: AppSyncGraphQLError,
-): SudoProfileException {
+export function graphQLErrorsToClientError(error: AppSyncError): Error {
+  console.log({ error }, 'GraphQL call failed.')
   const errorType = error.errorType
-  console.log(
-    `SudoProfileException: Type: ${errorType} Message: ${error.message}`,
-  )
+
   switch (errorType) {
     case GRAPHQL_ERROR_SUDO_NOT_FOUND:
-      return new SudoNotFoundException(error.message)
+      return new SudoNotFoundError(error.message)
     case GRAPHQL_ERROR_POLICY_ERROR:
-      return new PolicyFailedException(error.message)
+      return new PolicyError()
     case GRAPHQL_ERROR_CONDITIONAL_CHECK_FAILED:
-      return new ConditionalCheckFailedException(error.message)
+      return new VersionMismatchError()
     case GRAPHQL_ERROR_SERVER_ERROR:
-      return new InternalServerException(error.message)
+      return new ServiceError(error.message)
     default:
-      return new GraphQlException(error.message)
-  }
-}
-
-export function toPlatformExceptionOrThrow(error: Error): Error {
-  const graphError = error as GraphQLErrorParent
-
-  if (graphError.graphQLErrors) {
-    return toSudoProfileException(graphError.graphQLErrors[0])
-  } else if (error instanceof ApolloError) {
-    return toSudoProfileException(error.graphQLErrors[0])
-  } else {
-    console.log(error.message)
-    return new FatalError(error.message)
+      return new UnknownGraphQLError(error)
   }
 }

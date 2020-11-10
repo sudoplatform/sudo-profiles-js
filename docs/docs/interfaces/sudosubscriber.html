@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>FetchOption | @sudoplatform/sudo-profiles</title>
+	<title>SudoSubscriber | @sudoplatform/sudo-profiles</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -56,112 +56,116 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="fetchoption.html">FetchOption</a>
+					<a href="sudosubscriber.html">SudoSubscriber</a>
 				</li>
 			</ul>
-			<h1>Enumeration FetchOption</h1>
+			<h1>Interface SudoSubscriber</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Subscriber for receiving notifications about new, updated or deleted Sudo.</p>
+					</div>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="target">SudoSubscriber</span>
+					</li>
+				</ul>
+			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
-							<h3>Enumeration members</h3>
+							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="fetchoption.html#cacheandremote" class="tsd-kind-icon">Cache<wbr>And<wbr>Remote</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="fetchoption.html#cachefirst" class="tsd-kind-icon">Cache<wbr>First</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="fetchoption.html#cacheonly" class="tsd-kind-icon">Cache<wbr>Only</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="fetchoption.html#nocache" class="tsd-kind-icon">No<wbr>Cache</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="fetchoption.html#remoteonly" class="tsd-kind-icon">Remote<wbr>Only</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="sudosubscriber.html#connectionstatuschanged" class="tsd-kind-icon">connection<wbr>Status<wbr>Changed</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="sudosubscriber.html#sudochanged" class="tsd-kind-icon">sudo<wbr>Changed</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Enumeration members</h2>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="cacheandremote" class="tsd-anchor"></a>
-					<h3>Cache<wbr>And<wbr>Remote</h3>
-					<div class="tsd-signature tsd-kind-icon">Cache<wbr>And<wbr>Remote<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;cache-and-network&quot;</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in src/sudo/sudo.ts:17</li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Executes the full query against both the cache and your GraphQL server. The *query automatically updates if the result of the server-side * query modifies cached fields.
-							Provides a fast response while also helping to keep cached data consistent  with server data.</p>
-						</div>
-					</div>
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="connectionstatuschanged" class="tsd-anchor"></a>
+					<h3>connection<wbr>Status<wbr>Changed</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">connection<wbr>Status<wbr>Changed<span class="tsd-signature-symbol">(</span>state<span class="tsd-signature-symbol">: </span><a href="../enums/connectionstate.html" class="tsd-signature-type">ConnectionState</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in src/sudo/sudo-subscriber.ts:55</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Notifies the subscriber that the subscription connection state has changed. The subscriber won&#39;t be
+										notified of Sudo changes until the connection status changes to [ConnectionState.CONNECTED]. The subscriber will
+									stop receiving Sudo change notifications when the connection state changes to [ConnectionState.DISCONNECTED].</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>state: <a href="../enums/connectionstate.html" class="tsd-signature-type">ConnectionState</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>connection state.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="cachefirst" class="tsd-anchor"></a>
-					<h3>Cache<wbr>First</h3>
-					<div class="tsd-signature tsd-kind-icon">Cache<wbr>First<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;cache-first&quot;</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in src/sudo/sudo.ts:30</li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Executes the query against the cache. If all requested data is present in the cache, that data is returned. Otherwise, Apollo Client executes the query against your GraphQL server and returns that data after caching it.</p>
-						</div>
-						<p>Prioritizes minimizing the number of network requests sent by your application.
-						This is the default policy</p>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="cacheonly" class="tsd-anchor"></a>
-					<h3>Cache<wbr>Only</h3>
-					<div class="tsd-signature tsd-kind-icon">Cache<wbr>Only<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;cache-only&quot;</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in src/sudo/sudo.ts:7</li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Returns Sudos from the local cache only.</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="nocache" class="tsd-anchor"></a>
-					<h3>No<wbr>Cache</h3>
-					<div class="tsd-signature tsd-kind-icon">No<wbr>Cache<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;no-cache&quot;</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in src/sudo/sudo.ts:22</li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Similar to RemoteOnly except the query&#39;s result is not stored in the cache</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="remoteonly" class="tsd-anchor"></a>
-					<h3>Remote<wbr>Only</h3>
-					<div class="tsd-signature tsd-kind-icon">Remote<wbr>Only<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;network-only&quot;</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in src/sudo/sudo.ts:11</li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Fetches Sudos from the backend and ignores any cached entries.</p>
-						</div>
-					</div>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="sudochanged" class="tsd-anchor"></a>
+					<h3>sudo<wbr>Changed</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">sudo<wbr>Changed<span class="tsd-signature-symbol">(</span>changeType<span class="tsd-signature-symbol">: </span><a href="../enums/changetype.html" class="tsd-signature-type">ChangeType</a>, sudo<span class="tsd-signature-symbol">: </span><a href="../classes/sudo.html" class="tsd-signature-type">Sudo</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in src/sudo/sudo-subscriber.ts:47</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Notifies the subscriber of a new, updated or deleted Sudo.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>changeType: <a href="../enums/changetype.html" class="tsd-signature-type">ChangeType</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>change type. Please refer to [ChangeType] enum.</p>
+									</div>
+								</li>
+								<li>
+									<h5>sudo: <a href="../classes/sudo.html" class="tsd-signature-type">Sudo</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>new, updated or deleted Sudo.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
 				</section>
 			</section>
 		</div>
@@ -176,35 +180,14 @@
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
 					<li class=" tsd-kind-enum">
-						<a href="changetype.html" class="tsd-kind-icon">Change<wbr>Type</a>
+						<a href="../enums/changetype.html" class="tsd-kind-icon">Change<wbr>Type</a>
 					</li>
 					<li class=" tsd-kind-enum">
-						<a href="connectionstate.html" class="tsd-kind-icon">Connection<wbr>State</a>
+						<a href="../enums/connectionstate.html" class="tsd-kind-icon">Connection<wbr>State</a>
 					</li>
-				</ul>
-				<ul class="current">
-					<li class="current tsd-kind-enum">
-						<a href="fetchoption.html" class="tsd-kind-icon">Fetch<wbr>Option</a>
-						<ul>
-							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="fetchoption.html#cacheandremote" class="tsd-kind-icon">Cache<wbr>And<wbr>Remote</a>
-							</li>
-							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="fetchoption.html#cachefirst" class="tsd-kind-icon">Cache<wbr>First</a>
-							</li>
-							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="fetchoption.html#cacheonly" class="tsd-kind-icon">Cache<wbr>Only</a>
-							</li>
-							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="fetchoption.html#nocache" class="tsd-kind-icon">No<wbr>Cache</a>
-							</li>
-							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="fetchoption.html#remoteonly" class="tsd-kind-icon">Remote<wbr>Only</a>
-							</li>
-						</ul>
+					<li class=" tsd-kind-enum">
+						<a href="../enums/fetchoption.html" class="tsd-kind-icon">Fetch<wbr>Option</a>
 					</li>
-				</ul>
-				<ul class="after-current">
 					<li class=" tsd-kind-class">
 						<a href="../classes/defaultkeymanager.html" class="tsd-kind-icon">Default<wbr>Key<wbr>Manager</a>
 					</li>
@@ -233,11 +216,23 @@
 						<a href="../classes/uploaderror.html" class="tsd-kind-icon">Upload<wbr>Error</a>
 					</li>
 					<li class=" tsd-kind-interface">
-						<a href="../interfaces/sudoprofilesclient.html" class="tsd-kind-icon">Sudo<wbr>Profiles<wbr>Client</a>
+						<a href="sudoprofilesclient.html" class="tsd-kind-icon">Sudo<wbr>Profiles<wbr>Client</a>
 					</li>
-					<li class=" tsd-kind-interface">
-						<a href="../interfaces/sudosubscriber.html" class="tsd-kind-icon">Sudo<wbr>Subscriber</a>
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-interface">
+						<a href="sudosubscriber.html" class="tsd-kind-icon">Sudo<wbr>Subscriber</a>
+						<ul>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="sudosubscriber.html#connectionstatuschanged" class="tsd-kind-icon">connection<wbr>Status<wbr>Changed</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="sudosubscriber.html#sudochanged" class="tsd-kind-icon">sudo<wbr>Changed</a>
+							</li>
+						</ul>
 					</li>
+				</ul>
+				<ul class="after-current">
 					<li class=" tsd-kind-variable">
 						<a href="../globals.html#graphql_error_conditional_check_failed" class="tsd-kind-icon">GRAPHQL_<wbr>ERROR_<wbr>CONDITIONAL_<wbr>CHECK_<wbr>FAILED</a>
 					</li>

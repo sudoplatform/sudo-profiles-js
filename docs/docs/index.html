@@ -64,6 +64,44 @@
 	<div class="row">
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
+				<a href="#sudo-profiles-sdk-for-web" id="sudo-profiles-sdk-for-web" style="color: inherit; text-decoration: none;">
+					<h1>Sudo Profiles SDK for Web</h1>
+				</a>
+				<a href="#project-setup" id="project-setup" style="color: inherit; text-decoration: none;">
+					<h2>Project Setup</h2>
+				</a>
+				<p><strong>Cloning this repo</strong></p>
+				<p>To clone this repo along with the submodule linkage execute this command:</p>
+				<p><code>git clone --recurse-submodules git@gitlab.tools.anonyome.com:platform/identity/sudo-profiles-web.git</code></p>
+				<p><strong>Getting the latest</strong></p>
+				<p><code>git pull --recurse-submodules</code></p>
+				<p><strong>Installing Dependencies</strong></p>
+				<p><code>yarn install</code></p>
+				<p><strong>Build Solution</strong></p>
+				<p><code>yarn build</code></p>
+				<a href="#setup-integration-tests" id="setup-integration-tests" style="color: inherit; text-decoration: none;">
+					<h2>Setup integration tests</h2>
+				</a>
+				<p>Visit the <a href="https://sudoplatform.com/docs">Sudos section</a> of the Sudo Platform Developer Docs for SDK integration instructions.</p>
+				<a href="#running-unit-and-integration-tests" id="running-unit-and-integration-tests" style="color: inherit; text-decoration: none;">
+					<h2>Running Unit and Integration tests</h2>
+				</a>
+				<p><code>yarn test</code></p>
+				<a href="#release-procedure" id="release-procedure" style="color: inherit; text-decoration: none;">
+					<h2>Release Procedure</h2>
+				</a>
+				<p><strong>Publish Internal</strong></p>
+				<p>For new releases that contain new functionality we should publish internally first before publishing to Github.</p>
+				<p>To publish a new version of Sudo Profiles SDK for Web for internal consumption:</p>
+				<ul>
+					<li>Create a new tag from master branch with the following naming <code>/alpha$/</code></li>
+				</ul>
+				<p><strong>Publish External</strong></p>
+				<p>For new releases that contain bug fixes or that have been through a <code>publish internal</code> procedure and have been signed off.</p>
+				<p>To publish a new version of Sudo Profiles SDK for Web to Github for external consumption:</p>
+				<ul>
+					<li>Create a new tag from master with the release version. ie <code>1.0.0</code></li>
+				</ul>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -77,10 +115,13 @@
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
 					<li class=" tsd-kind-enum">
-						<a href="enums/fetchoption.html" class="tsd-kind-icon">Fetch<wbr>Option</a>
+						<a href="enums/changetype.html" class="tsd-kind-icon">Change<wbr>Type</a>
 					</li>
-					<li class=" tsd-kind-class">
-						<a href="classes/conditionalcheckfailedexception.html" class="tsd-kind-icon">Conditional<wbr>Check<wbr>Failed<wbr>Exception</a>
+					<li class=" tsd-kind-enum">
+						<a href="enums/connectionstate.html" class="tsd-kind-icon">Connection<wbr>State</a>
+					</li>
+					<li class=" tsd-kind-enum">
+						<a href="enums/fetchoption.html" class="tsd-kind-icon">Fetch<wbr>Option</a>
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="classes/defaultkeymanager.html" class="tsd-kind-icon">Default<wbr>Key<wbr>Manager</a>
@@ -89,37 +130,31 @@
 						<a href="classes/defaultsudoprofilesclient.html" class="tsd-kind-icon">Default<wbr>Sudo<wbr>Profiles<wbr>Client</a>
 					</li>
 					<li class=" tsd-kind-class">
-						<a href="classes/fatalerror.html" class="tsd-kind-icon">Fatal<wbr>Error</a>
+						<a href="classes/deleteerror.html" class="tsd-kind-icon">Delete<wbr>Error</a>
 					</li>
 					<li class=" tsd-kind-class">
-						<a href="classes/graphqlexception.html" class="tsd-kind-icon">Graph<wbr>QlException</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="classes/illegalargumentexception.html" class="tsd-kind-icon">Illegal<wbr>Argument<wbr>Exception</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="classes/internalserverexception.html" class="tsd-kind-icon">Internal<wbr>Server<wbr>Exception</a>
+						<a href="classes/downloaderror.html" class="tsd-kind-icon">Download<wbr>Error</a>
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="classes/keystore.html" class="tsd-kind-icon">Key<wbr>Store</a>
 					</li>
 					<li class=" tsd-kind-class">
-						<a href="classes/keystoreexception.html" class="tsd-kind-icon">Key<wbr>Store<wbr>Exception</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="classes/policyfailedexception.html" class="tsd-kind-icon">Policy<wbr>Failed<wbr>Exception</a>
+						<a href="classes/keystoreerror.html" class="tsd-kind-icon">Key<wbr>Store<wbr>Error</a>
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="classes/sudo.html" class="tsd-kind-icon">Sudo</a>
 					</li>
 					<li class=" tsd-kind-class">
-						<a href="classes/sudonotfoundexception.html" class="tsd-kind-icon">Sudo<wbr>Not<wbr>Found<wbr>Exception</a>
+						<a href="classes/sudonotfounderror.html" class="tsd-kind-icon">Sudo<wbr>Not<wbr>Found<wbr>Error</a>
 					</li>
 					<li class=" tsd-kind-class">
-						<a href="classes/sudoprofileexception.html" class="tsd-kind-icon">Sudo<wbr>Profile<wbr>Exception</a>
+						<a href="classes/uploaderror.html" class="tsd-kind-icon">Upload<wbr>Error</a>
 					</li>
 					<li class=" tsd-kind-interface">
 						<a href="interfaces/sudoprofilesclient.html" class="tsd-kind-icon">Sudo<wbr>Profiles<wbr>Client</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/sudosubscriber.html" class="tsd-kind-icon">Sudo<wbr>Subscriber</a>
 					</li>
 					<li class=" tsd-kind-variable">
 						<a href="globals.html#graphql_error_conditional_check_failed" class="tsd-kind-icon">GRAPHQL_<wbr>ERROR_<wbr>CONDITIONAL_<wbr>CHECK_<wbr>FAILED</a>
@@ -134,10 +169,7 @@
 						<a href="globals.html#graphql_error_sudo_not_found" class="tsd-kind-icon">GRAPHQL_<wbr>ERROR_<wbr>SUDO_<wbr>NOT_<wbr>FOUND</a>
 					</li>
 					<li class=" tsd-kind-function">
-						<a href="globals.html#toplatformexceptionorthrow" class="tsd-kind-icon">to<wbr>Platform<wbr>Exception<wbr>OrThrow</a>
-					</li>
-					<li class=" tsd-kind-function">
-						<a href="globals.html#tosudoprofileexception" class="tsd-kind-icon">to<wbr>Sudo<wbr>Profile<wbr>Exception</a>
+						<a href="globals.html#graphqlerrorstoclienterror" class="tsd-kind-icon">graphQLErrors<wbr>ToClient<wbr>Error</a>
 					</li>
 				</ul>
 			</nav>
