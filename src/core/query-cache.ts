@@ -1,10 +1,10 @@
+import { Logger, UnknownGraphQLError } from '@sudoplatform/sudo-common'
 import { NormalizedCacheObject } from 'apollo-cache-inmemory'
 import AWSAppSyncClient from 'aws-appsync'
 import { cloneDeep } from 'lodash'
-import { ListSudosQuery, ListSudosDocument, Sudo } from '../gen/graphql-types'
+import { ListSudosDocument, ListSudosQuery, Sudo } from '../gen/graphql-types'
 import { graphQLErrorsToClientError } from '../global/error'
 import { FetchOption } from '../sudo/sudo'
-import { UnknownGraphQLError } from '@sudoplatform/sudo-common'
 
 /**
  * Wrapper interface for GraphQL client cache operations.
@@ -19,19 +19,24 @@ export interface QueryCache {
 }
 
 export class DefaultQueryCache implements QueryCache {
-  constructor(private client: AWSAppSyncClient<NormalizedCacheObject>) {}
+  private readonly _client: AWSAppSyncClient<NormalizedCacheObject>
+  private readonly _logger: Logger
+  constructor(client: AWSAppSyncClient<NormalizedCacheObject>, logger: Logger) {
+    this._client = client
+    this._logger = logger
+  }
 
   public async add(item: Sudo): Promise<void> {
     let cachedData
     try {
-      cachedData = await this.client.query<ListSudosQuery>({
+      cachedData = await this._client.query<ListSudosQuery>({
         query: ListSudosDocument,
         fetchPolicy: FetchOption.CacheOnly,
       })
     } catch (err) {
       const error = err.graphQLErrors?.[0]
       if (error) {
-        throw graphQLErrorsToClientError(error)
+        throw graphQLErrorsToClientError(error, this._logger)
       } else {
         throw new UnknownGraphQLError(error)
       }
@@ -56,7 +61,7 @@ export class DefaultQueryCache implements QueryCache {
       },
     }
 
-    this.client.writeQuery({
+    this._client.writeQuery({
       query: ListSudosDocument,
       data: mappedData,
     })

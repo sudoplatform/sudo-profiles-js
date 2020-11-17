@@ -116,13 +116,13 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Default<wbr>Sudo<wbr>Profiles<wbr>Client<span class="tsd-signature-symbol">(</span>sudoUserClient<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">SudoUserClient</span>, keyManager<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">KeyManager</span>, apiClient<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">ApiClient</span>, config<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">ApiClientConfig</span>, s3Client<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">S3Client</span>, queryCache<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">QueryCache</span>, securityProvider<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">SecurityProvider</span>, blobCache<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">LocalForage</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="defaultsudoprofilesclient.html" class="tsd-signature-type">DefaultSudoProfilesClient</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Default<wbr>Sudo<wbr>Profiles<wbr>Client<span class="tsd-signature-symbol">(</span>sudoUserClient<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">SudoUserClient</span>, keyManager<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">KeyManager</span>, apiClient<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">ApiClient</span>, s3Client<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">S3Client</span>, securityProvider<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">SecurityProvider</span>, blobCache<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">LocalForage</span>, logger<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Logger</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="defaultsudoprofilesclient.html" class="tsd-signature-type">DefaultSudoProfilesClient</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:224</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:231</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -137,19 +137,16 @@
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> apiClient: <span class="tsd-signature-type">ApiClient</span></h5>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> config: <span class="tsd-signature-type">ApiClientConfig</span></h5>
-								</li>
-								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> s3Client: <span class="tsd-signature-type">S3Client</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> queryCache: <span class="tsd-signature-type">QueryCache</span></h5>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> securityProvider: <span class="tsd-signature-type">SecurityProvider</span></h5>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> blobCache: <span class="tsd-signature-type">LocalForage</span></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> logger: <span class="tsd-signature-type">Logger</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="defaultsudoprofilesclient.html" class="tsd-signature-type">DefaultSudoProfilesClient</a></h4>
@@ -169,7 +166,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:882</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:917</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -196,7 +193,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/sudoprofilesclient.html">SudoProfilesClient</a>.<a href="../interfaces/sudoprofilesclient.html#createsudo">createSudo</a></p>
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:268</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:301</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -220,7 +217,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/sudoprofilesclient.html">SudoProfilesClient</a>.<a href="../interfaces/sudoprofilesclient.html#deletesudo">deleteSudo</a></p>
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:580</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:615</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -244,7 +241,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/sudoprofilesclient.html">SudoProfilesClient</a>.<a href="../interfaces/sudoprofilesclient.html#getownershipproof">getOwnershipProof</a></p>
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:376</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:409</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -271,7 +268,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/sudoprofilesclient.html">SudoProfilesClient</a>.<a href="../interfaces/sudoprofilesclient.html#listsudos">listSudos</a></p>
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:403</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:436</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -295,7 +292,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/sudoprofilesclient.html">SudoProfilesClient</a>.<a href="../interfaces/sudoprofilesclient.html#redeem">redeem</a></p>
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:390</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:423</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -322,7 +319,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/sudoprofilesclient.html">SudoProfilesClient</a>.<a href="../interfaces/sudoprofilesclient.html#reset">reset</a></p>
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:413</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:446</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -340,7 +337,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/sudoprofilesclient.html">SudoProfilesClient</a>.<a href="../interfaces/sudoprofilesclient.html#subscribe">subscribe</a></p>
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:426</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:459</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -370,7 +367,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/sudoprofilesclient.html">SudoProfilesClient</a>.<a href="../interfaces/sudoprofilesclient.html#subscribeall">subscribeAll</a></p>
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:420</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:453</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -397,7 +394,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/sudoprofilesclient.html">SudoProfilesClient</a>.<a href="../interfaces/sudoprofilesclient.html#unsubscribe">unsubscribe</a></p>
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:491</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:524</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -424,7 +421,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/sudoprofilesclient.html">SudoProfilesClient</a>.<a href="../interfaces/sudoprofilesclient.html#unsubscribeall">unsubscribeAll</a></p>
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:507</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:540</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -441,7 +438,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:289</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:322</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>

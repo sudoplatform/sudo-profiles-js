@@ -1,3 +1,4 @@
+import { Logger } from '@sudoplatform/sudo-common'
 import { SudoUserClient } from '@sudoplatform/sudo-user'
 import { CognitoIdentityCredentials } from 'aws-sdk'
 import S3, { ManagedUpload } from 'aws-sdk/clients/s3'
@@ -59,10 +60,12 @@ export class DefaultS3Client implements S3Client {
   private readonly _identityPoolId: string
   private readonly _sudoUserClient: SudoUserClient
   private readonly _providerName: string
+  private readonly _logger: Logger
 
   constructor(
     sudoUserClient: SudoUserClient,
     identityServiceConfig: IdentityServiceConfig,
+    logger: Logger,
   ) {
     this._region = identityServiceConfig.region
     this._bucket = identityServiceConfig.bucket
@@ -70,6 +73,7 @@ export class DefaultS3Client implements S3Client {
     this._providerName = `cognito-idp.${this._region}.amazonaws.com/${identityServiceConfig.poolId}`
 
     this._sudoUserClient = sudoUserClient
+    this._logger = logger
   }
 
   public get bucket(): string {
@@ -114,7 +118,7 @@ export class DefaultS3Client implements S3Client {
   }
 
   public async upload(data: ArrayBuffer, objectId: string): Promise<string> {
-    console.log('Uploading a blob to S3.')
+    this._logger.info('Uploading a blob to S3.')
 
     const initData = await this.getInitData()
     const s3Client = initData[0]
@@ -122,7 +126,9 @@ export class DefaultS3Client implements S3Client {
 
     const identityId = credentialProvider.identityId
     const key = `${identityId}/${objectId}`
-    console.log(`Uploading to - bucket: ${this._bucket}, blob key: ${key}`)
+    this._logger.info(
+      `Uploading to - bucket: ${this._bucket}, blob key: ${key}`,
+    )
 
     const bufferData = Buffer.from(data)
 
@@ -138,13 +144,13 @@ export class DefaultS3Client implements S3Client {
     })
 
     managedUpload.on('httpUploadProgress', (progress) => {
-      console.log(progress)
+      this._logger.info(progress, 'httpUploadProgress')
       this._progressEvents.push(progress)
     })
 
     try {
       const response = await managedUpload.promise()
-      console.log('Upload response: ', response)
+      this._logger.info('Upload response: ', response)
       return response.Key
     } catch (error) {
       throw new S3UploadError(error.message)
@@ -152,7 +158,7 @@ export class DefaultS3Client implements S3Client {
   }
 
   public async download(key: string): Promise<ArrayBuffer> {
-    console.log('Downloading a blob from S3 at key: ' + key)
+    this._logger.info('Downloading a blob from S3.')
 
     const initData = await this.getInitData()
     const s3Client = initData[0]
@@ -177,13 +183,13 @@ export class DefaultS3Client implements S3Client {
         throw new S3DownloadError('Object type is not supported in browser.')
       }
     } catch (error) {
-      console.log(error)
+      this._logger.error(error)
       throw new S3DownloadError(error.message)
     }
   }
 
   public async delete(objectId: string): Promise<void> {
-    console.log('Deleting a blob from S3.')
+    this._logger.info('Deleting a blob from S3.')
 
     const initData = await this.getInitData()
     const s3Client = initData[0]
@@ -195,9 +201,8 @@ export class DefaultS3Client implements S3Client {
         Bucket: this._bucket,
         Key: key,
       }
-      console.log('Deleting: ', key)
-      const response = await s3Client.deleteObject(params).promise()
-      console.log(response)
+      this._logger.info('Deleting: ', key)
+      await s3Client.deleteObject(params).promise()
     } catch (error) {
       throw new S3DeleteError(error.message)
     }

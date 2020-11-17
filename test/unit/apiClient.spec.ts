@@ -4,6 +4,7 @@ import {
   PolicyError,
   ServiceError,
   VersionMismatchError,
+  getLogger,
 } from '@sudoplatform/sudo-common'
 import { DefaultSudoUserClient } from '@sudoplatform/sudo-user'
 import { ApolloError } from 'apollo-client'
@@ -11,6 +12,7 @@ import { AWSAppsyncGraphQLError } from 'aws-appsync/lib/types'
 import { GraphQLError } from 'graphql'
 import config from '../../config/sudoplatformconfig.json'
 import { ApiClient } from '../../src/client/apiClient'
+import { DefaultQueryCache } from '../../src/core/query-cache'
 import {
   CreateSudoDocument,
   GetOwnershipProofDocument,
@@ -41,8 +43,14 @@ const client = {
   mutate: jest.fn(),
   query: jest.fn(),
 }
+const logger = getLogger()
 
-const apiClient = new ApiClient(sudoUserClient, client as any)
+const apiClient = new ApiClient(
+  sudoUserClient,
+  client as any,
+  new DefaultQueryCache(client as any, logger),
+  logger,
+)
 
 const createBackendError: (
   path: string[],

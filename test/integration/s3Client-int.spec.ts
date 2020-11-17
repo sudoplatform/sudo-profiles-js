@@ -1,5 +1,5 @@
 import { DefaultSudoUserClient } from '@sudoplatform/sudo-user'
-import { DefaultConfigurationManager } from '@sudoplatform/sudo-common'
+import { DefaultConfigurationManager, getLogger, } from '@sudoplatform/sudo-common'
 import { TESTAuthenticationProvider } from '@sudoplatform/sudo-user/lib/user/auth-provider'
 import privateKeyParam from '../../config/register_key.json'
 import { DefaultS3Client } from '../../src/core/s3Client'
@@ -16,9 +16,12 @@ require('isomorphic-fetch')
 
 DefaultConfigurationManager.getInstance().setConfig(JSON.stringify(config))
 const userClient = new DefaultSudoUserClient()
+const logger = getLogger()
 
 const s3Client = new DefaultS3Client(
-  userClient, config.identityService
+  userClient,
+  config.identityService,
+  logger,
 )
 
 beforeEach(async (): Promise<void> => {

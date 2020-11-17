@@ -6,6 +6,7 @@ import {
   DefaultConfigurationManager,
   PolicyError,
   VersionMismatchError,
+  getLogger,
 } from '@sudoplatform/sudo-common'
 import { DefaultSudoUserClient } from '@sudoplatform/sudo-user'
 import { CognitoIdentityCredentials } from 'aws-sdk'
@@ -15,7 +16,6 @@ import * as path from 'path'
 import { anything, mock, when } from 'ts-mockito'
 import * as uuid from 'uuid'
 import config from '../../config/sudoplatformconfig.json'
-import { ApiClient } from '../../src/client/apiClient'
 import { IdentityServiceConfig } from '../../src/core/identity-service-config'
 import { DefaultKeyManager } from '../../src/core/key-manager'
 import { KeyStore } from '../../src/core/key-store'
@@ -28,7 +28,9 @@ import {
   ConnectionState,
   SudoSubscriber,
 } from '../../src/sudo/sudo-subscriber'
-import { delay, signIn, signOut } from './test-helper'
+import { ApiClient } from '../../src/client/apiClient'
+import { signIn, signOut, delay } from './test-helper'
+import { DefaultQueryCache } from '../../src/core/query-cache'
 
 //const globalAny: any = global
 global.WebSocket = require('ws')
@@ -57,14 +59,15 @@ class MySubscriber implements SudoSubscriber {
     this.connectionsChangedCount--
   }
 }
-
+const logger = getLogger()
 DefaultConfigurationManager.getInstance().setConfig(JSON.stringify(config))
 const userClient = new DefaultSudoUserClient()
 const apiClientManager = DefaultApiClientManager.getInstance().setAuthClient(
   userClient,
 )
 const apiManager = apiClientManager.getClient({ disableOffline: true })
-const apiClient = new ApiClient(userClient, apiManager)
+const queryCache = new DefaultQueryCache(apiManager, logger)
+const apiClient = new ApiClient(userClient, apiManager, queryCache, logger)
 const keyStore = new KeyStore()
 const keyManager = new DefaultKeyManager(keyStore)
 const textEncoder = new TextEncoder()
@@ -79,26 +82,21 @@ const identityServiceConfig = DefaultConfigurationManager.getInstance().bindConf
   IdentityServiceConfig
 >(IdentityServiceConfig, 'identityService')
 
-const s3Client = new DefaultS3Client(userClient, identityServiceConfig)
-
-// const blobCache =  localForage.createInstance({
-//   name: 'sudoProfilesBlobCache',
-//   driver: localForage.WEBSQL,
-// })
+const s3Client = new DefaultS3Client(
+  userClient,
+  identityServiceConfig,
+  logger)
 
 const blobCacheMock: LocalForage = mock()
-//blobCache.defineDriver(memoryDriver)
-//blobCache.setDriver(memoryDriver._driver)
 
 const sudoProfilesClient = new DefaultSudoProfilesClient(
   userClient,
   keyManager,
   apiClient,
-  apiClientConfig,
   s3Client,
   undefined,
-  undefined,
   blobCacheMock,
+  logger,
 )
 
 beforeEach(async (): Promise<void> => {

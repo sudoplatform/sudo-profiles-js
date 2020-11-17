@@ -1,5 +1,6 @@
 import {
   AppSyncError,
+  Logger,
   PolicyError,
   ServiceError,
   UnknownGraphQLError,
@@ -49,8 +50,11 @@ export class S3DeleteError extends Error {
   }
 }
 
-export function graphQLErrorsToClientError(error: AppSyncError): Error {
-  console.log({ error }, 'GraphQL call failed.')
+export function graphQLErrorsToClientError(
+  error: AppSyncError,
+  logger: Logger,
+): Error {
+  logger.error({ error }, 'GraphQL call failed.')
   const errorType = error.errorType
 
   switch (errorType) {

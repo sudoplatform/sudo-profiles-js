@@ -921,6 +921,32 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
+"@browser-bunyan/console-formatted-stream@^1.6.2":
+  version "1.6.2"
+  resolved "https://registry.yarnpkg.com/@browser-bunyan/console-formatted-stream/-/console-formatted-stream-1.6.2.tgz#e458a1913b952249afa4be3fde0d7b3068ab9507"
+  integrity sha512-RFY4VG5+ewPG5A4LC3uN4AC8MIXEjlUJ568VlXhdMDfV9/LUrUX1LUbf0UmFQ3OhI2jqbeC31XwP0gBIrwbXpw==
+  dependencies:
+    "@browser-bunyan/levels" "^1.6.0"
+
+"@browser-bunyan/console-plain-stream@^1.6.0":
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/@browser-bunyan/console-plain-stream/-/console-plain-stream-1.6.0.tgz#295404482150e7693846ccb07045676218bcc911"
+  integrity sha512-92j8/Lk7yD6F4JKygWd7g9++QoNiEIj1MAP5zMGVk0g1ssPs3vqK1F+HgWfzYaHccREJ6S553imX9Ll5OAn2nA==
+  dependencies:
+    "@browser-bunyan/levels" "^1.6.0"
+
+"@browser-bunyan/console-raw-stream@^1.6.0":
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/@browser-bunyan/console-raw-stream/-/console-raw-stream-1.6.0.tgz#255f4734c064dc046fe7896353982c563e2ec150"
+  integrity sha512-OqPe4uy/rGOL8ZRiq3iwGM/YIGWKd2ne+8cxWSsMbcLL5hr66IOhzr3nwhyRsSo58JbWDC3K/IaJDyoOTcwrdA==
+  dependencies:
+    "@browser-bunyan/levels" "^1.6.0"
+
+"@browser-bunyan/levels@^1.6.0":
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/@browser-bunyan/levels/-/levels-1.6.0.tgz#3a50b8118254aa2ac26caf9d2aafa72d157e374b"
+  integrity sha512-wte6nXXZH62Y/RGysYRlOkKxuJn+4S8xEamMF0fDncxxy0SriCHYwGPyWGF0FWYWmRzbZuEkp7dNebBf9Xfeeg==
+
 "@cnakazawa/watch@^1.0.3":
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/@cnakazawa/watch/-/watch-1.0.4.tgz#f864ae85004d0fcab6f50be9141c4da368d1656a"
@@ -1544,15 +1570,17 @@
     apollo-link-http "^1.5.17"
     aws-appsync "^4.0.1"
 
-"@sudoplatform/sudo-common@^1.0.10":
-  version "1.0.10"
-  resolved "https://registry.yarnpkg.com/@sudoplatform/sudo-common/-/sudo-common-1.0.10.tgz#3d24745ff33d65888bff3daa9fb9a4f63a5879ee"
-  integrity sha512-iA5XEJFgJ3Iqi39v/6uY1nB2JlA63QkJVmS91Q6SksJaydggJoxygbhUAWH9iq95+JXyxtOSWlLQzJn4So5M6A==
+"@sudoplatform/sudo-common@^1.0.13":
+  version "1.0.13"
+  resolved "https://registry.yarnpkg.com/@sudoplatform/sudo-common/-/sudo-common-1.0.13.tgz#30ef6e006683c5add7e80316806464090d547607"
+  integrity sha512-TvOr7oBstwlCWIXpUmkgB22MP1gB2RVBLlUVl4IsoeHi7jN69X1hOJOsVJRc8Tcd7uUDybQpU0vCo08nstGKVA==
+  dependencies:
+    browser-bunyan "^1.6.3"
 
-"@sudoplatform/sudo-user@^1.0.11":
-  version "1.0.11"
-  resolved "https://registry.yarnpkg.com/@sudoplatform/sudo-user/-/sudo-user-1.0.11.tgz#751dd819cb0cb349bf90e3d66ff4912b95e27f6c"
-  integrity sha512-LZL36CY7jU14ewirdrNnEzB0RKhDLfWn5r68blEo2NAXBzsFWQlJYa6HwKLXfjwLyDX8+yHzaAOF/lMTZC4r/g==
+"@sudoplatform/sudo-user@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@sudoplatform/sudo-user/-/sudo-user-1.1.0.tgz#3e5614119cadce06d0b67c184352afb5449a0bd0"
+  integrity sha512-BQmoAyI5NbKBz8ah5Hgd4yWAWRP/p+E0igzqZpkTEZJGIVjqNgSqT9BVaXvDAhwDEGbnCTO97o/RgrIG5VkkEQ==
   dependencies:
     "@graphql-typed-document-node/core" "^3.1.0"
     amazon-cognito-auth-js "^1.3.3"
@@ -2647,6 +2675,16 @@ braces@^3.0.1, braces@~3.0.2:
   integrity sha512-b8um+L1RzM3WDSzvhm6gIz1yfTbBt6YTlcEKAvsmqCZZFw46z626lVj9j1yEPW33H5H+lBQpZMP1k8l+78Ha0A==
   dependencies:
     fill-range "^7.0.1"
+
+browser-bunyan@^1.6.3:
+  version "1.6.3"
+  resolved "https://registry.yarnpkg.com/browser-bunyan/-/browser-bunyan-1.6.3.tgz#0e58c51ff48507317ba8e5cf579e8b6bad7281e0"
+  integrity sha512-HRg+acpwO3dsY2RWgtjw2wPVHV+uzbCrdhUxD25+qo5NFSTpbfJekrRP0yFNypAhG5LwXFV1Dc5FIc8cxwU5rQ==
+  dependencies:
+    "@browser-bunyan/console-formatted-stream" "^1.6.2"
+    "@browser-bunyan/console-plain-stream" "^1.6.0"
+    "@browser-bunyan/console-raw-stream" "^1.6.0"
+    "@browser-bunyan/levels" "^1.6.0"
 
 browser-process-hrtime@^1.0.0:
   version "1.0.0"

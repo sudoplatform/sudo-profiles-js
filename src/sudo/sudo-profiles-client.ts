@@ -1,17 +1,23 @@
-import { ApiClientConfig } from '@sudoplatform/sudo-api-client'
+import {
+  ApiClientConfig,
+  DefaultApiClientManager,
+} from '@sudoplatform/sudo-api-client'
 import {
   DefaultConfigurationManager,
   FatalError,
+  getLogger,
   IllegalArgumentError,
   IllegalStateError,
+  Logger,
   NotSignedInError,
 } from '@sudoplatform/sudo-common'
 import { SudoUserClient } from '@sudoplatform/sudo-user'
+import { InMemoryCache } from 'apollo-cache-inmemory'
 import localForage from 'localforage'
 import { ApiClient } from '../client/apiClient'
 import { IdentityServiceConfig } from '../core/identity-service-config'
 import { KeyManager } from '../core/key-manager'
-import { QueryCache } from '../core/query-cache'
+import { DefaultQueryCache } from '../core/query-cache'
 import { DefaultS3Client, S3Client } from '../core/s3Client'
 import {
   OnCreateSudoSubscription,
@@ -210,6 +216,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
   private readonly _s3Client: S3Client
   private readonly _securityProvider: SecurityProvider
   private readonly _blobCache: LocalForage
+  private readonly _logger: Logger
 
   private readonly _onCreateSudoSubscriptionManager: SubscriptionManager<
     OnCreateSudoSubscription
@@ -227,14 +234,55 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
     sudoUserClient: SudoUserClient,
     keyManager: KeyManager,
     apiClient?: ApiClient,
-    config?: ApiClientConfig,
     s3Client?: S3Client,
-    queryCache?: QueryCache,
     securityProvider?: SecurityProvider,
     blobCache?: LocalForage,
+    logger?: Logger,
   ) {
     this._sudoUserClient = sudoUserClient
     this._keyManager = keyManager
+    this._logger = logger ?? getLogger()
+
+    const apiClientConfig = DefaultConfigurationManager.getInstance().bindConfigSet<
+      ApiClientConfig
+    >(ApiClientConfig, 'apiService')
+    const identityServiceConfig = DefaultConfigurationManager.getInstance().bindConfigSet<
+      IdentityServiceConfig
+    >(IdentityServiceConfig, 'identityService')
+
+    const defaultApiClientManager = DefaultApiClientManager.getInstance()
+      .setConfig(apiClientConfig)
+      .setAuthClient(this._sudoUserClient)
+      .getClient()
+
+    defaultApiClientManager.cache = new InMemoryCache()
+
+    if (apiClient) {
+      this._apiClient = apiClient
+    } else {
+      const queryCache = new DefaultQueryCache(
+        defaultApiClientManager,
+        this._logger,
+      )
+
+      this._apiClient = new ApiClient(
+        this._sudoUserClient,
+        defaultApiClientManager,
+        queryCache,
+        this._logger,
+      )
+    }
+
+    this._s3Client =
+      s3Client ??
+      new DefaultS3Client(
+        this._sudoUserClient,
+        identityServiceConfig,
+        this._logger,
+      )
+
+    this._securityProvider =
+      securityProvider ?? new AesSecurityProvider(this._keyManager)
 
     this._blobCache =
       blobCache ??
@@ -242,21 +290,6 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
         name: 'sudoProfilesBlobCache',
         driver: localForage.INDEXEDDB,
       })
-
-    this._apiClient =
-      apiClient ??
-      new ApiClient(this._sudoUserClient, undefined, config, queryCache)
-
-    const identityServiceConfig = DefaultConfigurationManager.getInstance().bindConfigSet<
-      IdentityServiceConfig
-    >(IdentityServiceConfig, 'identityService')
-
-    this._s3Client =
-      s3Client ??
-      new DefaultS3Client(this._sudoUserClient, identityServiceConfig)
-
-    this._securityProvider =
-      securityProvider ?? new AesSecurityProvider(this._keyManager)
 
     this._onCreateSudoSubscriptionManager = new SubscriptionManager<
       OnCreateSudoSubscription
@@ -266,7 +299,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
   }
 
   public async createSudo(sudo: Sudo): Promise<Sudo> {
-    console.log('Creating a Sudo.')
+    this._logger.info('Creating a Sudo.')
 
     const keyId = await this.getSymmetricKeyId()
     if (!keyId) {
@@ -287,7 +320,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
   }
 
   public async updateSudo(sudo: Sudo): Promise<Sudo> {
-    console.log('Updating Sudo.')
+    this._logger.info('Updating Sudo.')
 
     if (!sudo.id) {
       throw new IllegalArgumentError('Sudo ID was null')
@@ -354,7 +387,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
       }
     }
 
-    console.log(`Creating sudo with ${secureClaims.length} claims`)
+    this._logger.info(`Creating sudo with ${secureClaims.length} claims`)
 
     const updatedSudo = await this._apiClient.updateSudo({
       id: sudo.id,
@@ -377,7 +410,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
     sudoId: string,
     audience: string,
   ): Promise<string> {
-    console.log('Calling getOwnerShipProof.')
+    this._logger.info('Calling getOwnerShipProof.')
 
     const ownershipProof = await this._apiClient.getOwnershipProof({
       sudoId,
@@ -388,7 +421,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
   }
 
   public async redeem(token: string, type: string): Promise<Entitlement[]> {
-    console.log('Redeeming a token')
+    this._logger.info('Redeeming a token')
 
     const entitlement = await this._apiClient.redeem({
       token,
@@ -401,7 +434,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
   }
 
   public async listSudos(fetchPolicy?: FetchOption): Promise<Sudo[]> {
-    console.log('Listing Sudos.')
+    this._logger.info('Listing Sudos.')
 
     const sudos = await this._apiClient.listSudos(fetchPolicy)
 
@@ -411,7 +444,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
   }
 
   public async reset(): Promise<void> {
-    console.log('Resetting client.')
+    this._logger.info('Resetting client.')
 
     await this._apiClient.reset()
     await this._blobCache.clear()
@@ -428,7 +461,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
     changeType: ChangeType,
     subscriber: SudoSubscriber,
   ): void {
-    console.log('Subscribing for Sudo change notifications.')
+    this._logger.info('Subscribing for Sudo change notifications.')
 
     const owner = this._sudoUserClient.getSubject()
     if (!owner) {
@@ -489,7 +522,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
   }
 
   public unsubscribe(id: string, changeType: ChangeType): void {
-    console.log('Unsubscribing from Sudo change notifications.')
+    this._logger.info('Unsubscribing from Sudo change notifications.')
 
     switch (changeType) {
       case ChangeType.Create:
@@ -505,7 +538,9 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
   }
 
   public unsubscribeAll(): void {
-    console.log('Unsubscribing all subscribers from Sudo change notifications.')
+    this._logger.info(
+      'Unsubscribing all subscribers from Sudo change notifications.',
+    )
 
     this._onCreateSudoSubscriptionManager.removeAllSubscribers()
     this._onUpdateSudoSubscriptionManager.removeAllSubscribers()
@@ -518,14 +553,14 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
     const subscription = this._onCreateSudoSubscriptionManager.watcher?.subscribe(
       {
         complete: () => {
-          console.log('Completed onCreateSudo subscription')
+          this._logger.info('Completed onCreateSudo subscription')
           // Subscription was terminated. Notify the subscribers.
           this._onCreateSudoSubscriptionManager.connectionStatusChanged(
             ConnectionState.Disconnected,
           )
         },
         error: (error) => {
-          console.log('Failed to create a subscription', error)
+          this._logger.error('Failed to create a subscription', error)
           //Notify the subscribers.
           this._onCreateSudoSubscriptionManager.connectionStatusChanged(
             ConnectionState.Disconnected,
@@ -534,14 +569,14 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         next: async (result: any): Promise<void> => {
-          console.log('executing onCreateSudo subscription', result)
+          this._logger.info('executing onCreateSudo subscription', result)
           const data = (result.data as OnCreateSudoSubscription)?.onCreateSudo
           if (!data) {
             throw new FatalError(
               'onCreateSudo subscription response contained error',
             )
           } else {
-            console.log('onCreateSudo subscription worked', data)
+            this._logger.info('onUpdateSudo subscription successful', data)
             const items: GQLSudo[] = [data]
             const sudos = await this.processListSudos(
               items,
@@ -552,7 +587,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
               // Add new item to cache
               const sudo = sudos[0]
               const cachedItems = await this._apiClient.getCachedQueryItems()
-              console.log(
+              this._logger.info(
                 `Found ${cachedItems?.length} in listsudosquery cache`,
               )
               if (cachedItems) {
@@ -566,7 +601,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
                 sudo,
               )
             } else {
-              console.log('No sudos found in cache')
+              this._logger.info('No sudos found in cache')
             }
           }
           return Promise.resolve()
@@ -628,14 +663,14 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
     const subscription = this._onUpdateSudoSubscriptionManager.watcher?.subscribe(
       {
         complete: () => {
-          console.log('Completed onUpdateSudo subscription')
+          this._logger.info('Completed onUpdateSudo subscription')
           // Subscription was terminated. Notify the subscribers.
           this._onUpdateSudoSubscriptionManager.connectionStatusChanged(
             ConnectionState.Disconnected,
           )
         },
         error: (error) => {
-          console.log('Failed to update a subscription', error)
+          this._logger.error('Failed to update a subscription', error)
           //Notify the subscribers.
           this._onUpdateSudoSubscriptionManager.connectionStatusChanged(
             ConnectionState.Disconnected,
@@ -643,14 +678,14 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
         },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         next: async (result: any): Promise<void> => {
-          console.log('executing onUpdateSudo subscription', result)
+          this._logger.info('executing onUpdateSudo subscription', result)
           const data = (result.data as OnUpdateSudoSubscription)?.onUpdateSudo
           if (!data) {
             throw new FatalError(
               'onUpdateSudo subscription response contained error',
             )
           } else {
-            console.log('onUpdateSudo subscription worked', data)
+            this._logger.info('onUpdateSudo subscription successful', data)
             const items: GQLSudo[] = [data]
             const sudos = await this.processListSudos(
               items,
@@ -666,7 +701,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
               ).filter((element) => {
                 return element.id !== items[0].id
               })
-              console.log(
+              this._logger.info(
                 `Found ${cachedItems?.length} in listsudosquery cache`,
               )
               if (cachedItems) {
@@ -679,7 +714,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
                 sudo,
               )
             } else {
-              console.log('No sudos found in cache')
+              this._logger.info('No sudos found in cache')
             }
           }
 
@@ -697,14 +732,14 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
     const subscription = this._onDeleteSudoSubscriptionManager.watcher?.subscribe(
       {
         complete: () => {
-          console.log('Completed onDeleteSudo subscription')
+          this._logger.info('Completed onDeleteSudo subscription')
           // Subscription was terminated. Notify the subscribers.
           this._onDeleteSudoSubscriptionManager.connectionStatusChanged(
             ConnectionState.Disconnected,
           )
         },
         error: (error) => {
-          console.log('Failed to update a subscription', error)
+          this._logger.error('Failed to update a subscription', error)
           //Notify the subscribers.
           this._onDeleteSudoSubscriptionManager.connectionStatusChanged(
             ConnectionState.Disconnected,
@@ -712,14 +747,14 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
         },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         next: async (result: any): Promise<void> => {
-          console.log('executing onDeleteSudo subscription', result)
+          this._logger.info('executing onDeleteSudo subscription', result)
           const data = (result.data as OnDeleteSudoSubscription)?.onDeleteSudo
           if (!data) {
             throw new FatalError(
               'onDeleteSudo subscription response contained error',
             )
           } else {
-            console.log('onDeleteSudo subscription worked', data)
+            this._logger.info('onDeleteSudo subscription successful', data)
             const items: GQLSudo[] = [data]
             const sudos = await this.processListSudos(
               items,
@@ -729,7 +764,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
             if (sudos?.length > 0) {
               const sudo = sudos[0]
               const cachedItems = await this._apiClient.getCachedQueryItems()
-              console.log(
+              this._logger.info(
                 `Found ${cachedItems?.length} in listsudosquery cache`,
               )
               if (cachedItems) {
@@ -745,7 +780,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
                 )
               }
             } else {
-              console.log('No sudos found in cache')
+              this._logger.info('No sudos found in cache')
             }
           }
           return Promise.resolve()
@@ -768,7 +803,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
   ): Promise<Sudo[]> {
     const sudos: Sudo[] = []
 
-    console.log(`Listing ${items.length} sudos`)
+    this._logger.info(`Listing ${items.length} sudos`)
     for (const item of items) {
       const claimsMap = new Map<string, Claim>()
       await Promise.all(
@@ -797,14 +832,14 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
       )
 
       if (processS3Object) {
-        console.log('Found S3objects to process: ', item.objects.length)
+        this._logger.info('Found S3objects to process: ', item.objects.length)
         for (const secureObject of item.objects) {
           // Check if we already have the S3 object in the cache. Return the cache entry
           // if asked to fetch from cache but otherwise download the S3 object.
           if (option === FetchOption.CacheOnly) {
             const cacheId = this.getObjectId(item.id, secureObject.name)
             if (!cacheId) {
-              console.log('Cannot determine the object ID from the key.')
+              this._logger.info('Cannot determine the object ID from the key.')
             } else {
               const entry = (await this._blobCache.getItem(
                 cacheId,

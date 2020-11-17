@@ -49,9 +49,7 @@ const sudoProfilesClient = new DefaultSudoProfilesClient(
   instance(sudoUserClientMock),
   profilesKeyManager,
   apiClientMock,
-  config as any,
   s3ClientMock,
-  queryCacheMock,
   instance(aesSecurityProviderMock),
   blobCacheMock,
 )
@@ -105,9 +103,7 @@ describe('SudoProfilesClient', () => {
         sudoUserClientMock,
         profilesKeyManagerUnit,
         apiClientMock,
-        config as any,
-        undefined,
-        queryCacheMock,
+        s3ClientMock,
         aesSecurityProviderMock,
         blobCacheMock,
       )
@@ -133,9 +129,7 @@ describe('SudoProfilesClient', () => {
         sudoUserClientMock,
         profilesKeyManagerUnit,
         apiClientMock,
-        config as any,
-        undefined,
-        queryCacheMock,
+        s3ClientMock,
         aesSecurityProviderMock,
         blobCacheMock,
       )
