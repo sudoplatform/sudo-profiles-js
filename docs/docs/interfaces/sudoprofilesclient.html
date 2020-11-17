@@ -95,6 +95,7 @@
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="sudoprofilesclient.html#createsudo" class="tsd-kind-icon">create<wbr>Sudo</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="sudoprofilesclient.html#deletesudo" class="tsd-kind-icon">delete<wbr>Sudo</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="sudoprofilesclient.html#getownershipproof" class="tsd-kind-icon">get<wbr>Ownership<wbr>Proof</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="sudoprofilesclient.html#listsudos" class="tsd-kind-icon">list<wbr>Sudos</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="sudoprofilesclient.html#redeem" class="tsd-kind-icon">redeem</a></li>
@@ -121,7 +122,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:69</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:70</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -161,6 +162,49 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="deletesudo" class="tsd-anchor"></a>
+					<h3>delete<wbr>Sudo</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">delete<wbr>Sudo<span class="tsd-signature-symbol">(</span>sudo<span class="tsd-signature-symbol">: </span><a href="../classes/sudo.html" class="tsd-signature-type">Sudo</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:203</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Deletes a Sudo.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>throws</dt>
+									<dd><p>{@link IllegalArgumentError}</p>
+									</dd>
+									<dt>throws</dt>
+									<dd><p>{@link FatalError}</p>
+									</dd>
+									<dt>throws</dt>
+									<dd><p><a href="../classes/sudonotfounderror.html">SudoNotFoundError</a></p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>sudo: <a href="../classes/sudo.html" class="tsd-signature-type">Sudo</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Sudo to delete.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>void</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
 					<a name="getownershipproof" class="tsd-anchor"></a>
 					<h3>get<wbr>Ownership<wbr>Proof</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
@@ -170,7 +214,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:115</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:116</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -232,7 +276,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:143</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:144</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -241,7 +285,7 @@
 								</div>
 								<dl class="tsd-comment-tags">
 									<dt>throws</dt>
-									<dd><p><a href="../classes/downloaderror.html">DownloadError</a></p>
+									<dd><p>{@link DownloadError}</p>
 									</dd>
 									<dt>throws</dt>
 									<dd><p>{@link ServiceError}</p>
@@ -275,7 +319,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:129</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:130</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -324,7 +368,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:148</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:149</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -346,7 +390,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:171</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:172</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -395,7 +439,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:159</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:160</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -438,7 +482,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:184</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:185</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -476,7 +520,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:189</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:190</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -498,7 +542,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:87</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:88</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -516,7 +560,7 @@
 									<dd><p>{@link VersionMismatchError}</p>
 									</dd>
 									<dt>throws</dt>
-									<dd><p><a href="../classes/uploaderror.html">UploadError</a></p>
+									<dd><p>{@link UploadError}</p>
 									</dd>
 									<dt>throws</dt>
 									<dd><p>{@link ServiceError}</p>
@@ -577,16 +621,16 @@
 						<a href="../classes/defaultsudoprofilesclient.html" class="tsd-kind-icon">Default<wbr>Sudo<wbr>Profiles<wbr>Client</a>
 					</li>
 					<li class=" tsd-kind-class">
-						<a href="../classes/deleteerror.html" class="tsd-kind-icon">Delete<wbr>Error</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="../classes/downloaderror.html" class="tsd-kind-icon">Download<wbr>Error</a>
-					</li>
-					<li class=" tsd-kind-class">
 						<a href="../classes/keystore.html" class="tsd-kind-icon">Key<wbr>Store</a>
 					</li>
 					<li class=" tsd-kind-class">
-						<a href="../classes/keystoreerror.html" class="tsd-kind-icon">Key<wbr>Store<wbr>Error</a>
+						<a href="../classes/s3deleteerror.html" class="tsd-kind-icon">S3<wbr>Delete<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="../classes/s3downloaderror.html" class="tsd-kind-icon">S3<wbr>Download<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="../classes/s3uploaderror.html" class="tsd-kind-icon">S3<wbr>Upload<wbr>Error</a>
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="../classes/sudo.html" class="tsd-kind-icon">Sudo</a>
@@ -595,7 +639,7 @@
 						<a href="../classes/sudonotfounderror.html" class="tsd-kind-icon">Sudo<wbr>Not<wbr>Found<wbr>Error</a>
 					</li>
 					<li class=" tsd-kind-class">
-						<a href="../classes/uploaderror.html" class="tsd-kind-icon">Upload<wbr>Error</a>
+						<a href="../classes/symmetrickeynotfounderror.html" class="tsd-kind-icon">Symmetric<wbr>Key<wbr>Not<wbr>Found<wbr>Error</a>
 					</li>
 				</ul>
 				<ul class="current">
@@ -604,6 +648,9 @@
 						<ul>
 							<li class=" tsd-kind-method tsd-parent-kind-interface">
 								<a href="sudoprofilesclient.html#createsudo" class="tsd-kind-icon">create<wbr>Sudo</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="sudoprofilesclient.html#deletesudo" class="tsd-kind-icon">delete<wbr>Sudo</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-interface">
 								<a href="sudoprofilesclient.html#getownershipproof" class="tsd-kind-icon">get<wbr>Ownership<wbr>Proof</a>

@@ -5,12 +5,17 @@ import {
   NotSignedInError,
 } from '@sudoplatform/sudo-common'
 import { SudoUserClient } from '@sudoplatform/sudo-user'
+import FS from 'fs'
+import * as path from 'path'
 import { instance, mock, reset, when } from 'ts-mockito'
+import * as uuid from 'uuid'
 import config from '../../config/sudoplatformconfig.json'
 import { ApiClient } from '../../src/client/apiClient'
 import { DefaultKeyManager } from '../../src/core/key-manager'
 import { KeyStore } from '../../src/core/key-store'
 import { QueryCache } from '../../src/core/query-cache'
+import { S3Client } from '../../src/core/s3Client'
+import { SudoNotFoundError } from '../../src/global/error'
 import { AesSecurityProvider } from '../../src/security/aesSecurityProvider'
 import { Sudo } from '../../src/sudo/sudo'
 import { DefaultSudoProfilesClient } from '../../src/sudo/sudo-profiles-client'
@@ -30,6 +35,7 @@ const apiClientMock: ApiClient = mock()
 const sudoUserClientMock: SudoUserClient = mock()
 const aesSecurityProviderMock: AesSecurityProvider = mock()
 const blobCacheMock: LocalForage = mock()
+const s3ClientMock: S3Client = mock()
 const profilesKeyManager = new DefaultKeyManager(new KeyStore())
 const textEncoder = new TextEncoder()
 const symmetricKeyId = '1234'
@@ -44,7 +50,7 @@ const sudoProfilesClient = new DefaultSudoProfilesClient(
   profilesKeyManager,
   apiClientMock,
   config as any,
-  undefined,
+  s3ClientMock,
   queryCacheMock,
   instance(aesSecurityProviderMock),
   blobCacheMock,
@@ -155,4 +161,42 @@ describe('SudoProfilesClient', () => {
       }
     })
   }) // Subscribe
+
+  describe('delete()', () => {
+    it('should throw IllegalArguementError when no sudo id', async () => {
+      const sudo = new Sudo()
+
+      await expect(sudoProfilesClient.deleteSudo(sudo)).rejects.toThrow(
+        IllegalArgumentError,
+      )
+    })
+
+    it('should throw SudoNotFoundError when sudo not found', async () => {
+      const sudo = new Sudo(uuid.v4())
+
+      await expect(sudoProfilesClient.deleteSudo(sudo)).rejects.toThrow(
+        SudoNotFoundError,
+      )
+    })
+
+    it('should remove cache and delete s3 blob when deleting sudo', async () => {
+      const sudo = new Sudo('SUDO_ID')
+
+      const fileData = FS.readFileSync(
+        path.resolve(__dirname, '../integration/jordan.png'),
+      )
+      const arrayBuffer = Uint8Array.from(fileData).buffer
+      sudo.setAvatar(arrayBuffer)
+      const cacheId = 'sudo/SUDO_ID/avatar'
+
+      jest
+        .spyOn(sudoProfilesClient, 'listSudos')
+        .mockImplementation(async () => [sudo])
+      when(blobCacheMock.getItem(cacheId)).thenResolve(arrayBuffer)
+      when(s3ClientMock.delete(cacheId)).thenResolve()
+      when(blobCacheMock.removeItem(cacheId)).thenResolve()
+
+      await sudoProfilesClient.deleteSudo(sudo)
+    })
+  })
 })

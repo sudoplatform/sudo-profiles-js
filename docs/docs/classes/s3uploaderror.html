@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>FetchOption | @sudoplatform/sudo-profiles</title>
+	<title>S3UploadError | @sudoplatform/sudo-profiles</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -56,112 +56,128 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="fetchoption.html">FetchOption</a>
+					<a href="s3uploaderror.html">S3UploadError</a>
 				</li>
 			</ul>
-			<h1>Enumeration FetchOption</h1>
+			<h1>Class S3UploadError</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Error when uploading a file to S3</p>
+					</div>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<a href="symmetrickeynotfounderror.html#error" class="tsd-signature-type">Error</a>
+						<ul class="tsd-hierarchy">
+							<li>
+								<span class="target">S3UploadError</span>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
-							<h3>Enumeration members</h3>
+							<h3>Constructors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="fetchoption.html#cacheandremote" class="tsd-kind-icon">Cache<wbr>And<wbr>Remote</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="fetchoption.html#cachefirst" class="tsd-kind-icon">Cache<wbr>First</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="fetchoption.html#cacheonly" class="tsd-kind-icon">Cache<wbr>Only</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="fetchoption.html#nocache" class="tsd-kind-icon">No<wbr>Cache</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="fetchoption.html#remoteonly" class="tsd-kind-icon">Remote<wbr>Only</a></li>
+								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="s3uploaderror.html#constructor" class="tsd-kind-icon">constructor</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="s3uploaderror.html#message" class="tsd-kind-icon">message</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="s3uploaderror.html#name" class="tsd-kind-icon">name</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="s3uploaderror.html#stack" class="tsd-kind-icon">stack</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="s3uploaderror.html#error" class="tsd-kind-icon">Error</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Enumeration members</h2>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="cacheandremote" class="tsd-anchor"></a>
-					<h3>Cache<wbr>And<wbr>Remote</h3>
-					<div class="tsd-signature tsd-kind-icon">Cache<wbr>And<wbr>Remote<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;cache-and-network&quot;</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in src/sudo/sudo.ts:17</li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Executes the full query against both the cache and your GraphQL server. The *query automatically updates if the result of the server-side * query modifies cached fields.
-							Provides a fast response while also helping to keep cached data consistent  with server data.</p>
-						</div>
-					</div>
+				<h2>Constructors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class">
+					<a name="constructor" class="tsd-anchor"></a>
+					<h3>constructor</h3>
+					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">new <wbr>S3Upload<wbr>Error<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="s3uploaderror.html" class="tsd-signature-type">S3UploadError</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in src/global/error.ts:28</li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>message: <span class="tsd-signature-type">string</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="s3uploaderror.html" class="tsd-signature-type">S3UploadError</a></h4>
+						</li>
+					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="cachefirst" class="tsd-anchor"></a>
-					<h3>Cache<wbr>First</h3>
-					<div class="tsd-signature tsd-kind-icon">Cache<wbr>First<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;cache-first&quot;</span></div>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+					<a name="message" class="tsd-anchor"></a>
+					<h3>message</h3>
+					<div class="tsd-signature tsd-kind-icon">message<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="symmetrickeynotfounderror.html">SymmetricKeyNotFoundError</a>.<a href="symmetrickeynotfounderror.html#message">message</a></p>
 						<ul>
-							<li>Defined in src/sudo/sudo.ts:30</li>
+							<li>Defined in node_modules/typescript/lib/lib.es5.d.ts:974</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Executes the query against the cache. If all requested data is present in the cache, that data is returned. Otherwise, Apollo Client executes the query against your GraphQL server and returns that data after caching it.</p>
-						</div>
-						<p>Prioritizes minimizing the number of network requests sent by your application.
-						This is the default policy</p>
-					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="cacheonly" class="tsd-anchor"></a>
-					<h3>Cache<wbr>Only</h3>
-					<div class="tsd-signature tsd-kind-icon">Cache<wbr>Only<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;cache-only&quot;</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+					<a name="name" class="tsd-anchor"></a>
+					<h3>name</h3>
+					<div class="tsd-signature tsd-kind-icon">name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="symmetrickeynotfounderror.html">SymmetricKeyNotFoundError</a>.<a href="symmetrickeynotfounderror.html#name">name</a></p>
 						<ul>
-							<li>Defined in src/sudo/sudo.ts:7</li>
+							<li>Defined in node_modules/typescript/lib/lib.es5.d.ts:973</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Returns Sudos from the local cache only.</p>
-						</div>
-					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="nocache" class="tsd-anchor"></a>
-					<h3>No<wbr>Cache</h3>
-					<div class="tsd-signature tsd-kind-icon">No<wbr>Cache<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;no-cache&quot;</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+					<a name="stack" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> stack</h3>
+					<div class="tsd-signature tsd-kind-icon">stack<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="symmetrickeynotfounderror.html">SymmetricKeyNotFoundError</a>.<a href="symmetrickeynotfounderror.html#stack">stack</a></p>
 						<ul>
-							<li>Defined in src/sudo/sudo.ts:22</li>
+							<li>Defined in node_modules/typescript/lib/lib.es5.d.ts:975</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Similar to RemoteOnly except the query&#39;s result is not stored in the cache</p>
-						</div>
-					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="remoteonly" class="tsd-anchor"></a>
-					<h3>Remote<wbr>Only</h3>
-					<div class="tsd-signature tsd-kind-icon">Remote<wbr>Only<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;network-only&quot;</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
+					<a name="error" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> Error</h3>
+					<div class="tsd-signature tsd-kind-icon">Error<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">ErrorConstructor</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in src/sudo/sudo.ts:11</li>
+							<li>Defined in node_modules/typescript/lib/lib.es5.d.ts:984</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Fetches Sudos from the backend and ignores any cached entries.</p>
-						</div>
-					</div>
 				</section>
 			</section>
 		</div>
@@ -176,61 +192,61 @@
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
 					<li class=" tsd-kind-enum">
-						<a href="changetype.html" class="tsd-kind-icon">Change<wbr>Type</a>
+						<a href="../enums/changetype.html" class="tsd-kind-icon">Change<wbr>Type</a>
 					</li>
 					<li class=" tsd-kind-enum">
-						<a href="connectionstate.html" class="tsd-kind-icon">Connection<wbr>State</a>
+						<a href="../enums/connectionstate.html" class="tsd-kind-icon">Connection<wbr>State</a>
+					</li>
+					<li class=" tsd-kind-enum">
+						<a href="../enums/fetchoption.html" class="tsd-kind-icon">Fetch<wbr>Option</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="defaultkeymanager.html" class="tsd-kind-icon">Default<wbr>Key<wbr>Manager</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="defaultsudoprofilesclient.html" class="tsd-kind-icon">Default<wbr>Sudo<wbr>Profiles<wbr>Client</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="keystore.html" class="tsd-kind-icon">Key<wbr>Store</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="s3deleteerror.html" class="tsd-kind-icon">S3<wbr>Delete<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="s3downloaderror.html" class="tsd-kind-icon">S3<wbr>Download<wbr>Error</a>
 					</li>
 				</ul>
 				<ul class="current">
-					<li class="current tsd-kind-enum">
-						<a href="fetchoption.html" class="tsd-kind-icon">Fetch<wbr>Option</a>
+					<li class="current tsd-kind-class">
+						<a href="s3uploaderror.html" class="tsd-kind-icon">S3<wbr>Upload<wbr>Error</a>
 						<ul>
-							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="fetchoption.html#cacheandremote" class="tsd-kind-icon">Cache<wbr>And<wbr>Remote</a>
+							<li class=" tsd-kind-constructor tsd-parent-kind-class">
+								<a href="s3uploaderror.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
-							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="fetchoption.html#cachefirst" class="tsd-kind-icon">Cache<wbr>First</a>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="s3uploaderror.html#message" class="tsd-kind-icon">message</a>
 							</li>
-							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="fetchoption.html#cacheonly" class="tsd-kind-icon">Cache<wbr>Only</a>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="s3uploaderror.html#name" class="tsd-kind-icon">name</a>
 							</li>
-							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="fetchoption.html#nocache" class="tsd-kind-icon">No<wbr>Cache</a>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="s3uploaderror.html#stack" class="tsd-kind-icon">stack</a>
 							</li>
-							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="fetchoption.html#remoteonly" class="tsd-kind-icon">Remote<wbr>Only</a>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static">
+								<a href="s3uploaderror.html#error" class="tsd-kind-icon">Error</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
 					<li class=" tsd-kind-class">
-						<a href="../classes/defaultkeymanager.html" class="tsd-kind-icon">Default<wbr>Key<wbr>Manager</a>
+						<a href="sudo.html" class="tsd-kind-icon">Sudo</a>
 					</li>
 					<li class=" tsd-kind-class">
-						<a href="../classes/defaultsudoprofilesclient.html" class="tsd-kind-icon">Default<wbr>Sudo<wbr>Profiles<wbr>Client</a>
+						<a href="sudonotfounderror.html" class="tsd-kind-icon">Sudo<wbr>Not<wbr>Found<wbr>Error</a>
 					</li>
 					<li class=" tsd-kind-class">
-						<a href="../classes/keystore.html" class="tsd-kind-icon">Key<wbr>Store</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="../classes/s3deleteerror.html" class="tsd-kind-icon">S3<wbr>Delete<wbr>Error</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="../classes/s3downloaderror.html" class="tsd-kind-icon">S3<wbr>Download<wbr>Error</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="../classes/s3uploaderror.html" class="tsd-kind-icon">S3<wbr>Upload<wbr>Error</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="../classes/sudo.html" class="tsd-kind-icon">Sudo</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="../classes/sudonotfounderror.html" class="tsd-kind-icon">Sudo<wbr>Not<wbr>Found<wbr>Error</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="../classes/symmetrickeynotfounderror.html" class="tsd-kind-icon">Symmetric<wbr>Key<wbr>Not<wbr>Found<wbr>Error</a>
+						<a href="symmetrickeynotfounderror.html" class="tsd-kind-icon">Symmetric<wbr>Key<wbr>Not<wbr>Found<wbr>Error</a>
 					</li>
 					<li class=" tsd-kind-interface">
 						<a href="../interfaces/sudoprofilesclient.html" class="tsd-kind-icon">Sudo<wbr>Profiles<wbr>Client</a>

@@ -1,7 +1,7 @@
 import { SudoUserClient } from '@sudoplatform/sudo-user'
 import { CognitoIdentityCredentials } from 'aws-sdk'
 import S3, { ManagedUpload } from 'aws-sdk/clients/s3'
-import { DeleteError, DownloadError, UploadError } from '../global/error'
+import { S3DeleteError, S3DownloadError, S3UploadError } from '../global/error'
 import { IdentityServiceConfig } from './identity-service-config'
 
 /**
@@ -124,6 +124,8 @@ export class DefaultS3Client implements S3Client {
     const key = `${identityId}/${objectId}`
     console.log(`Uploading to - bucket: ${this._bucket}, blob key: ${key}`)
 
+    const bufferData = Buffer.from(data)
+
     const managedUpload = new S3.ManagedUpload(<
       S3.ManagedUpload.ManagedUploadOptions
     >{
@@ -131,7 +133,7 @@ export class DefaultS3Client implements S3Client {
       params: {
         Bucket: this._bucket,
         Key: key,
-        Body: data,
+        Body: bufferData,
       },
     })
 
@@ -145,12 +147,12 @@ export class DefaultS3Client implements S3Client {
       console.log('Upload response: ', response)
       return response.Key
     } catch (error) {
-      throw new UploadError(error.message)
+      throw new S3UploadError(error.message)
     }
   }
 
   public async download(key: string): Promise<ArrayBuffer> {
-    console.log('Downloading a blob from S3.')
+    console.log('Downloading a blob from S3 at key: ' + key)
 
     const initData = await this.getInitData()
     const s3Client = initData[0]
@@ -162,7 +164,7 @@ export class DefaultS3Client implements S3Client {
       }
       const response = await s3Client.getObject(params).promise()
       if (!response.Body) {
-        throw new DownloadError('Did not find file to download.')
+        throw new S3DownloadError('Did not find file to download.')
       }
 
       if (typeof response.Body === 'string') {
@@ -172,10 +174,11 @@ export class DefaultS3Client implements S3Client {
       } else if (response.Body instanceof Uint8Array) {
         return (response.Body as Uint8Array).buffer
       } else {
-        throw new DownloadError('Object type is not supported in browser.')
+        throw new S3DownloadError('Object type is not supported in browser.')
       }
     } catch (error) {
-      throw new DownloadError(error.message)
+      console.log(error)
+      throw new S3DownloadError(error.message)
     }
   }
 
@@ -196,7 +199,7 @@ export class DefaultS3Client implements S3Client {
       const response = await s3Client.deleteObject(params).promise()
       console.log(response)
     } catch (error) {
-      throw new DeleteError(error.message)
+      throw new S3DeleteError(error.message)
     }
   }
 }

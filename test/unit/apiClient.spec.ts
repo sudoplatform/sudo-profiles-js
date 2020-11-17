@@ -16,11 +16,14 @@ import {
   GetOwnershipProofDocument,
   RedeemTokenDocument,
   UpdateSudoDocument,
+  DeleteSudoDocument,
 } from '../../src/gen/graphql-types'
 import {
   GRAPHQL_ERROR_CONDITIONAL_CHECK_FAILED,
   GRAPHQL_ERROR_POLICY_ERROR,
   GRAPHQL_ERROR_SERVER_ERROR,
+  GRAPHQL_ERROR_SUDO_NOT_FOUND,
+  SudoNotFoundError,
 } from '../../src/global/error'
 import { SymmetricKeyEncryptionAlgorithm } from '../../src/security/securityProvider'
 import { ErrorOption, FetchOption } from '../../src/sudo/sudo'
@@ -328,4 +331,64 @@ describe('ApiClient', () => {
       await expect(apiClient.listSudos()).rejects.toThrow(FatalError)
     })
   }) // listSudos
+
+  describe('deleteSudo()', () => {
+    it('should execute mutation', async () => {
+      client.mutate.mockImplementation(async (_) => {
+        return {}
+      });
+
+      await apiClient.deleteSudo({
+        id: 'SUDO_ID',
+        expectedVersion: 2,
+      })
+
+      expect(client.mutate).toHaveBeenCalledWith({
+        mutation: DeleteSudoDocument,
+        variables: {
+          input: {
+            id: 'SUDO_ID',
+            expectedVersion: 2
+          },
+        },
+      })
+    })
+
+    it('should throw SudoNotFoundError when sudo id does not exist', async () => {
+      const backendError = createBackendError(
+        ['deleteSudo'],
+        GRAPHQL_ERROR_SUDO_NOT_FOUND,
+        { message: 'GraphQL error: deleteSudo' },
+      )
+
+      client.mutate.mockImplementation(() => {
+        throw createGraphQLError(backendError)
+      })
+
+      await expect(apiClient.deleteSudo({
+        id: 'RANDOM_ID',
+        expectedVersion: 2,
+      })).rejects.toThrow(SudoNotFoundError)
+    })
+
+    it('should throw VersionMismatchError when expectedVersion is different', async () => {
+      client.mutate.mockImplementation(async (_) => {
+        return {
+          data: {},
+          errors: [{
+            errorType: 'DynamoDB:ConditionalCheckFailedException',
+            message: 'Bad version',
+          }],
+        }
+      });
+
+      await expect(apiClient.deleteSudo({
+        id: 'SUDO_ID',
+        expectedVersion: 200,
+      })).rejects.toThrow(VersionMismatchError)
+
+    })
+
+  }) // deleteSudo
+
 }) // ApiClient

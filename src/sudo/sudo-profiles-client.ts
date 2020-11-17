@@ -37,6 +37,7 @@ import {
   Sudo,
 } from './sudo'
 import { ChangeType, ConnectionState, SudoSubscriber } from './sudo-subscriber'
+import { SudoNotFoundError } from '../global/error'
 
 export enum ClaimVisibility {
   /**
@@ -187,6 +188,19 @@ export interface SudoProfilesClient {
    * Unsubscribe all subscribers from receiving notifications about new, updated or deleted Sudos.
    */
   unsubscribeAll(): void
+
+  /**
+   * Deletes a Sudo.
+   *
+   * @param sudo Sudo to delete.
+   *
+   * @return void
+   *
+   * @throws {@link IllegalArgumentError}
+   * @throws {@link FatalError}
+   * @throws {@link SudoNotFoundError}
+   */
+  deleteSudo(sudo: Sudo): Promise<void>
 }
 
 export class DefaultSudoProfilesClient implements SudoProfilesClient {
@@ -293,13 +307,9 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
       if (claim.visibility === ClaimVisibility.Private) {
         if (claim.value instanceof BlobClaimValue) {
           if (claim.value.file) {
-            const data = await this.loadFileAsArrayBuffer(claim.value.file)
-            if (!data) {
-              console.log('Could not load file for claim name: ' + claim.name)
-              continue
-            }
+            const data = claim.value.file
 
-            const cacheId = `sudo/${sudo.id}/${claim.name}`
+            const cacheId = this.getObjectId(sudo.id, claim.name)
             await this._blobCache.setItem(cacheId, data)
 
             try {
@@ -307,7 +317,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
               const newClaim = new Claim(
                 name,
                 claim.visibility,
-                new BlobClaimValue(undefined, new File([data], cacheId)),
+                new BlobClaimValue(cacheId),
               )
               sudo.claims.set(name, newClaim)
 
@@ -567,6 +577,51 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
     return subscription
   }
 
+  public async deleteSudo(sudo: Sudo): Promise<void> {
+    console.log('delete sudo')
+
+    const sudoId = sudo.id
+    if (!sudoId) {
+      throw new IllegalArgumentError('No SudoId found.')
+    }
+
+    await this.deleteSecureS3Object(sudoId)
+
+    await this._apiClient.deleteSudo({
+      id: sudoId,
+      expectedVersion: sudo.version,
+    })
+  }
+
+  private async deleteSecureS3Object(sudoId: string): Promise<void> {
+    const sudo = await this.getSudo(sudoId)
+    if (!sudo) {
+      throw new SudoNotFoundError()
+    }
+
+    for (const [name, claim] of sudo.claims) {
+      if (
+        claim.visibility == ClaimVisibility.Private &&
+        claim.value instanceof BlobClaimValue
+      ) {
+        const cacheId = this.getObjectId(sudoId, name)
+        if (cacheId) {
+          const cacheEntry = await this._blobCache.getItem(cacheId)
+          if (cacheEntry) {
+            await this._s3Client.delete(cacheId)
+            this._blobCache.removeItem(cacheId)
+          }
+        }
+      }
+    }
+  }
+
+  private async getSudo(id: string): Promise<Sudo | undefined> {
+    return (await this.listSudos(FetchOption.CacheOnly)).find((sudo) => {
+      return sudo.id === id
+    })
+  }
+
   private executeUpdateSudoSubscriptionWatcher():
     | ZenObservable.Subscription
     | undefined {
@@ -747,7 +802,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
           // Check if we already have the S3 object in the cache. Return the cache entry
           // if asked to fetch from cache but otherwise download the S3 object.
           if (option === FetchOption.CacheOnly) {
-            const cacheId = this.getS3ObjectIdFromKey(secureObject.key)
+            const cacheId = this.getObjectId(item.id, secureObject.name)
             if (!cacheId) {
               console.log('Cannot determine the object ID from the key.')
             } else {
@@ -760,7 +815,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
                   new Claim(
                     secureObject.name,
                     ClaimVisibility.Private,
-                    new BlobClaimValue(undefined, new File([entry], cacheId)),
+                    new BlobClaimValue(cacheId, entry),
                   ),
                 )
               }
@@ -771,19 +826,16 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
               secureObject.keyId,
               data,
             )
-            const cacheId = this.getS3ObjectIdFromKey(secureObject.key)
+            const cacheId = this.getObjectId(item.id, secureObject.name)
             if (!cacheId) {
               throw new Error('Key not found for blob claim.')
             }
-
             await this._blobCache.setItem(cacheId, decryptedData)
-
             const blobClaim = new Claim(
               secureObject.name,
               ClaimVisibility.Private,
-              new BlobClaimValue(undefined, new File([decryptedData], cacheId)),
+              new BlobClaimValue(cacheId, decryptedData),
             )
-
             sudo.claims.set(secureObject.name, blobClaim)
           }
         }
@@ -795,12 +847,8 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
     return sudos
   }
 
-  private getS3ObjectIdFromKey(key: string): string | undefined {
-    if (!key) {
-      return undefined
-    }
-    const components = key.split('/')
-    return components[components.length - 1]
+  private getObjectId(sudoId: string, name: string): string {
+    return `sudo/${sudoId}/${name}`
   }
 
   private async getSymmetricKeyId(): Promise<string | undefined> {

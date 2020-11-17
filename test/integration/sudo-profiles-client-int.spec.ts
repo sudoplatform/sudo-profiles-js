@@ -1,14 +1,26 @@
-import { DefaultApiClientManager } from '@sudoplatform/sudo-api-client'
+import {
+  ApiClientConfig,
+  DefaultApiClientManager,
+} from '@sudoplatform/sudo-api-client'
 import {
   DefaultConfigurationManager,
   PolicyError,
   VersionMismatchError,
 } from '@sudoplatform/sudo-common'
 import { DefaultSudoUserClient } from '@sudoplatform/sudo-user'
+import { CognitoIdentityCredentials } from 'aws-sdk'
+import FS from 'fs'
+import { LocalStorage } from 'node-localstorage'
+import * as path from 'path'
+import { anything, mock, when } from 'ts-mockito'
 import * as uuid from 'uuid'
 import config from '../../config/sudoplatformconfig.json'
+import { ApiClient } from '../../src/client/apiClient'
+import { IdentityServiceConfig } from '../../src/core/identity-service-config'
 import { DefaultKeyManager } from '../../src/core/key-manager'
 import { KeyStore } from '../../src/core/key-store'
+import { DefaultS3Client } from '../../src/core/s3Client'
+import { S3DownloadError } from '../../src/global/error'
 import { FetchOption, Sudo } from '../../src/sudo/sudo'
 import { DefaultSudoProfilesClient } from '../../src/sudo/sudo-profiles-client'
 import {
@@ -16,13 +28,13 @@ import {
   ConnectionState,
   SudoSubscriber,
 } from '../../src/sudo/sudo-subscriber'
-import { ApiClient } from '../../src/client/apiClient'
-import { signIn, signOut, delay } from './test-helper'
+import { delay, signIn, signOut } from './test-helper'
 
 //const globalAny: any = global
 global.WebSocket = require('ws')
 global.crypto = require('isomorphic-webcrypto')
 require('isomorphic-fetch')
+global.localStorage = new LocalStorage('./scratch')
 
 class MySubscriber implements SudoSubscriber {
   private sudoChangedCount: number = 1
@@ -60,11 +72,33 @@ const symmetricKeyId = '1234'
 const symmetricKey = '14A9B3C3540142A11E70ACBB1BD8969F'
 keyManager.setSymmetricKeyId(symmetricKeyId)
 keyManager.insertKey(symmetricKeyId, textEncoder.encode(symmetricKey))
+const apiClientConfig = DefaultConfigurationManager.getInstance().bindConfigSet<
+  ApiClientConfig
+>(ApiClientConfig, 'apiService')
+const identityServiceConfig = DefaultConfigurationManager.getInstance().bindConfigSet<
+  IdentityServiceConfig
+>(IdentityServiceConfig, 'identityService')
+
+const s3Client = new DefaultS3Client(userClient, identityServiceConfig)
+
+// const blobCache =  localForage.createInstance({
+//   name: 'sudoProfilesBlobCache',
+//   driver: localForage.WEBSQL,
+// })
+
+const blobCacheMock: LocalForage = mock()
+//blobCache.defineDriver(memoryDriver)
+//blobCache.setDriver(memoryDriver._driver)
 
 const sudoProfilesClient = new DefaultSudoProfilesClient(
   userClient,
   keyManager,
   apiClient,
+  apiClientConfig,
+  s3Client,
+  undefined,
+  undefined,
+  blobCacheMock,
 )
 
 beforeEach(async (): Promise<void> => {
@@ -75,10 +109,9 @@ beforeEach(async (): Promise<void> => {
   }
 }, 30000)
 
-afterEach(
-  async (): Promise<void> => {
-    await signOut(userClient)
-  }, 25000)
+afterEach(async (): Promise<void> => {
+  await signOut(userClient)
+}, 25000)
 
 describe('sudoProfilesClientIntegrationTests', () => {
   describe('redeem()', () => {
@@ -285,7 +318,95 @@ describe('sudoProfilesClientIntegrationTests', () => {
 
       createdSudo.version = 3
 
-      await expect(sudoProfilesClient.updateSudo(createdSudo)).rejects.toThrow(VersionMismatchError)
+      await expect(sudoProfilesClient.updateSudo(createdSudo)).rejects.toThrow(
+        VersionMismatchError,
+      )
     }, 30000)
+  })
+
+  describe('deleteSudo()', () => {
+    it('should delete sudo, blob cache and s3 image', async () => {
+      //Create new Sudo
+      const id = uuid.v4()
+      const newSudo = new Sudo()
+      newSudo.title = `dummy_title_${id}`
+      newSudo.firstName = `dummy_first_name_${id}`
+      newSudo.lastName = `dummy_last_name_${id}`
+      newSudo.label = `dummy_label_${id}`
+      newSudo.notes = `dummy_notes_${id}`
+
+      const fileData = FS.readFileSync(
+        path.resolve(__dirname, '../integration/jordan.png'),
+      )
+      newSudo.setAvatar(fileData)
+
+      when(blobCacheMock.setItem(anything(), fileData)).thenResolve()
+
+      const createdSudo = await sudoProfilesClient.createSudo(newSudo)
+
+      expect(createdSudo.id).toBeTruthy()
+      expect(createdSudo.title).toBe(`dummy_title_${id}`)
+      expect(createdSudo.firstName).toBe(`dummy_first_name_${id}`)
+      expect(createdSudo.lastName).toBe(`dummy_last_name_${id}`)
+      expect(createdSudo.label).toBe(`dummy_label_${id}`)
+      expect(createdSudo.notes).toBe(`dummy_notes_${id}`)
+      expect(createdSudo.version).toBe(2)
+      const cacheId = `sudo/${createdSudo.id}/avatar`
+
+      // list sudos and force download of avatar image
+      const downloadedSudos = await sudoProfilesClient.listSudos(
+        FetchOption.RemoteOnly,
+      )
+      expect(downloadedSudos).toBeTruthy()
+      expect(downloadedSudos.length).toBe(1)
+      expect(downloadedSudos[0].title).toBe(`dummy_title_${id}`)
+      expect(downloadedSudos[0].firstName).toBe(`dummy_first_name_${id}`)
+      expect(downloadedSudos[0].lastName).toBe(`dummy_last_name_${id}`)
+      expect(downloadedSudos[0].label).toBe(`dummy_label_${id}`)
+      expect(downloadedSudos[0].notes).toBe(`dummy_notes_${id}`)
+      expect(downloadedSudos[0].getAvatarFile()).toBeTruthy()
+
+      // Make sure cache has been populated
+      const cachedSudos = await sudoProfilesClient.listSudos(
+        FetchOption.CacheOnly,
+      )
+      expect(cachedSudos).toBeTruthy()
+      expect(cachedSudos.length).toBe(1)
+      expect(cachedSudos[0].title).toBe(`dummy_title_${id}`)
+      expect(cachedSudos[0].firstName).toBe(`dummy_first_name_${id}`)
+      expect(cachedSudos[0].lastName).toBe(`dummy_last_name_${id}`)
+      expect(cachedSudos[0].label).toBe(`dummy_label_${id}`)
+      expect(cachedSudos[0].notes).toBe(`dummy_notes_${id}`)
+      expect(cachedSudos[0].getAvatarFile()).toBeTruthy()
+
+      // Delete Sudo
+      await sudoProfilesClient.deleteSudo(createdSudo)
+
+      // Make sure sudo has been deleted
+      const listDeletedSudos = await sudoProfilesClient.listSudos(
+        FetchOption.RemoteOnly,
+      )
+      expect(listDeletedSudos).toEqual([])
+
+      // Make sure file has been deleted from S3
+      // Need to get identity
+      const authTokens = await userClient.getLatestAuthToken()
+      const providerName = `cognito-idp.${identityServiceConfig.region}.amazonaws.com/${identityServiceConfig.poolId}`
+      const credentialsProvider = new CognitoIdentityCredentials(
+        {
+          IdentityPoolId: identityServiceConfig.identityPoolId,
+          Logins: {
+            [providerName]: authTokens,
+          },
+        },
+        {
+          region: 'us-east-1',
+        },
+      )
+
+      await credentialsProvider.getPromise()
+      const key = `${credentialsProvider.identityId}/${cacheId}`
+      await expect(s3Client.download(key)).rejects.toThrow(S3DownloadError)
+    }, 120000)
   })
 })

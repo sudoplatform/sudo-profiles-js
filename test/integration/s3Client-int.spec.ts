@@ -6,9 +6,9 @@ import { DefaultS3Client } from '../../src/core/s3Client'
 import FS from 'fs'
 import * as path from 'path'
 import * as uuid from 'uuid'
-import { DownloadError } from '../../src/global/error'
+import { S3DownloadError } from '../../src/global/error'
 import config from '../../config/sudoplatformconfig.json'
-import { signIn, signOut } from './test-helper'
+import { signIn, signOut, delay, } from './test-helper'
 
 const globalAny: any = global
 globalAny.WebSocket = require('ws')
@@ -106,7 +106,7 @@ describe('s3ClientIntegrationTests', () => {
         await s3Client.download(key)
         fail('File has not been deleted')
       } catch (error) {
-        expect(error).toBeInstanceOf(DownloadError)
+        expect(error).toBeInstanceOf(S3DownloadError)
       }
     
     }, 60000)
@@ -131,12 +131,9 @@ describe('s3ClientIntegrationTests', () => {
 
       //Try to get file from S3
       console.log('confirm file has been deleted from s3')
-      try {
-        await s3Client.download(key)
-        fail('File has not been deleted')
-      } catch (error) {
-        expect(error).toBeInstanceOf(DownloadError)
-      }
+      await delay(5000) 
+
+      await expect(s3Client.download(key)).rejects.toThrow(S3DownloadError)
 
     }, 120000)
   })

@@ -51,8 +51,8 @@ export class StringClaimValue {
  */
 export class BlobClaimValue {
   public value: string | undefined = undefined
-  public file: File | undefined = undefined
-  constructor(val?: string, file?: File) {
+  public file: ArrayBuffer | undefined = undefined
+  constructor(val?: string, file?: ArrayBuffer) {
     this.value = val
     this.file = file
   }
@@ -240,12 +240,12 @@ export class Sudo extends Base {
     return this._claims.get(Sudo.AVATAR)?.value.value as URL | undefined
   }
 
-  public getAvatarFile(): File | undefined {
+  public getAvatarFile(): ArrayBuffer | undefined {
     const blobClaim = this._claims.get(Sudo.AVATAR)?.value as BlobClaimValue
     return !blobClaim ? undefined : blobClaim.file
   }
 
-  public setAvatar(value: File): void {
+  public setAvatar(value: ArrayBuffer): void {
     if (value) {
       this._claims.set(
         Sudo.AVATAR,

@@ -5,7 +5,6 @@ import {
   UnknownGraphQLError,
   VersionMismatchError,
 } from '@sudoplatform/sudo-common'
-
 export const GRAPHQL_ERROR_SUDO_NOT_FOUND = 'sudoplatform.sudo.SudoNotFound'
 export const GRAPHQL_ERROR_POLICY_ERROR = 'sudoplatform.PolicyFailed'
 export const GRAPHQL_ERROR_CONDITIONAL_CHECK_FAILED =
@@ -13,49 +12,40 @@ export const GRAPHQL_ERROR_CONDITIONAL_CHECK_FAILED =
 export const GRAPHQL_ERROR_SERVER_ERROR = 'sudoplatform.sudo.ServerError'
 
 /**
- * Error when key not found in KeyStore
+ * Error when Symmetric key not found in KeyStore
  */
-export class KeyStoreError extends Error {
-  constructor(message: string) {
-    super(message)
-    this.name = 'KeyStoreError'
-  }
+export declare class SymmetricKeyNotFoundError extends Error {
+  constructor()
+}
+
+export declare class SudoNotFoundError extends Error {
+  constructor()
 }
 
 /**
  * Error when uploading a file to S3
  */
-export class UploadError extends Error {
+export class S3UploadError extends Error {
   constructor(message: string) {
     super(message)
-    this.name = 'UploadError'
   }
 }
 
 /**
  * Error when file not downloaded from S3
  */
-export class DownloadError extends Error {
+export class S3DownloadError extends Error {
   constructor(message: string) {
     super(message)
-    this.name = 'DownloadError'
   }
 }
 
 /**
  * Error when trying to delete a file from S3
  */
-export class DeleteError extends Error {
+export class S3DeleteError extends Error {
   constructor(message: string) {
     super(message)
-    this.name = 'DeleteError'
-  }
-}
-
-export class SudoNotFoundError extends Error {
-  constructor(message: string) {
-    super(message)
-    this.name = 'SudoNotFoundError'
   }
 }
 
@@ -65,7 +55,7 @@ export function graphQLErrorsToClientError(error: AppSyncError): Error {
 
   switch (errorType) {
     case GRAPHQL_ERROR_SUDO_NOT_FOUND:
-      return new SudoNotFoundError(error.message)
+      return new SudoNotFoundError()
     case GRAPHQL_ERROR_POLICY_ERROR:
       return new PolicyError()
     case GRAPHQL_ERROR_CONDITIONAL_CHECK_FAILED:

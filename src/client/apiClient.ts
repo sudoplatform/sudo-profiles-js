@@ -16,6 +16,9 @@ import {
   CreateSudoDocument,
   CreateSudoInput,
   CreateSudoMutation,
+  DeleteSudoDocument,
+  DeleteSudoInput,
+  DeleteSudoMutation,
   Entitlement,
   GetOwnershipProofDocument,
   GetOwnershipProofInput,
@@ -212,6 +215,25 @@ export class ApiClient {
     } else {
       throw new FatalError('listSudos did not return any result')
     }
+  }
+
+  public async deleteSudo(input: DeleteSudoInput): Promise<void> {
+    let result
+    try {
+      result = await this.client.mutate<DeleteSudoMutation>({
+        mutation: DeleteSudoDocument,
+        variables: { input },
+      })
+    } catch (err) {
+      const error = err.graphQLErrors?.[0]
+      if (error) {
+        throw graphQLErrorsToClientError(error)
+      } else {
+        throw new FatalError(err.message)
+      }
+    }
+
+    this.checkGraphQLResponseErrors(result.errors)
   }
 
   public async reset(): Promise<void> {
