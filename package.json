@@ -1,6 +1,6 @@
 {
   "name": "@sudoplatform/sudo-profiles",
-  "version": "1.0.1",
+  "version": "2.1.1",
   "author": "Anonyome Labs, Inc.",
   "repository": {
     "type": "git",
@@ -71,9 +71,9 @@
     "@graphql-codegen/typescript": "^1.17.6",
     "@graphql-codegen/typescript-operations": "^1.17.6",
     "@graphql-typed-document-node/apollo-client-2": "^0.0.1",
-    "@sudoplatform/sudo-api-client": "^1.0.0",
-    "@sudoplatform/sudo-common": "^1.0.13",
-    "@sudoplatform/sudo-user": "^1.1.0",
+    "@sudoplatform/sudo-api-client": "^2.0.0",
+    "@sudoplatform/sudo-common": "^2.0.1",
+    "@sudoplatform/sudo-user": "^2.0.0",
     "@types/jest": "^26.0.7",
     "@types/jsonwebtoken": "^8.5.0",
     "@types/node": "^14.0.26",
@@ -97,8 +97,8 @@
     "node-fetch": "2.6.1"
   },
   "peerDependencies": {
-    "@sudoplatform/sudo-api-client": "^1.0.0",
-    "@sudoplatform/sudo-common": "^1.0.13",
-    "@sudoplatform/sudo-user": "^1.1.0"
+    "@sudoplatform/sudo-api-client": "^2.0.0",
+    "@sudoplatform/sudo-common": "^2.0.1",
+    "@sudoplatform/sudo-user": "^2.0.0"
   }
 }

@@ -1,12 +1,8 @@
 import {
-  ApiClientConfig,
-  DefaultApiClientManager,
-} from '@sudoplatform/sudo-api-client'
-import {
   DefaultConfigurationManager,
-  PolicyError,
-  VersionMismatchError,
   getLogger,
+  InsufficientEntitlementsError,
+  VersionMismatchError,
 } from '@sudoplatform/sudo-common'
 import { DefaultSudoUserClient } from '@sudoplatform/sudo-user'
 import { CognitoIdentityCredentials } from 'aws-sdk'
@@ -17,8 +13,7 @@ import { anything, mock, when } from 'ts-mockito'
 import * as uuid from 'uuid'
 import config from '../../config/sudoplatformconfig.json'
 import { IdentityServiceConfig } from '../../src/core/identity-service-config'
-import { DefaultKeyManager } from '../../src/core/key-manager'
-import { KeyStore } from '../../src/core/key-store'
+import { InMemoryKeyStore } from '../../src/core/key-store'
 import { DefaultS3Client } from '../../src/core/s3Client'
 import { S3DownloadError } from '../../src/global/error'
 import { FetchOption, Sudo } from '../../src/sudo/sudo'
@@ -28,9 +23,7 @@ import {
   ConnectionState,
   SudoSubscriber,
 } from '../../src/sudo/sudo-subscriber'
-import { ApiClient } from '../../src/client/apiClient'
-import { signIn, signOut, delay } from './test-helper'
-import { DefaultQueryCache } from '../../src/core/query-cache'
+import { delay, signIn, signOut } from './test-helper'
 
 //const globalAny: any = global
 global.WebSocket = require('ws')
@@ -39,9 +32,6 @@ require('isomorphic-fetch')
 global.localStorage = new LocalStorage('./scratch')
 
 class MySubscriber implements SudoSubscriber {
-  private sudoChangedCount: number = 1
-  private connectionsChangedCount: number = 1
-
   public connectionState: ConnectionState | undefined = undefined
   public changeType: ChangeType | undefined = undefined
   public sudo: Sudo | undefined = undefined
@@ -50,54 +40,32 @@ class MySubscriber implements SudoSubscriber {
     console.log('MySubscriber sudo changed event')
     this.sudo = sudo
     this.changeType = changeType
-    this.sudoChangedCount--
   }
 
   connectionStatusChanged(state: ConnectionState): void {
     console.log('MySubscriber connection status changed event')
     this.connectionState = state
-    this.connectionsChangedCount--
   }
 }
 const logger = getLogger()
 DefaultConfigurationManager.getInstance().setConfig(JSON.stringify(config))
 const userClient = new DefaultSudoUserClient()
-const apiClientManager = DefaultApiClientManager.getInstance().setAuthClient(
-  userClient,
-)
-const apiManager = apiClientManager.getClient({ disableOffline: true })
-const queryCache = new DefaultQueryCache(apiManager, logger)
-const apiClient = new ApiClient(userClient, apiManager, queryCache, logger)
-const keyStore = new KeyStore()
-const keyManager = new DefaultKeyManager(keyStore)
-const textEncoder = new TextEncoder()
-const symmetricKeyId = '1234'
-const symmetricKey = '14A9B3C3540142A11E70ACBB1BD8969F'
-keyManager.setSymmetricKeyId(symmetricKeyId)
-keyManager.insertKey(symmetricKeyId, textEncoder.encode(symmetricKey))
-const apiClientConfig = DefaultConfigurationManager.getInstance().bindConfigSet<
-  ApiClientConfig
->(ApiClientConfig, 'apiService')
+
 const identityServiceConfig = DefaultConfigurationManager.getInstance().bindConfigSet<
   IdentityServiceConfig
 >(IdentityServiceConfig, 'identityService')
 
-const s3Client = new DefaultS3Client(
-  userClient,
-  identityServiceConfig,
-  logger)
+const s3Client = new DefaultS3Client(userClient, identityServiceConfig, logger)
 
 const blobCacheMock: LocalForage = mock()
 
-const sudoProfilesClient = new DefaultSudoProfilesClient(
-  userClient,
-  keyManager,
-  apiClient,
-  s3Client,
-  undefined,
-  blobCacheMock,
-  logger,
-)
+const sudoProfilesClient = new DefaultSudoProfilesClient({
+  sudoUserClient: userClient,
+  keyStore: new InMemoryKeyStore(),
+  disableOffline: true,
+  blobCache: blobCacheMock
+})
+sudoProfilesClient.pushSymmetricKey('1234', '14A9B3C3540142A11E70ACBB1BD8969F')
 
 beforeEach(async (): Promise<void> => {
   try {
@@ -162,7 +130,7 @@ describe('sudoProfilesClientIntegrationTests', () => {
         await sudoProfilesClient.createSudo(anotherSudo)
         fail('Creating more sudos was expected to fail.')
       } catch (error) {
-        expect(error).toBeInstanceOf(PolicyError)
+        expect(error).toBeInstanceOf(InsufficientEntitlementsError)
       }
     }, 60000)
   })

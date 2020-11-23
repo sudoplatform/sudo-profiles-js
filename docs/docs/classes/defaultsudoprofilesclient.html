@@ -98,6 +98,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="defaultsudoprofilesclient.html#deletesudo" class="tsd-kind-icon">delete<wbr>Sudo</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="defaultsudoprofilesclient.html#getownershipproof" class="tsd-kind-icon">get<wbr>Ownership<wbr>Proof</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="defaultsudoprofilesclient.html#listsudos" class="tsd-kind-icon">list<wbr>Sudos</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="defaultsudoprofilesclient.html#pushsymmetrickey" class="tsd-kind-icon">push<wbr>Symmetric<wbr>Key</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="defaultsudoprofilesclient.html#redeem" class="tsd-kind-icon">redeem</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="defaultsudoprofilesclient.html#reset" class="tsd-kind-icon">reset</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="defaultsudoprofilesclient.html#subscribe" class="tsd-kind-icon">subscribe</a></li>
@@ -116,37 +117,19 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Default<wbr>Sudo<wbr>Profiles<wbr>Client<span class="tsd-signature-symbol">(</span>sudoUserClient<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">SudoUserClient</span>, keyManager<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">KeyManager</span>, apiClient<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">ApiClient</span>, s3Client<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">S3Client</span>, securityProvider<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">SecurityProvider</span>, blobCache<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">LocalForage</span>, logger<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Logger</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="defaultsudoprofilesclient.html" class="tsd-signature-type">DefaultSudoProfilesClient</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Default<wbr>Sudo<wbr>Profiles<wbr>Client<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">: </span><a href="../interfaces/sudoprofileoptions.html" class="tsd-signature-type">SudoProfileOptions</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="defaultsudoprofilesclient.html" class="tsd-signature-type">DefaultSudoProfilesClient</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:231</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:254</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>sudoUserClient: <span class="tsd-signature-type">SudoUserClient</span></h5>
-								</li>
-								<li>
-									<h5>keyManager: <span class="tsd-signature-type">KeyManager</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> apiClient: <span class="tsd-signature-type">ApiClient</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> s3Client: <span class="tsd-signature-type">S3Client</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> securityProvider: <span class="tsd-signature-type">SecurityProvider</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> blobCache: <span class="tsd-signature-type">LocalForage</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> logger: <span class="tsd-signature-type">Logger</span></h5>
+									<h5>options: <a href="../interfaces/sudoprofileoptions.html" class="tsd-signature-type">SudoProfileOptions</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="defaultsudoprofilesclient.html" class="tsd-signature-type">DefaultSudoProfilesClient</a></h4>
@@ -166,7 +149,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:917</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:938</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -193,7 +176,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/sudoprofilesclient.html">SudoProfilesClient</a>.<a href="../interfaces/sudoprofilesclient.html#createsudo">createSudo</a></p>
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:301</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:317</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -217,7 +200,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/sudoprofilesclient.html">SudoProfilesClient</a>.<a href="../interfaces/sudoprofilesclient.html#deletesudo">deleteSudo</a></p>
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:615</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:636</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -241,7 +224,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/sudoprofilesclient.html">SudoProfilesClient</a>.<a href="../interfaces/sudoprofilesclient.html#getownershipproof">getOwnershipProof</a></p>
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:409</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:425</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -268,7 +251,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/sudoprofilesclient.html">SudoProfilesClient</a>.<a href="../interfaces/sudoprofilesclient.html#listsudos">listSudos</a></p>
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:436</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:452</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -278,6 +261,33 @@
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="sudo.html" class="tsd-signature-type">Sudo</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="pushsymmetrickey" class="tsd-anchor"></a>
+					<h3>push<wbr>Symmetric<wbr>Key</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">push<wbr>Symmetric<wbr>Key<span class="tsd-signature-symbol">(</span>keyId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, key<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Implementation of <a href="../interfaces/sudoprofilesclient.html">SudoProfilesClient</a>.<a href="../interfaces/sudoprofilesclient.html#pushsymmetrickey">pushSymmetricKey</a></p>
+								<ul>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:566</li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>keyId: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>key: <span class="tsd-signature-type">string</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -292,7 +302,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/sudoprofilesclient.html">SudoProfilesClient</a>.<a href="../interfaces/sudoprofilesclient.html#redeem">redeem</a></p>
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:423</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:439</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -319,7 +329,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/sudoprofilesclient.html">SudoProfilesClient</a>.<a href="../interfaces/sudoprofilesclient.html#reset">reset</a></p>
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:446</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:462</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -337,7 +347,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/sudoprofilesclient.html">SudoProfilesClient</a>.<a href="../interfaces/sudoprofilesclient.html#subscribe">subscribe</a></p>
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:459</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:475</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -367,7 +377,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/sudoprofilesclient.html">SudoProfilesClient</a>.<a href="../interfaces/sudoprofilesclient.html#subscribeall">subscribeAll</a></p>
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:453</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:469</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -394,7 +404,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/sudoprofilesclient.html">SudoProfilesClient</a>.<a href="../interfaces/sudoprofilesclient.html#unsubscribe">unsubscribe</a></p>
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:524</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:540</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -421,7 +431,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/sudoprofilesclient.html">SudoProfilesClient</a>.<a href="../interfaces/sudoprofilesclient.html#unsubscribeall">unsubscribeAll</a></p>
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:540</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:556</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -438,7 +448,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:322</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:338</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -467,10 +477,25 @@
 						<a href="../enums/changetype.html" class="tsd-kind-icon">Change<wbr>Type</a>
 					</li>
 					<li class=" tsd-kind-enum">
+						<a href="../enums/claimvisibility.html" class="tsd-kind-icon">Claim<wbr>Visibility</a>
+					</li>
+					<li class=" tsd-kind-enum">
 						<a href="../enums/connectionstate.html" class="tsd-kind-icon">Connection<wbr>State</a>
 					</li>
 					<li class=" tsd-kind-enum">
+						<a href="../enums/erroroption.html" class="tsd-kind-icon">Error<wbr>Option</a>
+					</li>
+					<li class=" tsd-kind-enum">
 						<a href="../enums/fetchoption.html" class="tsd-kind-icon">Fetch<wbr>Option</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="base.html" class="tsd-kind-icon">Base</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="blobclaimvalue.html" class="tsd-kind-icon">Blob<wbr>Claim<wbr>Value</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="claim.html" class="tsd-kind-icon">Claim</a>
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="defaultkeymanager.html" class="tsd-kind-icon">Default<wbr>Key<wbr>Manager</a>
@@ -499,6 +524,9 @@
 								<a href="defaultsudoprofilesclient.html#listsudos" class="tsd-kind-icon">list<wbr>Sudos</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="defaultsudoprofilesclient.html#pushsymmetrickey" class="tsd-kind-icon">push<wbr>Symmetric<wbr>Key</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="defaultsudoprofilesclient.html#redeem" class="tsd-kind-icon">redeem</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
@@ -524,7 +552,7 @@
 				</ul>
 				<ul class="after-current">
 					<li class=" tsd-kind-class">
-						<a href="keystore.html" class="tsd-kind-icon">Key<wbr>Store</a>
+						<a href="inmemorykeystore.html" class="tsd-kind-icon">In<wbr>Memory<wbr>Key<wbr>Store</a>
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="s3deleteerror.html" class="tsd-kind-icon">S3<wbr>Delete<wbr>Error</a>
@@ -536,6 +564,9 @@
 						<a href="s3uploaderror.html" class="tsd-kind-icon">S3<wbr>Upload<wbr>Error</a>
 					</li>
 					<li class=" tsd-kind-class">
+						<a href="stringclaimvalue.html" class="tsd-kind-icon">String<wbr>Claim<wbr>Value</a>
+					</li>
+					<li class=" tsd-kind-class">
 						<a href="sudo.html" class="tsd-kind-icon">Sudo</a>
 					</li>
 					<li class=" tsd-kind-class">
@@ -543,6 +574,15 @@
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="symmetrickeynotfounderror.html" class="tsd-kind-icon">Symmetric<wbr>Key<wbr>Not<wbr>Found<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="../interfaces/keymanager.html" class="tsd-kind-icon">Key<wbr>Manager</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="../interfaces/store.html" class="tsd-kind-icon">Store</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="../interfaces/sudoprofileoptions.html" class="tsd-kind-icon">Sudo<wbr>Profile<wbr>Options</a>
 					</li>
 					<li class=" tsd-kind-interface">
 						<a href="../interfaces/sudoprofilesclient.html" class="tsd-kind-icon">Sudo<wbr>Profiles<wbr>Client</a>
@@ -554,13 +594,16 @@
 						<a href="../globals.html#graphql_error_conditional_check_failed" class="tsd-kind-icon">GRAPHQL_<wbr>ERROR_<wbr>CONDITIONAL_<wbr>CHECK_<wbr>FAILED</a>
 					</li>
 					<li class=" tsd-kind-variable">
-						<a href="../globals.html#graphql_error_policy_error" class="tsd-kind-icon">GRAPHQL_<wbr>ERROR_<wbr>POLICY_<wbr>ERROR</a>
+						<a href="../globals.html#graphql_error_insufficient_entitlements_error" class="tsd-kind-icon">GRAPHQL_<wbr>ERROR_<wbr>INSUFFICIENT_<wbr>ENTITLEMENTS_<wbr>ERROR</a>
 					</li>
 					<li class=" tsd-kind-variable">
 						<a href="../globals.html#graphql_error_server_error" class="tsd-kind-icon">GRAPHQL_<wbr>ERROR_<wbr>SERVER_<wbr>ERROR</a>
 					</li>
 					<li class=" tsd-kind-variable">
 						<a href="../globals.html#graphql_error_sudo_not_found" class="tsd-kind-icon">GRAPHQL_<wbr>ERROR_<wbr>SUDO_<wbr>NOT_<wbr>FOUND</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="../globals.html#key_name_symmetric_key_id" class="tsd-kind-icon">KEY_<wbr>NAME_<wbr>SYMMETRIC_<wbr>KEY_<wbr>ID</a>
 					</li>
 					<li class=" tsd-kind-function">
 						<a href="../globals.html#graphqlerrorstoclienterror" class="tsd-kind-icon">graphQLErrors<wbr>ToClient<wbr>Error</a>

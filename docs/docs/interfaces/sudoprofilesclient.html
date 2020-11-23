@@ -98,6 +98,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="sudoprofilesclient.html#deletesudo" class="tsd-kind-icon">delete<wbr>Sudo</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="sudoprofilesclient.html#getownershipproof" class="tsd-kind-icon">get<wbr>Ownership<wbr>Proof</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="sudoprofilesclient.html#listsudos" class="tsd-kind-icon">list<wbr>Sudos</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="sudoprofilesclient.html#pushsymmetrickey" class="tsd-kind-icon">push<wbr>Symmetric<wbr>Key</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="sudoprofilesclient.html#redeem" class="tsd-kind-icon">redeem</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="sudoprofilesclient.html#reset" class="tsd-kind-icon">reset</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="sudoprofilesclient.html#subscribe" class="tsd-kind-icon">subscribe</a></li>
@@ -122,7 +123,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:76</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:88</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -134,7 +135,7 @@
 									<dd><p>{@link IllegalStateError}</p>
 									</dd>
 									<dt>throws</dt>
-									<dd><p>{@link PolicyError}</p>
+									<dd><p>{@link InsufficientEntitlementsError}</p>
 									</dd>
 									<dt>throws</dt>
 									<dd><p>{@link ServiceError}</p>
@@ -171,7 +172,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:209</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:221</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -214,7 +215,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:122</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:134</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -276,7 +277,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:150</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:162</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -310,6 +311,46 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="pushsymmetrickey" class="tsd-anchor"></a>
+					<h3>push<wbr>Symmetric<wbr>Key</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">push<wbr>Symmetric<wbr>Key<span class="tsd-signature-symbol">(</span>keyId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, key<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:234</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Adds a key value pair to the store (keyId, key), then sets that keyId as the pointer to the current symmetric key to use.</p>
+								</div>
+								<p>As symmetric keys can be rotated, this will also allow a list of symmetric keys to exist in the store in which to decrypt
+								older sudo claims with if needed and also give the ability to set the current symmetric key.</p>
+								<p>The last symmetric key pushed will be set to the current active symmetric key.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>keyId: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The keyId that points to the symmetric key used for encrypting claims</p>
+									</div>
+								</li>
+								<li>
+									<h5>key: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The symmetric key to encrypt claims with</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
 					<a name="redeem" class="tsd-anchor"></a>
 					<h3>redeem</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
@@ -319,7 +360,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:136</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:148</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -368,7 +409,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:155</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:167</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -390,7 +431,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:178</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:190</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -439,7 +480,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:166</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:178</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -482,7 +523,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:191</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:203</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -520,7 +561,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:196</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:208</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -542,7 +583,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/sudo/sudo-profiles-client.ts:94</li>
+									<li>Defined in src/sudo/sudo-profiles-client.ts:106</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -609,10 +650,25 @@
 						<a href="../enums/changetype.html" class="tsd-kind-icon">Change<wbr>Type</a>
 					</li>
 					<li class=" tsd-kind-enum">
+						<a href="../enums/claimvisibility.html" class="tsd-kind-icon">Claim<wbr>Visibility</a>
+					</li>
+					<li class=" tsd-kind-enum">
 						<a href="../enums/connectionstate.html" class="tsd-kind-icon">Connection<wbr>State</a>
 					</li>
 					<li class=" tsd-kind-enum">
+						<a href="../enums/erroroption.html" class="tsd-kind-icon">Error<wbr>Option</a>
+					</li>
+					<li class=" tsd-kind-enum">
 						<a href="../enums/fetchoption.html" class="tsd-kind-icon">Fetch<wbr>Option</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="../classes/base.html" class="tsd-kind-icon">Base</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="../classes/blobclaimvalue.html" class="tsd-kind-icon">Blob<wbr>Claim<wbr>Value</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="../classes/claim.html" class="tsd-kind-icon">Claim</a>
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="../classes/defaultkeymanager.html" class="tsd-kind-icon">Default<wbr>Key<wbr>Manager</a>
@@ -621,7 +677,7 @@
 						<a href="../classes/defaultsudoprofilesclient.html" class="tsd-kind-icon">Default<wbr>Sudo<wbr>Profiles<wbr>Client</a>
 					</li>
 					<li class=" tsd-kind-class">
-						<a href="../classes/keystore.html" class="tsd-kind-icon">Key<wbr>Store</a>
+						<a href="../classes/inmemorykeystore.html" class="tsd-kind-icon">In<wbr>Memory<wbr>Key<wbr>Store</a>
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="../classes/s3deleteerror.html" class="tsd-kind-icon">S3<wbr>Delete<wbr>Error</a>
@@ -633,6 +689,9 @@
 						<a href="../classes/s3uploaderror.html" class="tsd-kind-icon">S3<wbr>Upload<wbr>Error</a>
 					</li>
 					<li class=" tsd-kind-class">
+						<a href="../classes/stringclaimvalue.html" class="tsd-kind-icon">String<wbr>Claim<wbr>Value</a>
+					</li>
+					<li class=" tsd-kind-class">
 						<a href="../classes/sudo.html" class="tsd-kind-icon">Sudo</a>
 					</li>
 					<li class=" tsd-kind-class">
@@ -640,6 +699,15 @@
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="../classes/symmetrickeynotfounderror.html" class="tsd-kind-icon">Symmetric<wbr>Key<wbr>Not<wbr>Found<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="keymanager.html" class="tsd-kind-icon">Key<wbr>Manager</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="store.html" class="tsd-kind-icon">Store</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="sudoprofileoptions.html" class="tsd-kind-icon">Sudo<wbr>Profile<wbr>Options</a>
 					</li>
 				</ul>
 				<ul class="current">
@@ -657,6 +725,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-interface">
 								<a href="sudoprofilesclient.html#listsudos" class="tsd-kind-icon">list<wbr>Sudos</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="sudoprofilesclient.html#pushsymmetrickey" class="tsd-kind-icon">push<wbr>Symmetric<wbr>Key</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-interface">
 								<a href="sudoprofilesclient.html#redeem" class="tsd-kind-icon">redeem</a>
@@ -690,13 +761,16 @@
 						<a href="../globals.html#graphql_error_conditional_check_failed" class="tsd-kind-icon">GRAPHQL_<wbr>ERROR_<wbr>CONDITIONAL_<wbr>CHECK_<wbr>FAILED</a>
 					</li>
 					<li class=" tsd-kind-variable">
-						<a href="../globals.html#graphql_error_policy_error" class="tsd-kind-icon">GRAPHQL_<wbr>ERROR_<wbr>POLICY_<wbr>ERROR</a>
+						<a href="../globals.html#graphql_error_insufficient_entitlements_error" class="tsd-kind-icon">GRAPHQL_<wbr>ERROR_<wbr>INSUFFICIENT_<wbr>ENTITLEMENTS_<wbr>ERROR</a>
 					</li>
 					<li class=" tsd-kind-variable">
 						<a href="../globals.html#graphql_error_server_error" class="tsd-kind-icon">GRAPHQL_<wbr>ERROR_<wbr>SERVER_<wbr>ERROR</a>
 					</li>
 					<li class=" tsd-kind-variable">
 						<a href="../globals.html#graphql_error_sudo_not_found" class="tsd-kind-icon">GRAPHQL_<wbr>ERROR_<wbr>SUDO_<wbr>NOT_<wbr>FOUND</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="../globals.html#key_name_symmetric_key_id" class="tsd-kind-icon">KEY_<wbr>NAME_<wbr>SYMMETRIC_<wbr>KEY_<wbr>ID</a>
 					</li>
 					<li class=" tsd-kind-function">
 						<a href="../globals.html#graphqlerrorstoclienterror" class="tsd-kind-icon">graphQLErrors<wbr>ToClient<wbr>Error</a>

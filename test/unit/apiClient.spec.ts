@@ -1,7 +1,7 @@
 import {
   DefaultConfigurationManager,
   FatalError,
-  PolicyError,
+  InsufficientEntitlementsError,
   ServiceError,
   VersionMismatchError,
   getLogger,
@@ -22,7 +22,7 @@ import {
 } from '../../src/gen/graphql-types'
 import {
   GRAPHQL_ERROR_CONDITIONAL_CHECK_FAILED,
-  GRAPHQL_ERROR_POLICY_ERROR,
+  GRAPHQL_ERROR_INSUFFICIENT_ENTITLEMENTS_ERROR,
   GRAPHQL_ERROR_SERVER_ERROR,
   GRAPHQL_ERROR_SUDO_NOT_FOUND,
   SudoNotFoundError,
@@ -125,10 +125,10 @@ describe('ApiClient', () => {
       ).rejects.toThrow(FatalError)
     })
 
-    it('should throw PolicyError when mutation fails', async () => {
+    it('should throw InsufficientEntitlementsError when mutation fails', async () => {
       const backendError = createBackendError(
         ['createSudo'],
-        GRAPHQL_ERROR_POLICY_ERROR,
+        GRAPHQL_ERROR_INSUFFICIENT_ENTITLEMENTS_ERROR,
         { message: 'GraphQL error: createSudo' },
       )
 
@@ -143,7 +143,7 @@ describe('ApiClient', () => {
         })
         fail('Expected error not thrown.')
       } catch (error) {
-        expect(error).toBeInstanceOf(PolicyError)
+        expect(error).toBeInstanceOf(InsufficientEntitlementsError)
       }
     })
   }) // createSudo

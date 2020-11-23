@@ -21,7 +21,7 @@ export interface Store {
   clear(): Promise<void>
 }
 
-export class KeyStore implements Store {
+export class InMemoryKeyStore implements Store {
   #secrets: Record<string, ArrayBuffer> = {}
 
   private async addSecret(keyId: string, value: ArrayBuffer): Promise<void> {

@@ -16,7 +16,8 @@ import { InMemoryCache } from 'apollo-cache-inmemory'
 import localForage from 'localforage'
 import { ApiClient } from '../client/apiClient'
 import { IdentityServiceConfig } from '../core/identity-service-config'
-import { KeyManager } from '../core/key-manager'
+import { DefaultKeyManager, KeyManager } from '../core/key-manager'
+import { Store } from '../core/key-store'
 import { DefaultQueryCache } from '../core/query-cache'
 import { DefaultS3Client, S3Client } from '../core/s3Client'
 import {
@@ -27,6 +28,7 @@ import {
   SecureS3ObjectInput,
   Sudo as GQLSudo,
 } from '../gen/graphql-types'
+import { SudoNotFoundError } from '../global/error'
 import { AesSecurityProvider } from '../security/aesSecurityProvider'
 import {
   SecurityProvider,
@@ -43,7 +45,17 @@ import {
   Sudo,
 } from './sudo'
 import { ChangeType, ConnectionState, SudoSubscriber } from './sudo-subscriber'
-import { SudoNotFoundError } from '../global/error'
+
+export interface SudoProfileOptions {
+  sudoUserClient: SudoUserClient
+  keyStore: Store
+  apiClient?: ApiClient
+  s3Client?: S3Client
+  securityProvider?: SecurityProvider
+  blobCache?: LocalForage
+  logger?: Logger
+  disableOffline?: boolean
+}
 
 export enum ClaimVisibility {
   /**
@@ -68,7 +80,7 @@ export interface SudoProfilesClient {
    * @return Sudo: The new Sudo
    *
    * @throws {@link IllegalStateError}
-   * @throws {@link PolicyError}
+   * @throws {@link InsufficientEntitlementsError}
    * @throws {@link ServiceError}
    * @throws {@link UnknownGraphQLError}
    * @throws {@link FatalError}
@@ -207,6 +219,19 @@ export interface SudoProfilesClient {
    * @throws {@link SudoNotFoundError}
    */
   deleteSudo(sudo: Sudo): Promise<void>
+
+  /**
+   * Adds a key value pair to the store (keyId, key), then sets that keyId as the pointer to the current symmetric key to use.
+   *
+   * As symmetric keys can be rotated, this will also allow a list of symmetric keys to exist in the store in which to decrypt
+   * older sudo claims with if needed and also give the ability to set the current symmetric key.
+   *
+   * The last symmetric key pushed will be set to the current active symmetric key.
+   *
+   * @param keyId The keyId that points to the symmetric key used for encrypting claims
+   * @param key The symmetric key to encrypt claims with
+   */
+  pushSymmetricKey(keyId: string, key: string): Promise<void>
 }
 
 export class DefaultSudoProfilesClient implements SudoProfilesClient {
@@ -221,31 +246,21 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
   private readonly _onCreateSudoSubscriptionManager: SubscriptionManager<
     OnCreateSudoSubscription
   >
-
   private readonly _onUpdateSudoSubscriptionManager: SubscriptionManager<
     OnUpdateSudoSubscription
   >
-
   private readonly _onDeleteSudoSubscriptionManager: SubscriptionManager<
     OnDeleteSudoSubscription
   >
 
-  constructor(
-    sudoUserClient: SudoUserClient,
-    keyManager: KeyManager,
-    apiClient?: ApiClient,
-    s3Client?: S3Client,
-    securityProvider?: SecurityProvider,
-    blobCache?: LocalForage,
-    logger?: Logger,
-  ) {
-    this._sudoUserClient = sudoUserClient
-    this._keyManager = keyManager
-    this._logger = logger ?? getLogger()
+  constructor(options: SudoProfileOptions) {
+    this._sudoUserClient = options.sudoUserClient
+    this._logger = options.logger ?? getLogger()
 
     const apiClientConfig = DefaultConfigurationManager.getInstance().bindConfigSet<
       ApiClientConfig
     >(ApiClientConfig, 'apiService')
+
     const identityServiceConfig = DefaultConfigurationManager.getInstance().bindConfigSet<
       IdentityServiceConfig
     >(IdentityServiceConfig, 'identityService')
@@ -253,12 +268,12 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
     const defaultApiClientManager = DefaultApiClientManager.getInstance()
       .setConfig(apiClientConfig)
       .setAuthClient(this._sudoUserClient)
-      .getClient()
+      .getClient({ disableOffline: options.disableOffline ?? false })
 
     defaultApiClientManager.cache = new InMemoryCache()
 
-    if (apiClient) {
-      this._apiClient = apiClient
+    if (options.apiClient) {
+      this._apiClient = options.apiClient
     } else {
       const queryCache = new DefaultQueryCache(
         defaultApiClientManager,
@@ -274,18 +289,19 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
     }
 
     this._s3Client =
-      s3Client ??
+      options.s3Client ??
       new DefaultS3Client(
         this._sudoUserClient,
         identityServiceConfig,
         this._logger,
       )
 
+    this._keyManager = new DefaultKeyManager(options.keyStore)
     this._securityProvider =
-      securityProvider ?? new AesSecurityProvider(this._keyManager)
+      options.securityProvider ?? new AesSecurityProvider(this._keyManager)
 
     this._blobCache =
-      blobCache ??
+      options.blobCache ??
       localForage.createInstance({
         name: 'sudoProfilesBlobCache',
         driver: localForage.INDEXEDDB,
@@ -545,6 +561,11 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
     this._onCreateSudoSubscriptionManager.removeAllSubscribers()
     this._onUpdateSudoSubscriptionManager.removeAllSubscribers()
     this._onDeleteSudoSubscriptionManager.removeAllSubscribers()
+  }
+
+  public async pushSymmetricKey(keyId: string, key: string): Promise<void> {
+    await this._keyManager.insertKey(keyId, new TextEncoder().encode(key))
+    await this._keyManager.setSymmetricKeyId(keyId)
   }
 
   private executeCreateSudoSubscriptionWatcher():

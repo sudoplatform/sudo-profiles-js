@@ -12,7 +12,7 @@ import * as uuid from 'uuid'
 import config from '../../config/sudoplatformconfig.json'
 import { ApiClient } from '../../src/client/apiClient'
 import { DefaultKeyManager } from '../../src/core/key-manager'
-import { KeyStore } from '../../src/core/key-store'
+import { InMemoryKeyStore } from '../../src/core/key-store'
 import { QueryCache } from '../../src/core/query-cache'
 import { S3Client } from '../../src/core/s3Client'
 import { SudoNotFoundError } from '../../src/global/error'
@@ -36,23 +36,18 @@ const sudoUserClientMock: SudoUserClient = mock()
 const aesSecurityProviderMock: AesSecurityProvider = mock()
 const blobCacheMock: LocalForage = mock()
 const s3ClientMock: S3Client = mock()
-const profilesKeyManager = new DefaultKeyManager(new KeyStore())
-const textEncoder = new TextEncoder()
-const symmetricKeyId = '1234'
-const symmetricKey = '14A9B3C3540142A11E70ACBB1BD8969F'
-profilesKeyManager.setSymmetricKeyId(symmetricKeyId)
-profilesKeyManager.insertKey(symmetricKeyId, textEncoder.encode(symmetricKey))
 
 DefaultConfigurationManager.getInstance().setConfig(JSON.stringify(config))
 
-const sudoProfilesClient = new DefaultSudoProfilesClient(
-  instance(sudoUserClientMock),
-  profilesKeyManager,
-  apiClientMock,
-  s3ClientMock,
-  instance(aesSecurityProviderMock),
-  blobCacheMock,
-)
+const sudoProfilesClient = new DefaultSudoProfilesClient({
+  sudoUserClient: instance(sudoUserClientMock),
+  keyStore: new InMemoryKeyStore(),
+  apiClient: apiClientMock,
+  s3Client: s3ClientMock,
+  securityProvider: instance(aesSecurityProviderMock),
+  blobCache: blobCacheMock
+})
+sudoProfilesClient.pushSymmetricKey('1234', '14A9B3C3540142A11E70ACBB1BD8969F')
 
 class MySubscriber implements SudoSubscriber {
   public connectionState: ConnectionState | undefined = undefined
@@ -96,17 +91,10 @@ afterEach(
 describe('SudoProfilesClient', () => {
   describe('createSudo()', () => {
     it('should throw IllegalStateError when symmetric key id not set', async () => {
-      const profilesKeyManagerUnit = new DefaultKeyManager(new KeyStore())
-      const blobCacheMock: LocalForage = mock()
-
-      const sudoProfilesClientUnit = new DefaultSudoProfilesClient(
-        sudoUserClientMock,
-        profilesKeyManagerUnit,
-        apiClientMock,
-        s3ClientMock,
-        aesSecurityProviderMock,
-        blobCacheMock,
-      )
+      const sudoProfilesClientUnit = new DefaultSudoProfilesClient({
+        sudoUserClient: sudoUserClientMock,
+        keyStore: new InMemoryKeyStore()
+      })
 
       await expect(
         sudoProfilesClientUnit.createSudo(new Sudo()),
@@ -122,17 +110,10 @@ describe('SudoProfilesClient', () => {
     })
 
     it('should throw IllegalStateError when symmetric key id not set', async () => {
-      const profilesKeyManagerUnit = new DefaultKeyManager(new KeyStore())
-      const blobCacheMock: LocalForage = mock()
-
-      const sudoProfilesClientUnit = new DefaultSudoProfilesClient(
-        sudoUserClientMock,
-        profilesKeyManagerUnit,
-        apiClientMock,
-        s3ClientMock,
-        aesSecurityProviderMock,
-        blobCacheMock,
-      )
+      const sudoProfilesClientUnit = new DefaultSudoProfilesClient({
+        sudoUserClient: sudoUserClientMock,
+        keyStore: new InMemoryKeyStore()
+      })
 
       await expect(
         sudoProfilesClientUnit.updateSudo(new Sudo('SUDO_ID')),

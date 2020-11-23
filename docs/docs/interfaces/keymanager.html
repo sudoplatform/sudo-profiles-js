@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>DefaultKeyManager | @sudoplatform/sudo-profiles</title>
+	<title>KeyManager | @sudoplatform/sudo-profiles</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -56,28 +56,35 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="defaultkeymanager.html">DefaultKeyManager</a>
+					<a href="keymanager.html">KeyManager</a>
 				</li>
 			</ul>
-			<h1>Class DefaultKeyManager</h1>
+			<h1>Interface KeyManager</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>A Key Manager to store secret keys used to encrypt and decrypt data</p>
+					</div>
+				</div>
+			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">DefaultKeyManager</span>
+						<span class="target">KeyManager</span>
 					</li>
 				</ul>
 			</section>
 			<section class="tsd-panel">
-				<h3>Implements</h3>
+				<h3>Implemented by</h3>
 				<ul class="tsd-hierarchy">
-					<li><a href="../interfaces/keymanager.html" class="tsd-signature-type">KeyManager</a></li>
+					<li><a href="../classes/defaultkeymanager.html" class="tsd-signature-type">DefaultKeyManager</a></li>
 				</ul>
 			</section>
 			<section class="tsd-panel-group tsd-index-group">
@@ -85,182 +92,187 @@
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
-							<h3>Constructors</h3>
-							<ul class="tsd-index-list">
-								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="defaultkeymanager.html#constructor" class="tsd-kind-icon">constructor</a></li>
-							</ul>
-						</section>
-						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="defaultkeymanager.html#deletekey" class="tsd-kind-icon">delete<wbr>Key</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="defaultkeymanager.html#getkey" class="tsd-kind-icon">get<wbr>Key</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="defaultkeymanager.html#getsymmetrickeyid" class="tsd-kind-icon">get<wbr>Symmetric<wbr>Key<wbr>Id</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="defaultkeymanager.html#insertkey" class="tsd-kind-icon">insert<wbr>Key</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="defaultkeymanager.html#reset" class="tsd-kind-icon">reset</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="defaultkeymanager.html#setsymmetrickeyid" class="tsd-kind-icon">set<wbr>Symmetric<wbr>Key<wbr>Id</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="keymanager.html#deletekey" class="tsd-kind-icon">delete<wbr>Key</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="keymanager.html#getkey" class="tsd-kind-icon">get<wbr>Key</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="keymanager.html#getsymmetrickeyid" class="tsd-kind-icon">get<wbr>Symmetric<wbr>Key<wbr>Id</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="keymanager.html#insertkey" class="tsd-kind-icon">insert<wbr>Key</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="keymanager.html#reset" class="tsd-kind-icon">reset</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="keymanager.html#setsymmetrickeyid" class="tsd-kind-icon">set<wbr>Symmetric<wbr>Key<wbr>Id</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Constructors</h2>
-				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class">
-					<a name="constructor" class="tsd-anchor"></a>
-					<h3>constructor</h3>
-					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Default<wbr>Key<wbr>Manager<span class="tsd-signature-symbol">(</span>keyStore<span class="tsd-signature-symbol">: </span><a href="../interfaces/store.html" class="tsd-signature-type">Store</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="defaultkeymanager.html" class="tsd-signature-type">DefaultKeyManager</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in src/core/key-manager.ts:52</li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>keyStore: <a href="../interfaces/store.html" class="tsd-signature-type">Store</a></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="defaultkeymanager.html" class="tsd-signature-type">DefaultKeyManager</a></h4>
-						</li>
-					</ul>
-				</section>
-			</section>
-			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
 					<a name="deletekey" class="tsd-anchor"></a>
 					<h3>delete<wbr>Key</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
 						<li class="tsd-signature tsd-kind-icon">delete<wbr>Key<span class="tsd-signature-symbol">(</span>keyId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Implementation of <a href="../interfaces/keymanager.html">KeyManager</a>.<a href="../interfaces/keymanager.html#deletekey">deleteKey</a></p>
 								<ul>
-									<li>Defined in src/core/key-manager.ts:81</li>
+									<li>Defined in src/core/key-manager.ts:43</li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Remove the string value indexed at keyId</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>keyId: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
 					<a name="getkey" class="tsd-anchor"></a>
 					<h3>get<wbr>Key</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
 						<li class="tsd-signature tsd-kind-icon">get<wbr>Key<span class="tsd-signature-symbol">(</span>keyId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ArrayBuffer</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Implementation of <a href="../interfaces/keymanager.html">KeyManager</a>.<a href="../interfaces/keymanager.html#getkey">getKey</a></p>
 								<ul>
-									<li>Defined in src/core/key-manager.ts:77</li>
+									<li>Defined in src/core/key-manager.ts:36</li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns the string value indexed at keyId</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>keyId: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ArrayBuffer</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
 					<a name="getsymmetrickeyid" class="tsd-anchor"></a>
 					<h3>get<wbr>Symmetric<wbr>Key<wbr>Id</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
 						<li class="tsd-signature tsd-kind-icon">get<wbr>Symmetric<wbr>Key<wbr>Id<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Implementation of <a href="../interfaces/keymanager.html">KeyManager</a>.<a href="../interfaces/keymanager.html#getsymmetrickeyid">getSymmetricKeyId</a></p>
 								<ul>
-									<li>Defined in src/core/key-manager.ts:66</li>
+									<li>Defined in src/core/key-manager.ts:21</li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets the default symmetric keyId</p>
+								</div>
+							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
 					<a name="insertkey" class="tsd-anchor"></a>
 					<h3>insert<wbr>Key</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
 						<li class="tsd-signature tsd-kind-icon">insert<wbr>Key<span class="tsd-signature-symbol">(</span>keyId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ArrayBuffer</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Implementation of <a href="../interfaces/keymanager.html">KeyManager</a>.<a href="../interfaces/keymanager.html#insertkey">insertKey</a></p>
 								<ul>
-									<li>Defined in src/core/key-manager.ts:72</li>
+									<li>Defined in src/core/key-manager.ts:29</li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Adds a string value into key manager</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>keyId: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Represents the <code>index</code> of the value</p>
+									</div>
 								</li>
 								<li>
 									<h5>value: <span class="tsd-signature-type">ArrayBuffer</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The type and value</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
 					<a name="reset" class="tsd-anchor"></a>
 					<h3>reset</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
 						<li class="tsd-signature tsd-kind-icon">reset<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Implementation of <a href="../interfaces/keymanager.html">KeyManager</a>.<a href="../interfaces/keymanager.html#reset">reset</a></p>
 								<ul>
-									<li>Defined in src/core/key-manager.ts:85</li>
+									<li>Defined in src/core/key-manager.ts:48</li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Reset all data stored within the secrets store</p>
+								</div>
+							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
 					<a name="setsymmetrickeyid" class="tsd-anchor"></a>
 					<h3>set<wbr>Symmetric<wbr>Key<wbr>Id</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
 						<li class="tsd-signature tsd-kind-icon">set<wbr>Symmetric<wbr>Key<wbr>Id<span class="tsd-signature-symbol">(</span>keyId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Implementation of <a href="../interfaces/keymanager.html">KeyManager</a>.<a href="../interfaces/keymanager.html#setsymmetrickeyid">setSymmetricKeyId</a></p>
 								<ul>
-									<li>Defined in src/core/key-manager.ts:58</li>
+									<li>Defined in src/core/key-manager.ts:16</li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Sets the default symmetric key Id</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>keyId: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The keyId that points to the symmetric key</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -295,85 +307,82 @@
 						<a href="../enums/fetchoption.html" class="tsd-kind-icon">Fetch<wbr>Option</a>
 					</li>
 					<li class=" tsd-kind-class">
-						<a href="base.html" class="tsd-kind-icon">Base</a>
+						<a href="../classes/base.html" class="tsd-kind-icon">Base</a>
 					</li>
 					<li class=" tsd-kind-class">
-						<a href="blobclaimvalue.html" class="tsd-kind-icon">Blob<wbr>Claim<wbr>Value</a>
+						<a href="../classes/blobclaimvalue.html" class="tsd-kind-icon">Blob<wbr>Claim<wbr>Value</a>
 					</li>
 					<li class=" tsd-kind-class">
-						<a href="claim.html" class="tsd-kind-icon">Claim</a>
+						<a href="../classes/claim.html" class="tsd-kind-icon">Claim</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="../classes/defaultkeymanager.html" class="tsd-kind-icon">Default<wbr>Key<wbr>Manager</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="../classes/defaultsudoprofilesclient.html" class="tsd-kind-icon">Default<wbr>Sudo<wbr>Profiles<wbr>Client</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="../classes/inmemorykeystore.html" class="tsd-kind-icon">In<wbr>Memory<wbr>Key<wbr>Store</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="../classes/s3deleteerror.html" class="tsd-kind-icon">S3<wbr>Delete<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="../classes/s3downloaderror.html" class="tsd-kind-icon">S3<wbr>Download<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="../classes/s3uploaderror.html" class="tsd-kind-icon">S3<wbr>Upload<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="../classes/stringclaimvalue.html" class="tsd-kind-icon">String<wbr>Claim<wbr>Value</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="../classes/sudo.html" class="tsd-kind-icon">Sudo</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="../classes/sudonotfounderror.html" class="tsd-kind-icon">Sudo<wbr>Not<wbr>Found<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="../classes/symmetrickeynotfounderror.html" class="tsd-kind-icon">Symmetric<wbr>Key<wbr>Not<wbr>Found<wbr>Error</a>
 					</li>
 				</ul>
 				<ul class="current">
-					<li class="current tsd-kind-class">
-						<a href="defaultkeymanager.html" class="tsd-kind-icon">Default<wbr>Key<wbr>Manager</a>
+					<li class="current tsd-kind-interface">
+						<a href="keymanager.html" class="tsd-kind-icon">Key<wbr>Manager</a>
 						<ul>
-							<li class=" tsd-kind-constructor tsd-parent-kind-class">
-								<a href="defaultkeymanager.html#constructor" class="tsd-kind-icon">constructor</a>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="keymanager.html#deletekey" class="tsd-kind-icon">delete<wbr>Key</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="defaultkeymanager.html#deletekey" class="tsd-kind-icon">delete<wbr>Key</a>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="keymanager.html#getkey" class="tsd-kind-icon">get<wbr>Key</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="defaultkeymanager.html#getkey" class="tsd-kind-icon">get<wbr>Key</a>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="keymanager.html#getsymmetrickeyid" class="tsd-kind-icon">get<wbr>Symmetric<wbr>Key<wbr>Id</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="defaultkeymanager.html#getsymmetrickeyid" class="tsd-kind-icon">get<wbr>Symmetric<wbr>Key<wbr>Id</a>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="keymanager.html#insertkey" class="tsd-kind-icon">insert<wbr>Key</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="defaultkeymanager.html#insertkey" class="tsd-kind-icon">insert<wbr>Key</a>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="keymanager.html#reset" class="tsd-kind-icon">reset</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="defaultkeymanager.html#reset" class="tsd-kind-icon">reset</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="defaultkeymanager.html#setsymmetrickeyid" class="tsd-kind-icon">set<wbr>Symmetric<wbr>Key<wbr>Id</a>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="keymanager.html#setsymmetrickeyid" class="tsd-kind-icon">set<wbr>Symmetric<wbr>Key<wbr>Id</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
-					<li class=" tsd-kind-class">
-						<a href="defaultsudoprofilesclient.html" class="tsd-kind-icon">Default<wbr>Sudo<wbr>Profiles<wbr>Client</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="inmemorykeystore.html" class="tsd-kind-icon">In<wbr>Memory<wbr>Key<wbr>Store</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="s3deleteerror.html" class="tsd-kind-icon">S3<wbr>Delete<wbr>Error</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="s3downloaderror.html" class="tsd-kind-icon">S3<wbr>Download<wbr>Error</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="s3uploaderror.html" class="tsd-kind-icon">S3<wbr>Upload<wbr>Error</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="stringclaimvalue.html" class="tsd-kind-icon">String<wbr>Claim<wbr>Value</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="sudo.html" class="tsd-kind-icon">Sudo</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="sudonotfounderror.html" class="tsd-kind-icon">Sudo<wbr>Not<wbr>Found<wbr>Error</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="symmetrickeynotfounderror.html" class="tsd-kind-icon">Symmetric<wbr>Key<wbr>Not<wbr>Found<wbr>Error</a>
+					<li class=" tsd-kind-interface">
+						<a href="store.html" class="tsd-kind-icon">Store</a>
 					</li>
 					<li class=" tsd-kind-interface">
-						<a href="../interfaces/keymanager.html" class="tsd-kind-icon">Key<wbr>Manager</a>
+						<a href="sudoprofileoptions.html" class="tsd-kind-icon">Sudo<wbr>Profile<wbr>Options</a>
 					</li>
 					<li class=" tsd-kind-interface">
-						<a href="../interfaces/store.html" class="tsd-kind-icon">Store</a>
+						<a href="sudoprofilesclient.html" class="tsd-kind-icon">Sudo<wbr>Profiles<wbr>Client</a>
 					</li>
 					<li class=" tsd-kind-interface">
-						<a href="../interfaces/sudoprofileoptions.html" class="tsd-kind-icon">Sudo<wbr>Profile<wbr>Options</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="../interfaces/sudoprofilesclient.html" class="tsd-kind-icon">Sudo<wbr>Profiles<wbr>Client</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="../interfaces/sudosubscriber.html" class="tsd-kind-icon">Sudo<wbr>Subscriber</a>
+						<a href="sudosubscriber.html" class="tsd-kind-icon">Sudo<wbr>Subscriber</a>
 					</li>
 					<li class=" tsd-kind-variable">
 						<a href="../globals.html#graphql_error_conditional_check_failed" class="tsd-kind-icon">GRAPHQL_<wbr>ERROR_<wbr>CONDITIONAL_<wbr>CHECK_<wbr>FAILED</a>

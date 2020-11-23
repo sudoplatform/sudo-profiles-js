@@ -1556,10 +1556,10 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@sudoplatform/sudo-api-client@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@sudoplatform/sudo-api-client/-/sudo-api-client-1.0.0.tgz#835cfd5ac0bdc68783952e43389e0db22ee1b36a"
-  integrity sha512-HqXkLTRwz2iFo0L/JwaarYftKZpQjfVVOcLJDAML4eff4lJI0EI9i7f54Ckx+60vFljOocLT3WF1ry46fOmryA==
+"@sudoplatform/sudo-api-client@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@sudoplatform/sudo-api-client/-/sudo-api-client-2.0.0.tgz#0086a32748a8dd206afa4e9433c2ab6cf2adc802"
+  integrity sha512-MJgbLO0tIgia9kjvSGGIHur+I067NmWO6MEpfrOTMmaPnVbLqiQGg6cWlYQ/U6UFOZ9r4M/a529jqYlvtKFcrQ==
   dependencies:
     "@redux-offline/redux-offline" "^2.6.0-native.0"
     "@types/graphql" "^14.5.0"
@@ -1570,17 +1570,17 @@
     apollo-link-http "^1.5.17"
     aws-appsync "^4.0.1"
 
-"@sudoplatform/sudo-common@^1.0.13":
-  version "1.0.13"
-  resolved "https://registry.yarnpkg.com/@sudoplatform/sudo-common/-/sudo-common-1.0.13.tgz#30ef6e006683c5add7e80316806464090d547607"
-  integrity sha512-TvOr7oBstwlCWIXpUmkgB22MP1gB2RVBLlUVl4IsoeHi7jN69X1hOJOsVJRc8Tcd7uUDybQpU0vCo08nstGKVA==
+"@sudoplatform/sudo-common@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@sudoplatform/sudo-common/-/sudo-common-2.0.1.tgz#867259ae1b7fbb635b1d3b9dba4352e17214f1c7"
+  integrity sha512-I8f5o2Ha+pyASPkR3631X2V88Dcm88MLDya1EZHkkggaq5ZeIqw7AHMqPjPaz7LMB0CFkvz9gcCI18uIpIvf+A==
   dependencies:
     browser-bunyan "^1.6.3"
 
-"@sudoplatform/sudo-user@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@sudoplatform/sudo-user/-/sudo-user-1.1.0.tgz#3e5614119cadce06d0b67c184352afb5449a0bd0"
-  integrity sha512-BQmoAyI5NbKBz8ah5Hgd4yWAWRP/p+E0igzqZpkTEZJGIVjqNgSqT9BVaXvDAhwDEGbnCTO97o/RgrIG5VkkEQ==
+"@sudoplatform/sudo-user@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@sudoplatform/sudo-user/-/sudo-user-2.0.0.tgz#e2110860c6cc8aa5aefc93e6f150e8bb78148007"
+  integrity sha512-GxP1jgJRR99hm5uJ+D+j5kARf1wGhPqpwW/LHVSOirOmounNvFkdsZ/8vYQ//mkQ2m9cDiHKCNu/ytq/Ff8KSA==
   dependencies:
     "@graphql-typed-document-node/core" "^3.1.0"
     amazon-cognito-auth-js "^1.3.3"

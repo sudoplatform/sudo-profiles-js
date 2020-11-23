@@ -1,13 +1,14 @@
 import {
   AppSyncError,
+  InsufficientEntitlementsError,
   Logger,
-  PolicyError,
   ServiceError,
   UnknownGraphQLError,
   VersionMismatchError,
 } from '@sudoplatform/sudo-common'
 export const GRAPHQL_ERROR_SUDO_NOT_FOUND = 'sudoplatform.sudo.SudoNotFound'
-export const GRAPHQL_ERROR_POLICY_ERROR = 'sudoplatform.PolicyFailed'
+export const GRAPHQL_ERROR_INSUFFICIENT_ENTITLEMENTS_ERROR =
+  'sudoplatform.InsufficientEntitlementsError'
 export const GRAPHQL_ERROR_CONDITIONAL_CHECK_FAILED =
   'DynamoDB:ConditionalCheckFailedException'
 export const GRAPHQL_ERROR_SERVER_ERROR = 'sudoplatform.sudo.ServerError'
@@ -60,8 +61,8 @@ export function graphQLErrorsToClientError(
   switch (errorType) {
     case GRAPHQL_ERROR_SUDO_NOT_FOUND:
       return new SudoNotFoundError()
-    case GRAPHQL_ERROR_POLICY_ERROR:
-      return new PolicyError()
+    case GRAPHQL_ERROR_INSUFFICIENT_ENTITLEMENTS_ERROR:
+      return new InsufficientEntitlementsError()
     case GRAPHQL_ERROR_CONDITIONAL_CHECK_FAILED:
       return new VersionMismatchError()
     case GRAPHQL_ERROR_SERVER_ERROR:

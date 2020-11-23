@@ -71,19 +71,25 @@
 							<h3>Enumerations</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-enum"><a href="enums/changetype.html" class="tsd-kind-icon">Change<wbr>Type</a></li>
+								<li class="tsd-kind-enum"><a href="enums/claimvisibility.html" class="tsd-kind-icon">Claim<wbr>Visibility</a></li>
 								<li class="tsd-kind-enum"><a href="enums/connectionstate.html" class="tsd-kind-icon">Connection<wbr>State</a></li>
+								<li class="tsd-kind-enum"><a href="enums/erroroption.html" class="tsd-kind-icon">Error<wbr>Option</a></li>
 								<li class="tsd-kind-enum"><a href="enums/fetchoption.html" class="tsd-kind-icon">Fetch<wbr>Option</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Classes</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-class"><a href="classes/base.html" class="tsd-kind-icon">Base</a></li>
+								<li class="tsd-kind-class"><a href="classes/blobclaimvalue.html" class="tsd-kind-icon">Blob<wbr>Claim<wbr>Value</a></li>
+								<li class="tsd-kind-class"><a href="classes/claim.html" class="tsd-kind-icon">Claim</a></li>
 								<li class="tsd-kind-class"><a href="classes/defaultkeymanager.html" class="tsd-kind-icon">Default<wbr>Key<wbr>Manager</a></li>
 								<li class="tsd-kind-class"><a href="classes/defaultsudoprofilesclient.html" class="tsd-kind-icon">Default<wbr>Sudo<wbr>Profiles<wbr>Client</a></li>
-								<li class="tsd-kind-class"><a href="classes/keystore.html" class="tsd-kind-icon">Key<wbr>Store</a></li>
+								<li class="tsd-kind-class"><a href="classes/inmemorykeystore.html" class="tsd-kind-icon">In<wbr>Memory<wbr>Key<wbr>Store</a></li>
 								<li class="tsd-kind-class"><a href="classes/s3deleteerror.html" class="tsd-kind-icon">S3<wbr>Delete<wbr>Error</a></li>
 								<li class="tsd-kind-class"><a href="classes/s3downloaderror.html" class="tsd-kind-icon">S3<wbr>Download<wbr>Error</a></li>
 								<li class="tsd-kind-class"><a href="classes/s3uploaderror.html" class="tsd-kind-icon">S3<wbr>Upload<wbr>Error</a></li>
+								<li class="tsd-kind-class"><a href="classes/stringclaimvalue.html" class="tsd-kind-icon">String<wbr>Claim<wbr>Value</a></li>
 								<li class="tsd-kind-class"><a href="classes/sudo.html" class="tsd-kind-icon">Sudo</a></li>
 								<li class="tsd-kind-class"><a href="classes/sudonotfounderror.html" class="tsd-kind-icon">Sudo<wbr>Not<wbr>Found<wbr>Error</a></li>
 								<li class="tsd-kind-class"><a href="classes/symmetrickeynotfounderror.html" class="tsd-kind-icon">Symmetric<wbr>Key<wbr>Not<wbr>Found<wbr>Error</a></li>
@@ -92,6 +98,9 @@
 						<section class="tsd-index-section ">
 							<h3>Interfaces</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-interface"><a href="interfaces/keymanager.html" class="tsd-kind-icon">Key<wbr>Manager</a></li>
+								<li class="tsd-kind-interface"><a href="interfaces/store.html" class="tsd-kind-icon">Store</a></li>
+								<li class="tsd-kind-interface"><a href="interfaces/sudoprofileoptions.html" class="tsd-kind-icon">Sudo<wbr>Profile<wbr>Options</a></li>
 								<li class="tsd-kind-interface"><a href="interfaces/sudoprofilesclient.html" class="tsd-kind-icon">Sudo<wbr>Profiles<wbr>Client</a></li>
 								<li class="tsd-kind-interface"><a href="interfaces/sudosubscriber.html" class="tsd-kind-icon">Sudo<wbr>Subscriber</a></li>
 							</ul>
@@ -100,9 +109,10 @@
 							<h3>Variables</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-variable"><a href="globals.html#graphql_error_conditional_check_failed" class="tsd-kind-icon">GRAPHQL_<wbr>ERROR_<wbr>CONDITIONAL_<wbr>CHECK_<wbr>FAILED</a></li>
-								<li class="tsd-kind-variable"><a href="globals.html#graphql_error_policy_error" class="tsd-kind-icon">GRAPHQL_<wbr>ERROR_<wbr>POLICY_<wbr>ERROR</a></li>
+								<li class="tsd-kind-variable"><a href="globals.html#graphql_error_insufficient_entitlements_error" class="tsd-kind-icon">GRAPHQL_<wbr>ERROR_<wbr>INSUFFICIENT_<wbr>ENTITLEMENTS_<wbr>ERROR</a></li>
 								<li class="tsd-kind-variable"><a href="globals.html#graphql_error_server_error" class="tsd-kind-icon">GRAPHQL_<wbr>ERROR_<wbr>SERVER_<wbr>ERROR</a></li>
 								<li class="tsd-kind-variable"><a href="globals.html#graphql_error_sudo_not_found" class="tsd-kind-icon">GRAPHQL_<wbr>ERROR_<wbr>SUDO_<wbr>NOT_<wbr>FOUND</a></li>
+								<li class="tsd-kind-variable"><a href="globals.html#key_name_symmetric_key_id" class="tsd-kind-icon">KEY_<wbr>NAME_<wbr>SYMMETRIC_<wbr>KEY_<wbr>ID</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
@@ -122,14 +132,14 @@
 					<div class="tsd-signature tsd-kind-icon">GRAPHQL_<wbr>ERROR_<wbr>CONDITIONAL_<wbr>CHECK_<wbr>FAILED<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"DynamoDB:ConditionalCheckFailedException"</span><span class="tsd-signature-symbol"> = &quot;DynamoDB:ConditionalCheckFailedException&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in src/global/error.ts:11</li>
+							<li>Defined in src/global/error.ts:12</li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-variable">
-					<a name="graphql_error_policy_error" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagConst">Const</span> GRAPHQL_<wbr>ERROR_<wbr>POLICY_<wbr>ERROR</h3>
-					<div class="tsd-signature tsd-kind-icon">GRAPHQL_<wbr>ERROR_<wbr>POLICY_<wbr>ERROR<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"sudoplatform.PolicyFailed"</span><span class="tsd-signature-symbol"> = &quot;sudoplatform.PolicyFailed&quot;</span></div>
+					<a name="graphql_error_insufficient_entitlements_error" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> GRAPHQL_<wbr>ERROR_<wbr>INSUFFICIENT_<wbr>ENTITLEMENTS_<wbr>ERROR</h3>
+					<div class="tsd-signature tsd-kind-icon">GRAPHQL_<wbr>ERROR_<wbr>INSUFFICIENT_<wbr>ENTITLEMENTS_<wbr>ERROR<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"sudoplatform.InsufficientEntitlementsError"</span><span class="tsd-signature-symbol"> = &quot;sudoplatform.InsufficientEntitlementsError&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
 							<li>Defined in src/global/error.ts:10</li>
@@ -142,7 +152,7 @@
 					<div class="tsd-signature tsd-kind-icon">GRAPHQL_<wbr>ERROR_<wbr>SERVER_<wbr>ERROR<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"sudoplatform.sudo.ServerError"</span><span class="tsd-signature-symbol"> = &quot;sudoplatform.sudo.ServerError&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in src/global/error.ts:13</li>
+							<li>Defined in src/global/error.ts:14</li>
 						</ul>
 					</aside>
 				</section>
@@ -153,6 +163,16 @@
 					<aside class="tsd-sources">
 						<ul>
 							<li>Defined in src/global/error.ts:9</li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable">
+					<a name="key_name_symmetric_key_id" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> KEY_<wbr>NAME_<wbr>SYMMETRIC_<wbr>KEY_<wbr>ID</h3>
+					<div class="tsd-signature tsd-kind-icon">KEY_<wbr>NAME_<wbr>SYMMETRIC_<wbr>KEY_<wbr>ID<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &quot;symmetricKeyId&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in src/core/key-manager.ts:3</li>
 						</ul>
 					</aside>
 				</section>
@@ -169,7 +189,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/global/error.ts:53</li>
+									<li>Defined in src/global/error.ts:54</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -201,10 +221,25 @@
 						<a href="enums/changetype.html" class="tsd-kind-icon">Change<wbr>Type</a>
 					</li>
 					<li class=" tsd-kind-enum">
+						<a href="enums/claimvisibility.html" class="tsd-kind-icon">Claim<wbr>Visibility</a>
+					</li>
+					<li class=" tsd-kind-enum">
 						<a href="enums/connectionstate.html" class="tsd-kind-icon">Connection<wbr>State</a>
 					</li>
 					<li class=" tsd-kind-enum">
+						<a href="enums/erroroption.html" class="tsd-kind-icon">Error<wbr>Option</a>
+					</li>
+					<li class=" tsd-kind-enum">
 						<a href="enums/fetchoption.html" class="tsd-kind-icon">Fetch<wbr>Option</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/base.html" class="tsd-kind-icon">Base</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/blobclaimvalue.html" class="tsd-kind-icon">Blob<wbr>Claim<wbr>Value</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/claim.html" class="tsd-kind-icon">Claim</a>
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="classes/defaultkeymanager.html" class="tsd-kind-icon">Default<wbr>Key<wbr>Manager</a>
@@ -213,7 +248,7 @@
 						<a href="classes/defaultsudoprofilesclient.html" class="tsd-kind-icon">Default<wbr>Sudo<wbr>Profiles<wbr>Client</a>
 					</li>
 					<li class=" tsd-kind-class">
-						<a href="classes/keystore.html" class="tsd-kind-icon">Key<wbr>Store</a>
+						<a href="classes/inmemorykeystore.html" class="tsd-kind-icon">In<wbr>Memory<wbr>Key<wbr>Store</a>
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="classes/s3deleteerror.html" class="tsd-kind-icon">S3<wbr>Delete<wbr>Error</a>
@@ -225,6 +260,9 @@
 						<a href="classes/s3uploaderror.html" class="tsd-kind-icon">S3<wbr>Upload<wbr>Error</a>
 					</li>
 					<li class=" tsd-kind-class">
+						<a href="classes/stringclaimvalue.html" class="tsd-kind-icon">String<wbr>Claim<wbr>Value</a>
+					</li>
+					<li class=" tsd-kind-class">
 						<a href="classes/sudo.html" class="tsd-kind-icon">Sudo</a>
 					</li>
 					<li class=" tsd-kind-class">
@@ -232,6 +270,15 @@
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="classes/symmetrickeynotfounderror.html" class="tsd-kind-icon">Symmetric<wbr>Key<wbr>Not<wbr>Found<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/keymanager.html" class="tsd-kind-icon">Key<wbr>Manager</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/store.html" class="tsd-kind-icon">Store</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/sudoprofileoptions.html" class="tsd-kind-icon">Sudo<wbr>Profile<wbr>Options</a>
 					</li>
 					<li class=" tsd-kind-interface">
 						<a href="interfaces/sudoprofilesclient.html" class="tsd-kind-icon">Sudo<wbr>Profiles<wbr>Client</a>
@@ -243,13 +290,16 @@
 						<a href="globals.html#graphql_error_conditional_check_failed" class="tsd-kind-icon">GRAPHQL_<wbr>ERROR_<wbr>CONDITIONAL_<wbr>CHECK_<wbr>FAILED</a>
 					</li>
 					<li class=" tsd-kind-variable">
-						<a href="globals.html#graphql_error_policy_error" class="tsd-kind-icon">GRAPHQL_<wbr>ERROR_<wbr>POLICY_<wbr>ERROR</a>
+						<a href="globals.html#graphql_error_insufficient_entitlements_error" class="tsd-kind-icon">GRAPHQL_<wbr>ERROR_<wbr>INSUFFICIENT_<wbr>ENTITLEMENTS_<wbr>ERROR</a>
 					</li>
 					<li class=" tsd-kind-variable">
 						<a href="globals.html#graphql_error_server_error" class="tsd-kind-icon">GRAPHQL_<wbr>ERROR_<wbr>SERVER_<wbr>ERROR</a>
 					</li>
 					<li class=" tsd-kind-variable">
 						<a href="globals.html#graphql_error_sudo_not_found" class="tsd-kind-icon">GRAPHQL_<wbr>ERROR_<wbr>SUDO_<wbr>NOT_<wbr>FOUND</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#key_name_symmetric_key_id" class="tsd-kind-icon">KEY_<wbr>NAME_<wbr>SYMMETRIC_<wbr>KEY_<wbr>ID</a>
 					</li>
 					<li class=" tsd-kind-function">
 						<a href="globals.html#graphqlerrorstoclienterror" class="tsd-kind-icon">graphQLErrors<wbr>ToClient<wbr>Error</a>
