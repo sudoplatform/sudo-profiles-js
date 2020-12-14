@@ -1,47 +1,16 @@
-# Sudo Profiles SDK for Web
+# Sudo Profiles JS SDK
 
-## Project Setup
+## Overview
+In the world of data-brokering, targeted ads, and digital profiling, users can feel abandoned in their digital world. Malicious uses of personal information has created increasing distrust and reduced feelings of cyber safety.
 
-**Cloning this repo**
+We created Sudo digital identities (Sudos, pronounced su-dohs) to help users protect themselves against the rising wave of privacy scandals and security breaches that are happening every day. Sudo digital identities allow your users interact with other people and services while protecting against the misuse of their personal data and legal identity information.
 
-To clone this repo along with the submodule linkage execute this command:
+Please see the [Sudo Platform Developer Docs](https://sudoplatform.com/docs) for an overview of Sudos in the Sudo Platform.
 
-`git clone --recurse-submodules git@gitlab.tools.anonyome.com:platform/identity/sudo-profiles-web.git`
-
-**Getting the latest**
-
-`git pull --recurse-submodules`
-
-**Installing Dependencies**
-
-`yarn install`
-
-**Build Solution**
-
-`yarn build`
-
-## Setup integration tests
-
+## Integration Instructions
 Visit the [Sudos section](https://sudoplatform.com/docs) of the Sudo Platform Developer Docs for SDK integration instructions.
 
-## Running Unit and Integration tests
+## Questions and Support
+File any issues you find on the project's GitHub repository. Be careful not to share any Personally Identifiable Information (PII) or sensitive account information (API keys, credentials, etc.) when reporting an issue.
 
-`yarn test`
-
-## Release Procedure
-
-**Publish Internal**
-
-For new releases that contain new functionality we should publish internally first before publishing to Github.
-
-To publish a new version of Sudo Profiles SDK for Web for internal consumption:
-
- - Create a new tag from master branch with the following naming `/alpha$/`
-
-**Publish External**
-
-For new releases that contain bug fixes or that have been through a `publish internal` procedure and have been signed off.
-
-To publish a new version of Sudo Profiles SDK for Web to Github for external consumption:
-
- - Create a new tag from master with the release version. ie `1.0.0`
+For general inquiries related to the Sudo Platform, please contact [partners@sudoplatform.com](mailto:partners@sudoplatform.com)

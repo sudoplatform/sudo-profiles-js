@@ -85,13 +85,13 @@ export class Claim {
  */
 export abstract class Base {
   id?: string = undefined
-  version: number = 1
+  version = 1
   createdAt: Date
   updatedAt: Date
 
   constructor(
     id?: string,
-    version: number = 1,
+    version = 1,
     createdAt: Date = new Date(0),
     updatedAt: Date = new Date(0),
   ) {
@@ -126,7 +126,7 @@ export class Sudo extends Base {
 
   constructor(
     id?: string,
-    version: number = 1,
+    version = 1,
     createdAt: Date = new Date(0),
     updatedAt: Date = new Date(0),
     metadata: Map<string, string> = new Map<string, string>(),

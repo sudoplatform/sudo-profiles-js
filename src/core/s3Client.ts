@@ -144,13 +144,13 @@ export class DefaultS3Client implements S3Client {
     })
 
     managedUpload.on('httpUploadProgress', (progress) => {
-      this._logger.info(progress, 'httpUploadProgress')
+      this._logger.info('httpUploadProgress', { progress })
       this._progressEvents.push(progress)
     })
 
     try {
       const response = await managedUpload.promise()
-      this._logger.info('Upload response: ', response)
+      this._logger.info('Upload response: ', { response })
       return response.Key
     } catch (error) {
       throw new S3UploadError(error.message)
@@ -201,7 +201,7 @@ export class DefaultS3Client implements S3Client {
         Bucket: this._bucket,
         Key: key,
       }
-      this._logger.info('Deleting: ', key)
+      this._logger.info('Deleting: ', { key })
       await s3Client.deleteObject(params).promise()
     } catch (error) {
       throw new S3DeleteError(error.message)

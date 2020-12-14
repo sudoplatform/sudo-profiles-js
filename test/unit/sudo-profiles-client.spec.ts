@@ -11,7 +11,6 @@ import { instance, mock, reset, when } from 'ts-mockito'
 import * as uuid from 'uuid'
 import config from '../../config/sudoplatformconfig.json'
 import { ApiClient } from '../../src/client/apiClient'
-import { DefaultKeyManager } from '../../src/core/key-manager'
 import { InMemoryKeyStore } from '../../src/core/key-store'
 import { QueryCache } from '../../src/core/query-cache'
 import { S3Client } from '../../src/core/s3Client'
@@ -45,7 +44,7 @@ const sudoProfilesClient = new DefaultSudoProfilesClient({
   apiClient: apiClientMock,
   s3Client: s3ClientMock,
   securityProvider: instance(aesSecurityProviderMock),
-  blobCache: blobCacheMock
+  blobCache: blobCacheMock,
 })
 sudoProfilesClient.pushSymmetricKey('1234', '14A9B3C3540142A11E70ACBB1BD8969F')
 
@@ -93,7 +92,7 @@ describe('SudoProfilesClient', () => {
     it('should throw IllegalStateError when symmetric key id not set', async () => {
       const sudoProfilesClientUnit = new DefaultSudoProfilesClient({
         sudoUserClient: sudoUserClientMock,
-        keyStore: new InMemoryKeyStore()
+        keyStore: new InMemoryKeyStore(),
       })
 
       await expect(
@@ -112,7 +111,7 @@ describe('SudoProfilesClient', () => {
     it('should throw IllegalStateError when symmetric key id not set', async () => {
       const sudoProfilesClientUnit = new DefaultSudoProfilesClient({
         sudoUserClient: sudoUserClientMock,
-        keyStore: new InMemoryKeyStore()
+        keyStore: new InMemoryKeyStore(),
       })
 
       await expect(

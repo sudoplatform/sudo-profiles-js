@@ -55,7 +55,7 @@ export function graphQLErrorsToClientError(
   error: AppSyncError,
   logger: Logger,
 ): Error {
-  logger.error({ error }, 'GraphQL call failed.')
+  logger.error('GraphQL call failed.', { error })
   const errorType = error.errorType
 
   switch (errorType) {

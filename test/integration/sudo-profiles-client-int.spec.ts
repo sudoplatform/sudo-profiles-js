@@ -1,6 +1,6 @@
 import {
   DefaultConfigurationManager,
-  getLogger,
+  DefaultLogger,
   InsufficientEntitlementsError,
   VersionMismatchError,
 } from '@sudoplatform/sudo-common'
@@ -47,7 +47,7 @@ class MySubscriber implements SudoSubscriber {
     this.connectionState = state
   }
 }
-const logger = getLogger()
+const logger = new DefaultLogger('Sudo Profiles Client Tests')
 DefaultConfigurationManager.getInstance().setConfig(JSON.stringify(config))
 const userClient = new DefaultSudoUserClient()
 
@@ -63,7 +63,7 @@ const sudoProfilesClient = new DefaultSudoProfilesClient({
   sudoUserClient: userClient,
   keyStore: new InMemoryKeyStore(),
   disableOffline: true,
-  blobCache: blobCacheMock
+  blobCache: blobCacheMock,
 })
 sudoProfilesClient.pushSymmetricKey('1234', '14A9B3C3540142A11E70ACBB1BD8969F')
 

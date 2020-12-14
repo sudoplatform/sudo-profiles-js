@@ -4,8 +4,8 @@ import { Buffer } from '../utils/buffer'
 
 export class AesSecurityProvider extends SecurityProviderBase
   implements SecurityProvider {
-  private ivSize: number = 16
-  private algorithmName: string = 'AES-CBC'
+  private ivSize = 16
+  private algorithmName = 'AES-CBC'
 
   constructor(keyManager: KeyManager) {
     super(keyManager)

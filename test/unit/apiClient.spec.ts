@@ -4,7 +4,7 @@ import {
   InsufficientEntitlementsError,
   ServiceError,
   VersionMismatchError,
-  getLogger,
+  DefaultLogger,
 } from '@sudoplatform/sudo-common'
 import { DefaultSudoUserClient } from '@sudoplatform/sudo-user'
 import { ApolloError } from 'apollo-client'
@@ -43,7 +43,7 @@ const client = {
   mutate: jest.fn(),
   query: jest.fn(),
 }
-const logger = getLogger()
+const logger = new DefaultLogger('apiClient tests')
 
 const apiClient = new ApiClient(
   sudoUserClient,
@@ -77,7 +77,6 @@ const createGraphQLError: (error: GraphQLError) => ApolloError = (
     networkError: null,
     errorMessage: `GraphQL error: ${backendError.message}`,
   })
-
 
 describe('ApiClient', () => {
   describe('createSudo()', () => {
@@ -155,7 +154,6 @@ describe('ApiClient', () => {
       const encrypted = Buffer.from('dummy_blob', 'utf-8')
       const iv = Buffer.from('dummy_iv', 'utf8')
       const encryptedData = Buffer.concat([encrypted, iv])
-      const dataToEncrypt: ArrayBuffer = new TextEncoder().encode('Homer')
 
       client.mutate.mockResolvedValue({
         data: {
@@ -281,7 +279,7 @@ describe('ApiClient', () => {
 
   describe('redeem()', () => {
     it('should execute mutation', async () => {
-      client.mutate.mockImplementation(async (opts) => {
+      client.mutate.mockImplementation(async () => {
         return {
           data: {
             redeemToken: [
@@ -342,9 +340,9 @@ describe('ApiClient', () => {
 
   describe('deleteSudo()', () => {
     it('should execute mutation', async () => {
-      client.mutate.mockImplementation(async (_) => {
+      client.mutate.mockImplementation(async () => {
         return {}
-      });
+      })
 
       await apiClient.deleteSudo({
         id: 'SUDO_ID',
@@ -356,7 +354,7 @@ describe('ApiClient', () => {
         variables: {
           input: {
             id: 'SUDO_ID',
-            expectedVersion: 2
+            expectedVersion: 2,
           },
         },
       })
@@ -373,30 +371,33 @@ describe('ApiClient', () => {
         throw createGraphQLError(backendError)
       })
 
-      await expect(apiClient.deleteSudo({
-        id: 'RANDOM_ID',
-        expectedVersion: 2,
-      })).rejects.toThrow(SudoNotFoundError)
+      await expect(
+        apiClient.deleteSudo({
+          id: 'RANDOM_ID',
+          expectedVersion: 2,
+        }),
+      ).rejects.toThrow(SudoNotFoundError)
     })
 
     it('should throw VersionMismatchError when expectedVersion is different', async () => {
-      client.mutate.mockImplementation(async (_) => {
+      client.mutate.mockImplementation(async () => {
         return {
           data: {},
-          errors: [{
-            errorType: 'DynamoDB:ConditionalCheckFailedException',
-            message: 'Bad version',
-          }],
+          errors: [
+            {
+              errorType: 'DynamoDB:ConditionalCheckFailedException',
+              message: 'Bad version',
+            },
+          ],
         }
-      });
+      })
 
-      await expect(apiClient.deleteSudo({
-        id: 'SUDO_ID',
-        expectedVersion: 200,
-      })).rejects.toThrow(VersionMismatchError)
-
+      await expect(
+        apiClient.deleteSudo({
+          id: 'SUDO_ID',
+          expectedVersion: 200,
+        }),
+      ).rejects.toThrow(VersionMismatchError)
     })
-
   }) // deleteSudo
-
 }) // ApiClient

@@ -5,7 +5,7 @@ import {
 import {
   DefaultConfigurationManager,
   FatalError,
-  getLogger,
+  DefaultLogger,
   IllegalArgumentError,
   IllegalStateError,
   Logger,
@@ -255,7 +255,8 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
 
   constructor(options: SudoProfileOptions) {
     this._sudoUserClient = options.sudoUserClient
-    this._logger = options.logger ?? getLogger()
+    this._logger =
+      options.logger ?? new DefaultLogger('Sudo User Profiles', 'info')
 
     const apiClientConfig = DefaultConfigurationManager.getInstance().bindConfigSet<
       ApiClientConfig
@@ -820,7 +821,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
   private async processListSudos(
     items: GQLSudo[],
     option?: FetchOption,
-    processS3Object: boolean = false,
+    processS3Object = false,
   ): Promise<Sudo[]> {
     const sudos: Sudo[] = []
 
@@ -853,7 +854,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
       )
 
       if (processS3Object) {
-        this._logger.info('Found S3objects to process: ', item.objects.length)
+        this._logger.info(`Found S3objects to process: ${item.objects.length}`)
         for (const secureObject of item.objects) {
           // Check if we already have the S3 object in the cache. Return the cache entry
           // if asked to fetch from cache but otherwise download the S3 object.

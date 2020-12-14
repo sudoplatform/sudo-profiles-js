@@ -10,17 +10,17 @@
   "scripts": {
     "clean": "rm -rf ./lib",
     "lint": "yarn lint:eslint && yarn lint:prettier",
-    "lint:eslint": "eslint \"{bin,integration-tests,src}/**/*.{ts,tsx}\"",
-    "lint:prettier": "prettier -l \"{bin,integration-tests,src}/**/*.{js,json,jsx,ts,tsx}\" --write ",
-    "test": "yarn unit-test && yarn integration-test",
+    "lint:eslint": "eslint \"{bin,test,src}/**/*.{ts,tsx}\"",
+    "lint:prettier": "prettier -l \"{bin,test,src}/**/*.{js,json,jsx,ts,tsx}\" --write ",
+    "test": "yarn unit-test",
     "unit-test": "/bin/bash -c 'jest test/unit'",
     "integration-test": "/bin/bash -c 'jest --runInBand test/integration' ",
     "build": "yarn clean && yarn build:gen && yarn build:transpile && yarn build:verify && yarn build:declarations && yarn build:docs",
     "build:gen": "graphql-codegen -c codegen.yml",
     "build:verify": "yarn audit && yarn lint",
     "build:transpile": "babel src --out-dir lib --extensions '.ts'",
-    "build:declarations": "yarn tsc --emitDeclarationOnly",
-    "build:docs": "typedoc --mode library --excludePrivate --out docs src/index.ts"
+    "build:declarations": "tsc --emitDeclarationOnly",
+    "build:docs": "typedoc --mode modules --excludePrivate --out docs src/index.ts"
   },
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -72,8 +72,8 @@
     "@graphql-codegen/typescript-operations": "^1.17.6",
     "@graphql-typed-document-node/apollo-client-2": "^0.0.1",
     "@sudoplatform/sudo-api-client": "^2.0.0",
-    "@sudoplatform/sudo-common": "^2.0.1",
-    "@sudoplatform/sudo-user": "^2.0.0",
+    "@sudoplatform/sudo-common": "^3.0.0",
+    "@sudoplatform/sudo-user": "^3.0.0",
     "@types/jest": "^26.0.7",
     "@types/jsonwebtoken": "^8.5.0",
     "@types/node": "^14.0.26",
@@ -98,7 +98,7 @@
   },
   "peerDependencies": {
     "@sudoplatform/sudo-api-client": "^2.0.0",
-    "@sudoplatform/sudo-common": "^2.0.1",
+    "@sudoplatform/sudo-common": "^3.0.0",
     "@sudoplatform/sudo-user": "^2.0.0"
   }
 }

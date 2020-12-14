@@ -1,7 +1,7 @@
-import { DefaultKeyManager } from "../../src/core/key-manager"
-import { InMemoryKeyStore } from "../../src/core/key-store"
-import { AesSecurityProvider } from "../../src/security/aesSecurityProvider"
-import { SecurityProviderBase } from "../../src/security/securityProvider"
+import { DefaultKeyManager } from '../../src/core/key-manager'
+import { InMemoryKeyStore } from '../../src/core/key-store'
+import { AesSecurityProvider } from '../../src/security/aesSecurityProvider'
+import { SecurityProviderBase } from '../../src/security/securityProvider'
 import { SymmetricKeyNotFoundError } from '../../src/global/error'
 
 global.crypto = require('isomorphic-webcrypto')
@@ -35,16 +35,25 @@ describe('AesSecurityProvider', () => {
   })
 
   it('should throw KeyStoreException when symmetric key not set', async () => {
-    const provider = new SecurityProviderBase(new DefaultKeyManager(new InMemoryKeyStore()))
+    const provider = new SecurityProviderBase(
+      new DefaultKeyManager(new InMemoryKeyStore()),
+    )
 
-    expect(async () => { await provider.getSymmetricKey(symmetricKeyId) } ).rejects.toThrow(SymmetricKeyNotFoundError)
+    expect(async () => {
+      await provider.getSymmetricKey(symmetricKeyId)
+    }).rejects.toThrow(SymmetricKeyNotFoundError)
   })
 
   it('should encrypt then decrypt', async () => {
+    const encrypted = await aesSecurityProvider.encrypt(
+      symmetricKeyId,
+      new TextEncoder().encode('Homer'),
+    )
 
-    const encrypted = await aesSecurityProvider.encrypt(symmetricKeyId, new TextEncoder().encode('Homer'))
-
-    const decrypted = await aesSecurityProvider.decrypt(symmetricKeyId, encrypted)
+    const decrypted = await aesSecurityProvider.decrypt(
+      symmetricKeyId,
+      encrypted,
+    )
 
     const data = new TextDecoder().decode(decrypted)
 
