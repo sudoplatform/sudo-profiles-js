@@ -1,6 +1,6 @@
 import { Logger } from '@sudoplatform/sudo-common'
 import { SudoUserClient } from '@sudoplatform/sudo-user'
-import { CognitoIdentityCredentials } from 'aws-sdk'
+import { CognitoIdentityCredentials } from 'aws-sdk/lib/core'
 import S3, { ManagedUpload } from 'aws-sdk/clients/s3'
 import { S3DeleteError, S3DownloadError, S3UploadError } from '../global/error'
 import { IdentityServiceConfig } from './identity-service-config'
