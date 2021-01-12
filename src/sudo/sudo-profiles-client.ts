@@ -52,7 +52,7 @@ export interface SudoProfileOptions {
   apiClient?: ApiClient
   s3Client?: S3Client
   securityProvider?: SecurityProvider
-  blobCache?: LocalForage
+  blobCache?: typeof localForage
   logger?: Logger
   disableOffline?: boolean
 }
@@ -240,7 +240,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
   private readonly _keyManager: KeyManager
   private readonly _s3Client: S3Client
   private readonly _securityProvider: SecurityProvider
-  private readonly _blobCache: LocalForage
+  private readonly _blobCache: typeof localForage
   private readonly _logger: Logger
 
   private readonly _onCreateSudoSubscriptionManager: SubscriptionManager<
