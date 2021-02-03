@@ -2,8 +2,6 @@ import { Store } from './key-store'
 
 export const KEY_NAME_SYMMETRIC_KEY_ID = 'symmetricKeyId'
 
-type KeyImport = { keyId: string; value: string }
-
 /**
  * A Key Manager to store secret keys used to encrypt and decrypt data
  */

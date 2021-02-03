@@ -243,28 +243,24 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
   private readonly _blobCache: typeof localForage
   private readonly _logger: Logger
 
-  private readonly _onCreateSudoSubscriptionManager: SubscriptionManager<
-    OnCreateSudoSubscription
-  >
-  private readonly _onUpdateSudoSubscriptionManager: SubscriptionManager<
-    OnUpdateSudoSubscription
-  >
-  private readonly _onDeleteSudoSubscriptionManager: SubscriptionManager<
-    OnDeleteSudoSubscription
-  >
+  private readonly _onCreateSudoSubscriptionManager: SubscriptionManager<OnCreateSudoSubscription>
+  private readonly _onUpdateSudoSubscriptionManager: SubscriptionManager<OnUpdateSudoSubscription>
+  private readonly _onDeleteSudoSubscriptionManager: SubscriptionManager<OnDeleteSudoSubscription>
 
   constructor(options: SudoProfileOptions) {
     this._sudoUserClient = options.sudoUserClient
     this._logger =
       options.logger ?? new DefaultLogger('Sudo User Profiles', 'info')
 
-    const apiClientConfig = DefaultConfigurationManager.getInstance().bindConfigSet<
-      ApiClientConfig
-    >(ApiClientConfig, 'apiService')
+    const apiClientConfig = DefaultConfigurationManager.getInstance().bindConfigSet<ApiClientConfig>(
+      ApiClientConfig,
+      'apiService',
+    )
 
-    const identityServiceConfig = DefaultConfigurationManager.getInstance().bindConfigSet<
-      IdentityServiceConfig
-    >(IdentityServiceConfig, 'identityService')
+    const identityServiceConfig = DefaultConfigurationManager.getInstance().bindConfigSet<IdentityServiceConfig>(
+      IdentityServiceConfig,
+      'identityService',
+    )
 
     const defaultApiClientManager = DefaultApiClientManager.getInstance()
       .setConfig(apiClientConfig)
@@ -308,9 +304,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
         driver: localForage.INDEXEDDB,
       })
 
-    this._onCreateSudoSubscriptionManager = new SubscriptionManager<
-      OnCreateSudoSubscription
-    >()
+    this._onCreateSudoSubscriptionManager = new SubscriptionManager<OnCreateSudoSubscription>()
     this._onUpdateSudoSubscriptionManager = new SubscriptionManager()
     this._onDeleteSudoSubscriptionManager = new SubscriptionManager()
   }
@@ -349,9 +343,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
     }
 
     const secureClaims: Array<SecureClaimInput> = new Array<SecureClaimInput>()
-    const secureS3Objects: Array<SecureS3ObjectInput> = new Array<
-      SecureS3ObjectInput
-    >()
+    const secureS3Objects: Array<SecureS3ObjectInput> = new Array<SecureS3ObjectInput>()
 
     for (const [name, claim] of sudo.claims) {
       if (claim.visibility === ClaimVisibility.Private) {

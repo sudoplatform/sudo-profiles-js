@@ -51,9 +51,10 @@ const logger = new DefaultLogger('Sudo Profiles Client Tests')
 DefaultConfigurationManager.getInstance().setConfig(JSON.stringify(config))
 const userClient = new DefaultSudoUserClient()
 
-const identityServiceConfig = DefaultConfigurationManager.getInstance().bindConfigSet<
-  IdentityServiceConfig
->(IdentityServiceConfig, 'identityService')
+const identityServiceConfig = DefaultConfigurationManager.getInstance().bindConfigSet<IdentityServiceConfig>(
+  IdentityServiceConfig,
+  'identityService',
+)
 
 const s3Client = new DefaultS3Client(userClient, identityServiceConfig, logger)
 

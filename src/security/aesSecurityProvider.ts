@@ -2,7 +2,8 @@ import { KeyManager } from '../core/key-manager'
 import { SecurityProvider, SecurityProviderBase } from './securityProvider'
 import { Buffer } from '../utils/buffer'
 
-export class AesSecurityProvider extends SecurityProviderBase
+export class AesSecurityProvider
+  extends SecurityProviderBase
   implements SecurityProvider {
   private ivSize = 16
   private algorithmName = 'AES-CBC'
