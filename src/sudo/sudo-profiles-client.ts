@@ -3,21 +3,22 @@ import {
   DefaultApiClientManager,
 } from '@sudoplatform/sudo-api-client'
 import {
+  Base64,
+  DecodeError,
   DefaultConfigurationManager,
-  FatalError,
   DefaultLogger,
+  FatalError,
   IllegalArgumentError,
   IllegalStateError,
   Logger,
   NotSignedInError,
+  SudoKeyManager,
 } from '@sudoplatform/sudo-common'
 import { SudoUserClient } from '@sudoplatform/sudo-user'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import localForage from 'localforage'
 import { ApiClient } from '../client/apiClient'
 import { IdentityServiceConfig } from '../core/identity-service-config'
-import { DefaultKeyManager, KeyManager } from '../core/key-manager'
-import { Store } from '../core/key-store'
 import { DefaultQueryCache } from '../core/query-cache'
 import { DefaultS3Client, S3Client } from '../core/s3Client'
 import {
@@ -29,12 +30,6 @@ import {
   Sudo as GQLSudo,
 } from '../gen/graphql-types'
 import { SudoNotFoundError } from '../global/error'
-import { AesSecurityProvider } from '../security/aesSecurityProvider'
-import {
-  SecurityProvider,
-  SymmetricKeyEncryptionAlgorithm,
-} from '../security/securityProvider'
-import { Base64 } from '../utils/base64'
 import { Entitlement } from './entitlement'
 import { SubscriptionManager } from './SubscriptionManager'
 import {
@@ -48,10 +43,8 @@ import { ChangeType, ConnectionState, SudoSubscriber } from './sudo-subscriber'
 
 export interface SudoProfileOptions {
   sudoUserClient: SudoUserClient
-  keyStore: Store
   apiClient?: ApiClient
   s3Client?: S3Client
-  securityProvider?: SecurityProvider
   blobCache?: typeof localForage
   logger?: Logger
   disableOffline?: boolean
@@ -235,11 +228,15 @@ export interface SudoProfilesClient {
 }
 
 export class DefaultSudoProfilesClient implements SudoProfilesClient {
+  private static readonly Constants = {
+    defaultSymmetricKeyId: 'symmetricKeyId',
+    symmetricKeyEncryptionAlgorithm: 'AES/CBC/PKCS7Padding',
+  }
+
   private readonly _apiClient: ApiClient
   private readonly _sudoUserClient: SudoUserClient
-  private readonly _keyManager: KeyManager
+  private readonly _keyManager: SudoKeyManager
   private readonly _s3Client: S3Client
-  private readonly _securityProvider: SecurityProvider
   private readonly _blobCache: typeof localForage
   private readonly _logger: Logger
 
@@ -249,6 +246,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
 
   constructor(options: SudoProfileOptions) {
     this._sudoUserClient = options.sudoUserClient
+    this._keyManager = this._sudoUserClient.sudoKeyManager
     this._logger =
       options.logger ?? new DefaultLogger('Sudo User Profiles', 'info')
 
@@ -292,10 +290,6 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
         identityServiceConfig,
         this._logger,
       )
-
-    this._keyManager = new DefaultKeyManager(options.keyStore)
-    this._securityProvider =
-      options.securityProvider ?? new AesSecurityProvider(this._keyManager)
 
     this._blobCache =
       options.blobCache ??
@@ -364,7 +358,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
               sudo.claims.set(name, newClaim)
 
               // Setup blob claim for saving
-              const encryptedData = await this._securityProvider.encrypt(
+              const encryptedData = await this._keyManager.encryptWithSymmetricKey(
                 keyId,
                 data,
               )
@@ -373,7 +367,9 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
               const secureS3ObjectInput: SecureS3ObjectInput = {
                 name: name,
                 version: 1,
-                algorithm: SymmetricKeyEncryptionAlgorithm.AesCbcPkcs7Padding.toString(),
+                algorithm:
+                  DefaultSudoProfilesClient.Constants
+                    .symmetricKeyEncryptionAlgorithm,
                 keyId: keyId,
                 bucket: this._s3Client.bucket,
                 region: this._s3Client.region,
@@ -557,8 +553,13 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
   }
 
   public async pushSymmetricKey(keyId: string, key: string): Promise<void> {
-    await this._keyManager.insertKey(keyId, new TextEncoder().encode(key))
-    await this._keyManager.setSymmetricKeyId(keyId)
+    // Add new symmetric key to key store.
+    await this._keyManager.addSymmetricKey(new TextEncoder().encode(key), keyId)
+    // Set this key as the current default symmetric key to use.
+    await this._keyManager.addSymmetricKey(
+      new TextEncoder().encode(keyId),
+      DefaultSudoProfilesClient.Constants.defaultSymmetricKeyId,
+    )
   }
 
   private executeCreateSudoSubscriptionWatcher():
@@ -871,7 +872,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
             }
           } else {
             const data = await this._s3Client.download(secureObject.key)
-            const decryptedData = await this._securityProvider.decrypt(
+            const decryptedData = await this._keyManager.decryptWithSymmetricKeyName(
               secureObject.keyId,
               data,
             )
@@ -900,32 +901,20 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
     return `sudo/${sudoId}/${name}`
   }
 
+  /**
+   * Get default symmetric key Id
+   */
   private async getSymmetricKeyId(): Promise<string | undefined> {
-    return await this._keyManager.getSymmetricKeyId()
-  }
-
-  private async loadFileAsArrayBuffer(
-    file: File,
-  ): Promise<ArrayBuffer | undefined> {
-    const reader = new FileReader()
-
-    return new Promise((resolve, reject) => {
-      reader.onerror = () => {
-        reader.abort()
-        reject('Problem parsing file')
-      }
-
-      reader.onload = () => {
-        const result = reader.result
-        if (result instanceof ArrayBuffer) {
-          resolve(result)
-        } else {
-          resolve(undefined)
-        }
-      }
-
-      reader.readAsArrayBuffer(file)
-    })
+    const symmetricKeyBuffer = await this._keyManager.getSymmetricKey(
+      DefaultSudoProfilesClient.Constants.defaultSymmetricKeyId,
+    )
+    try {
+      return new TextDecoder('utf-8', { fatal: true }).decode(
+        symmetricKeyBuffer,
+      )
+    } catch (err) {
+      throw new DecodeError(err.message)
+    }
   }
 
   protected async createSecureString(
@@ -937,14 +926,17 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
       throw new FatalError('No symmetric key found.')
     }
 
-    const textEncoder = new TextEncoder()
-    const byteArray = textEncoder.encode(value)
-    const encryptedData = await this._securityProvider.encrypt(keyId, byteArray)
+    const byteArray = new TextEncoder().encode(value)
+    const encryptedData = await this._keyManager.encryptWithSymmetricKey(
+      keyId,
+      byteArray,
+    )
 
     const input: SecureClaimInput = {
       name: name,
       version: 1,
-      algorithm: SymmetricKeyEncryptionAlgorithm.AesCbcPkcs7Padding.toString(),
+      algorithm:
+        DefaultSudoProfilesClient.Constants.symmetricKeyEncryptionAlgorithm,
       keyId: keyId,
       base64Data: Base64.encode(encryptedData),
     }
@@ -957,13 +949,19 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
     keyId: string,
     base64Data: string,
   ): Promise<Claim> {
-    const decryptedData = await this._securityProvider.decrypt(
+    const decryptedData = await this._keyManager.decryptWithSymmetricKeyName(
       keyId,
       Base64.decode(base64Data),
     )
 
-    const textDecoder = new TextDecoder()
-    const decodedString = textDecoder.decode(decryptedData)
+    let decodedString = undefined
+    try {
+      decodedString = new TextDecoder('utf-8', { fatal: true }).decode(
+        decryptedData,
+      )
+    } catch (err) {
+      throw new DecodeError(err.message)
+    }
 
     return new Claim(
       name,

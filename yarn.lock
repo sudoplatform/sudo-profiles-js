@@ -872,10 +872,17 @@
     "@babel/helper-validator-option" "^7.12.11"
     "@babel/plugin-transform-typescript" "^7.12.13"
 
-"@babel/runtime@^7.0.0", "@babel/runtime@^7.5.5", "@babel/runtime@^7.8.4", "@babel/runtime@^7.9.6":
+"@babel/runtime@^7.0.0", "@babel/runtime@^7.8.4":
   version "7.12.13"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.12.13.tgz#0a21452352b02542db0ffb928ac2d3ca7cb6d66d"
   integrity sha512-8+3UMPBrjFa/6TtKi/7sehPKqfAm4g6K+YQjyyFOLUTxzOngcRZTlAVY8sc2CORJYqdHQY8gRPHmn+qo15rCBw==
+  dependencies:
+    regenerator-runtime "^0.13.4"
+
+"@babel/runtime@^7.5.5", "@babel/runtime@^7.9.6":
+  version "7.13.10"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.13.10.tgz#47d42a57b6095f4468da440388fdbad8bebf0d7d"
+  integrity sha512-4QPkjJq6Ns3V/RgpEahRk+AGfL0eO6RHHtTWoNNr5mO49G6B5+X6d6THgWEAvTrznU5xYpbAlVKRYcsCgh/Akw==
   dependencies:
     regenerator-runtime "^0.13.4"
 
@@ -1695,10 +1702,10 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@sudoplatform/sudo-api-client@^4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@sudoplatform/sudo-api-client/-/sudo-api-client-4.0.0.tgz#345bcd61de4037a722d26eac2f559bdf19e4aed4"
-  integrity sha512-L1w/XijpN9OW5G3c0Dqlei+42gqxhFKUS2IE7z4lKOuJ67UhgWnbQ+/0NCD1D/3LBbKG98epXyknPUgRVQ5V2w==
+"@sudoplatform/sudo-api-client@^5.0.0":
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/@sudoplatform/sudo-api-client/-/sudo-api-client-5.0.0.tgz#d78ae363790a12ce8544a8162cd1f8d5ebce0e28"
+  integrity sha512-WQ1wbMUl/pnaDN60s/1ODDLAho3fBoD1yWZBBlZLaWEQXkjBQ6vjTKXu+PfDgQwLZkjUJmUfZsdF0AXDciiQVw==
   dependencies:
     "@redux-offline/redux-offline" "^2.6.0-native.0"
     "@types/graphql" "^14.5.0"
@@ -1707,19 +1714,19 @@
     apollo-link "1.2.14"
     apollo-link-context "^1.0.20"
     apollo-link-http "^1.5.17"
-    aws-appsync "^4.0.1"
+    aws-appsync "^4.0.3"
 
-"@sudoplatform/sudo-common@^3.0.0":
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/@sudoplatform/sudo-common/-/sudo-common-3.2.0.tgz#317a104ad1cabc96775320337b9ca37e15299229"
-  integrity sha512-dkOZWDZYpnp83Ftj4GbCSORPLKy13F0eMw22aQ/4BFL00YnclV4cjFZwgvuT2BmxFjNrpP6uPRScr/u/YjVfLQ==
+"@sudoplatform/sudo-common@^3.4.0":
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/@sudoplatform/sudo-common/-/sudo-common-3.4.0.tgz#3ac4727ebe1da4c7d2076d9ee00609a9828cff3e"
+  integrity sha512-8UODH5PVu6zWApy9GQJgA7oghWlO6dZ3IpaMu9p1V9JScpGqErlbdbgiNYtFBrRZgpzpUsL9A8hZTqW/DzXv/A==
   dependencies:
     browser-bunyan "^1.6.3"
 
-"@sudoplatform/sudo-user@^4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@sudoplatform/sudo-user/-/sudo-user-4.0.0.tgz#310f43d3f0137d7df8c9c106fabb63006341a39d"
-  integrity sha512-/geYjpxX7CNZXqlatmTqhhlPH0gNk36DZvoWOP8d72jlZM3+7jNaKttJcF43Rssa/napxkA3qrGns2HElFiXgg==
+"@sudoplatform/sudo-user@^6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@sudoplatform/sudo-user/-/sudo-user-6.0.0.tgz#44622aff53cd1f61d768428436ccb65c9b366a31"
+  integrity sha512-7VOehRa4pEhqhJEtyTMFy2SE/EBpHXyU6c/t+kAlz05TThGYgndT7bZWhYpt6sOS/6IaLZMbEbCmvUzscfQg3w==
   dependencies:
     "@graphql-typed-document-node/core" "^3.1.0"
     amazon-cognito-auth-js "^1.3.3"
@@ -2547,10 +2554,10 @@ aws-appsync-subscription-link@^2.2.1:
     debug "2.6.9"
     url "^0.11.0"
 
-aws-appsync@^4.0.0, aws-appsync@^4.0.1:
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/aws-appsync/-/aws-appsync-4.0.2.tgz#40ab0b3eece3bb0bd0c5fc5f63c086aa2f91a127"
-  integrity sha512-H9SzRaSvNOKPjR4mFynHj+ZDRk+W+yhII9f4lwhbxxoqPcg6N9Bdb9WNo0DbpFxYT861SgI//8UhNXHH3bg3Gg==
+aws-appsync@^4.0.0, aws-appsync@^4.0.3:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/aws-appsync/-/aws-appsync-4.0.3.tgz#2233b482cce1d0316fb581e113d6fec22d91d3ea"
+  integrity sha512-ld6hgunSewQzTwQui9Rj2Adzj8ikVLaurPU732/Ci85edvyyYmqCoWZqG8EZZFvNdz7tIYFolJD7BsiggTTwJQ==
   dependencies:
     "@redux-offline/redux-offline" "2.5.2-native.3"
     apollo-cache-inmemory "1.3.12"
@@ -2561,7 +2568,7 @@ aws-appsync@^4.0.0, aws-appsync@^4.0.1:
     apollo-link-retry "2.2.7"
     aws-appsync-auth-link "^2.0.3"
     aws-appsync-subscription-link "^2.2.1"
-    aws-sdk "2.518.0"
+    aws-sdk "^2.814.0"
     debug "2.6.9"
     graphql "0.13.0"
     redux "^3.7.2"
@@ -2570,14 +2577,14 @@ aws-appsync@^4.0.0, aws-appsync@^4.0.1:
     url "^0.11.0"
     uuid "3.x"
 
-aws-sdk@2.518.0:
-  version "2.518.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.518.0.tgz#a0412cfcb41fd02e18d9e8b20c1dce356160fcc2"
-  integrity sha512-hwtKKf93TFyd3qugDW54ElpkUXhPe+ArPIHadre6IAFjCJiv08L8DaZKLRyclDnKfTavKe+f/PhdSEYo1QUHiA==
+aws-sdk@^2.518.0, aws-sdk@^2.814.0:
+  version "2.862.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.862.0.tgz#3f9afc830de24723dfb7801f4138c5db101f4205"
+  integrity sha512-kAvEQZ2tKJRZKRHZQJdvrUZz76cAEnyN1UoLw39kCqGIpxw9rcPK+bIy8fDBmcvWVZvymO7mp4Ut2jM/ZiDCMQ==
   dependencies:
-    buffer "4.9.1"
+    buffer "4.9.2"
     events "1.1.1"
-    ieee754 "1.1.8"
+    ieee754 "1.1.13"
     jmespath "0.15.0"
     querystring "0.2.0"
     sax "1.2.1"
@@ -2585,7 +2592,7 @@ aws-sdk@2.518.0:
     uuid "3.3.2"
     xml2js "0.4.19"
 
-aws-sdk@^2.518.0, aws-sdk@^2.721.0, aws-sdk@^2.747.0:
+aws-sdk@^2.721.0, aws-sdk@^2.747.0:
   version "2.835.0"
   resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.835.0.tgz#4769360da8f807d956200c70ec81843e7a450c3f"
   integrity sha512-codVDhqE6PD4P7m5j8T0o4jer2Gt/oy+QqU+0BhzeuH/ryT+03YJDw8mXlfMWlhQ+6ZQBMZ3+YT69/85VgR6IQ==
@@ -4644,11 +4651,6 @@ ieee754@1.1.13:
   resolved "https://registry.yarnpkg.com/ieee754/-/ieee754-1.1.13.tgz#ec168558e95aa181fd87d37f55c32bbcb6708b84"
   integrity sha512-4vf7I2LYV/HaWerSo3XmlMkp5eZ83i+/CDluXi/IGTs/O1sejBNhTtnxzmRZfvOUqj7lZjqHkeTvpgSFDlWZTg==
 
-ieee754@1.1.8:
-  version "1.1.8"
-  resolved "https://registry.yarnpkg.com/ieee754/-/ieee754-1.1.8.tgz#be33d40ac10ef1926701f6f08a2d86fbfd1ad3e4"
-  integrity sha1-vjPUCsEO8ZJnAfbwii2G+/0a0+Q=
-
 ieee754@^1.1.13, ieee754@^1.1.4:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/ieee754/-/ieee754-1.2.1.tgz#8eb7a10a63fff25d15a57b001586d177d1b0d352"
@@ -5906,9 +5908,9 @@ locate-path@^5.0.0:
     p-locate "^4.1.0"
 
 lodash-es@^4.17.4, lodash-es@^4.2.1:
-  version "4.17.20"
-  resolved "https://registry.yarnpkg.com/lodash-es/-/lodash-es-4.17.20.tgz#29f6332eefc60e849f869c264bc71126ad61e8f7"
-  integrity sha512-JD1COMZsq8maT6mnuz1UMV0jvYD0E0aUsSOdrr1/nAG3dhqQXwRRgeW0cSqH1U43INKcqxaiVIQNOUDld7gRDA==
+  version "4.17.21"
+  resolved "https://registry.yarnpkg.com/lodash-es/-/lodash-es-4.17.21.tgz#43e626c46e6591b7750beb2b50117390c609e3ee"
+  integrity sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==
 
 lodash.camelcase@^4.3.0:
   version "4.3.0"
@@ -5960,10 +5962,15 @@ lodash.sortby@^4.7.0:
   resolved "https://registry.yarnpkg.com/lodash.sortby/-/lodash.sortby-4.7.0.tgz#edd14c824e2cc9c1e0b0a1b42bb5210516a42438"
   integrity sha1-7dFMgk4sycHgsKG0K7UhBRakJDg=
 
-lodash@^4.17.15, lodash@^4.17.19, lodash@^4.17.20, lodash@^4.17.4, lodash@^4.17.5, lodash@^4.2.1, lodash@^4.5.0, lodash@~4.17.15, lodash@~4.17.20:
+lodash@^4.17.15, lodash@^4.17.19, lodash@^4.17.20, lodash@^4.17.5, lodash@^4.5.0, lodash@~4.17.15, lodash@~4.17.20:
   version "4.17.20"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.20.tgz#b44a9b6297bcb698f1c51a3545a2b3b368d59c52"
   integrity sha512-PlhdFcillOINfeV7Ni6oF1TAEayyZBoZ8bcshTHqOYJYlrqzRK5hagpagky5o4HfCzzd1TRkXPMFq6cKk9rGmA==
+
+lodash@^4.17.4, lodash@^4.2.1:
+  version "4.17.21"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
+  integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
 
 log-symbols@^1.0.2:
   version "1.0.2"

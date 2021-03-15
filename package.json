@@ -29,9 +29,6 @@
     "docs",
     "typings"
   ],
-  "browser": {
-    "./lib/runtimes/node/node-crypto.js": "./lib/runtimes/browser/browser-crypto.js"
-  },
   "dependencies": {
     "@types/bunyan": "^1.8.6",
     "@types/lodash": "^4.14.158",
@@ -41,7 +38,7 @@
     "apollo-link-context": "^1.0.20",
     "apollo-link-http": "^1.5.17",
     "asn1js": "^2.0.26",
-    "aws-appsync": "^4.0.0",
+    "aws-appsync": "^4.0.3",
     "aws-sdk": "^2.721.0",
     "bunyan": "^1.8.14",
     "cross-fetch": "^3.0.5",
@@ -71,9 +68,9 @@
     "@graphql-codegen/typescript": "^1.17.6",
     "@graphql-codegen/typescript-operations": "^1.17.6",
     "@graphql-typed-document-node/apollo-client-2": "^1.0.0",
-    "@sudoplatform/sudo-api-client": "^4.0.0",
-    "@sudoplatform/sudo-common": "^3.0.0",
-    "@sudoplatform/sudo-user": "^4.0.0",
+    "@sudoplatform/sudo-api-client": "^5.0.0",
+    "@sudoplatform/sudo-common": "^3.4.0",
+    "@sudoplatform/sudo-user": "^6.0.0",
     "@types/jest": "^26.0.7",
     "@types/jsonwebtoken": "^8.5.0",
     "@types/node": "^14.0.26",
@@ -97,8 +94,8 @@
     "node-fetch": "2.6.1"
   },
   "peerDependencies": {
-    "@sudoplatform/sudo-api-client": "^4.0.0",
-    "@sudoplatform/sudo-common": "^3.0.0",
-    "@sudoplatform/sudo-user": "^4.0.0"
+    "@sudoplatform/sudo-api-client": "^5.0.0",
+    "@sudoplatform/sudo-common": "^3.4.0",
+    "@sudoplatform/sudo-user": "^6.0.0"
   }
 }

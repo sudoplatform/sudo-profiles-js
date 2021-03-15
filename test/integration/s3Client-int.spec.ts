@@ -1,21 +1,22 @@
-import { DefaultSudoUserClient } from '@sudoplatform/sudo-user'
 import {
   DefaultConfigurationManager,
   DefaultLogger,
 } from '@sudoplatform/sudo-common'
+import { DefaultSudoUserClient } from '@sudoplatform/sudo-user'
 import { TESTAuthenticationProvider } from '@sudoplatform/sudo-user/lib/user/auth-provider'
-import privateKeyParam from '../../config/register_key.json'
-import { DefaultS3Client } from '../../src/core/s3Client'
 import FS from 'fs'
 import * as path from 'path'
 import * as uuid from 'uuid'
-import { S3DownloadError } from '../../src/global/error'
+import privateKeyParam from '../../config/register_key.json'
 import config from '../../config/sudoplatformconfig.json'
-import { signIn, signOut, delay } from './test-helper'
+import { DefaultS3Client } from '../../src/core/s3Client'
+import { S3DownloadError } from '../../src/global/error'
+import { delay, signIn, signOut } from './test-helper'
 
 const globalAny: any = global
 globalAny.WebSocket = require('ws')
 require('isomorphic-fetch')
+globalAny.crypto = require('isomorphic-webcrypto')
 
 DefaultConfigurationManager.getInstance().setConfig(JSON.stringify(config))
 const userClient = new DefaultSudoUserClient()

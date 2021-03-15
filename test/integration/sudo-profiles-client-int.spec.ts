@@ -13,7 +13,6 @@ import { anything, mock, when } from 'ts-mockito'
 import * as uuid from 'uuid'
 import config from '../../config/sudoplatformconfig.json'
 import { IdentityServiceConfig } from '../../src/core/identity-service-config'
-import { InMemoryKeyStore } from '../../src/core/key-store'
 import { DefaultS3Client } from '../../src/core/s3Client'
 import { S3DownloadError } from '../../src/global/error'
 import { FetchOption, Sudo } from '../../src/sudo/sudo'
@@ -30,6 +29,8 @@ global.WebSocket = require('ws')
 global.crypto = require('isomorphic-webcrypto')
 require('isomorphic-fetch')
 global.localStorage = new LocalStorage('./scratch')
+global.btoa = (b) => Buffer.from(b).toString('base64')
+global.atob = (a) => Buffer.from(a, 'base64').toString()
 
 class MySubscriber implements SudoSubscriber {
   public connectionState: ConnectionState | undefined = undefined
@@ -47,8 +48,10 @@ class MySubscriber implements SudoSubscriber {
     this.connectionState = state
   }
 }
+
 const logger = new DefaultLogger('Sudo Profiles Client Tests')
 DefaultConfigurationManager.getInstance().setConfig(JSON.stringify(config))
+
 const userClient = new DefaultSudoUserClient()
 
 const identityServiceConfig = DefaultConfigurationManager.getInstance().bindConfigSet<IdentityServiceConfig>(
@@ -62,15 +65,21 @@ const blobCacheMock: LocalForage = mock()
 
 const sudoProfilesClient = new DefaultSudoProfilesClient({
   sudoUserClient: userClient,
-  keyStore: new InMemoryKeyStore(),
   disableOffline: true,
   blobCache: blobCacheMock,
 })
-sudoProfilesClient.pushSymmetricKey('1234', '14A9B3C3540142A11E70ACBB1BD8969F')
 
 beforeEach(async (): Promise<void> => {
   try {
     await signIn(userClient)
+    // Setup symmetric key before each test as
+    // with the `afterEach` function we are calling `signOut`
+    // which deregisters the user and also resets the keyManager
+    // and in turn deletes all keys in sudoKeyManager
+    await sudoProfilesClient.pushSymmetricKey(
+      '1234',
+      '14A9B3C3540142A11E70ACBB1BD8969F',
+    )
   } catch (error) {
     fail(error)
   }

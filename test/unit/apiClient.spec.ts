@@ -1,10 +1,11 @@
 import {
+  Base64,
   DefaultConfigurationManager,
+  DefaultLogger,
   FatalError,
   InsufficientEntitlementsError,
   ServiceError,
   VersionMismatchError,
-  DefaultLogger,
 } from '@sudoplatform/sudo-common'
 import { DefaultSudoUserClient } from '@sudoplatform/sudo-user'
 import { ApolloError } from 'apollo-client'
@@ -15,10 +16,10 @@ import { ApiClient } from '../../src/client/apiClient'
 import { DefaultQueryCache } from '../../src/core/query-cache'
 import {
   CreateSudoDocument,
+  DeleteSudoDocument,
   GetOwnershipProofDocument,
   RedeemTokenDocument,
   UpdateSudoDocument,
-  DeleteSudoDocument,
 } from '../../src/gen/graphql-types'
 import {
   GRAPHQL_ERROR_CONDITIONAL_CHECK_FAILED,
@@ -27,14 +28,16 @@ import {
   GRAPHQL_ERROR_SUDO_NOT_FOUND,
   SudoNotFoundError,
 } from '../../src/global/error'
-import { SymmetricKeyEncryptionAlgorithm } from '../../src/security/securityProvider'
 import { ErrorOption, FetchOption } from '../../src/sudo/sudo'
-import { Base64 } from '../../src/utils/base64'
 
 const globalAny: any = global
 globalAny.WebSocket = require('ws')
 require('isomorphic-fetch')
 global.crypto = require('isomorphic-webcrypto')
+global.btoa = (b) => Buffer.from(b).toString('base64')
+global.atob = (a) => Buffer.from(a, 'base64').toString()
+
+const symmetricKeyEncryptionAlgorithm = 'AES/CBC/PKCS7Padding'
 
 DefaultConfigurationManager.getInstance().setConfig(JSON.stringify(config))
 const sudoUserClient = new DefaultSudoUserClient()
@@ -173,7 +176,7 @@ describe('ApiClient', () => {
           {
             name: 'firstName',
             version: 2,
-            algorithm: SymmetricKeyEncryptionAlgorithm.AesCbcPkcs7Padding,
+            algorithm: symmetricKeyEncryptionAlgorithm,
             keyId: symmetricKeyId,
             base64Data: Base64.encode(encryptedData),
           },
@@ -191,7 +194,7 @@ describe('ApiClient', () => {
               {
                 name: 'firstName',
                 version: 2,
-                algorithm: SymmetricKeyEncryptionAlgorithm.AesCbcPkcs7Padding,
+                algorithm: symmetricKeyEncryptionAlgorithm,
                 keyId: symmetricKeyId,
                 base64Data: Base64.encode(encryptedData),
               },
