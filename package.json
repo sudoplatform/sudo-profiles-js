@@ -20,7 +20,7 @@
     "build:verify": "yarn audit && yarn lint",
     "build:transpile": "babel src --out-dir lib --extensions '.ts'",
     "build:declarations": "tsc --emitDeclarationOnly",
-    "build:docs": "typedoc --mode modules --excludePrivate --out docs src/index.ts"
+    "build:docs": "typedoc --mode file --excludePrivate --out docs src/index.ts"
   },
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -86,12 +86,13 @@
     "jest": "^26.5.3",
     "prettier": "^2.0.5",
     "ts-mockito": "^2.6.1",
-    "typedoc": "0.17.0-3",
+    "typedoc": "0.19.2",
     "typescript": "^4.1.3"
   },
   "resolutions": {
     "apollo-link": "1.2.14",
-    "node-fetch": "2.6.1"
+    "node-fetch": "2.6.1",
+    "marked": "^2.0.0"
   },
   "peerDependencies": {
     "@sudoplatform/sudo-api-client": "^5.0.0",
