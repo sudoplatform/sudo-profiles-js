@@ -115,13 +115,13 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-external">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Default<wbr>S3Client<span class="tsd-signature-symbol">(</span>sudoUserClient<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">SudoUserClient</span>, identityServiceConfig<span class="tsd-signature-symbol">: </span><a href="../globals.html#identityserviceconfig" class="tsd-signature-type">IdentityServiceConfig</a>, logger<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Logger</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="defaults3client.html" class="tsd-signature-type">DefaultS3Client</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Default<wbr>S3Client<span class="tsd-signature-symbol">(</span>sudoUserClient<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">SudoUserClient</span>, identityServiceConfig<span class="tsd-signature-symbol">: </span><a href="../globals.html#identityserviceconfig" class="tsd-signature-type">IdentityServiceConfig</a>, sudoServiceConfig<span class="tsd-signature-symbol">: </span><a href="../globals.html#sudoserviceconfig" class="tsd-signature-type">SudoServiceConfig</a>, logger<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Logger</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="defaults3client.html" class="tsd-signature-type">DefaultS3Client</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/core/s3Client.ts:63</li>
+									<li>Defined in src/core/s3Client.ts:69</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -131,6 +131,9 @@
 								</li>
 								<li>
 									<h5>identityServiceConfig: <a href="../globals.html#identityserviceconfig" class="tsd-signature-type">IdentityServiceConfig</a></h5>
+								</li>
+								<li>
+									<h5>sudoServiceConfig: <a href="../globals.html#sudoserviceconfig" class="tsd-signature-type">SudoServiceConfig</a></h5>
 								</li>
 								<li>
 									<h5>logger: <span class="tsd-signature-type">Logger</span></h5>
@@ -153,7 +156,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/core/s3Client.ts:79</li>
+									<li>Defined in src/core/s3Client.ts:91</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
@@ -170,7 +173,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in src/core/s3Client.ts:83</li>
+									<li>Defined in src/core/s3Client.ts:95</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
@@ -191,7 +194,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/s3client.html">S3Client</a>.<a href="../interfaces/s3client.html#delete">delete</a></p>
 								<ul>
-									<li>Defined in src/core/s3Client.ts:191</li>
+									<li>Defined in src/core/s3Client.ts:203</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -215,7 +218,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/s3client.html">S3Client</a>.<a href="../interfaces/s3client.html#download">download</a></p>
 								<ul>
-									<li>Defined in src/core/s3Client.ts:160</li>
+									<li>Defined in src/core/s3Client.ts:172</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -239,7 +242,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/s3client.html">S3Client</a>.<a href="../interfaces/s3client.html#gethttpuploadprogress">getHttpUploadProgress</a></p>
 								<ul>
-									<li>Defined in src/core/s3Client.ts:87</li>
+									<li>Defined in src/core/s3Client.ts:99</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Progress</span><span class="tsd-signature-symbol">[]</span></h4>
@@ -257,7 +260,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/s3client.html">S3Client</a>.<a href="../interfaces/s3client.html#upload">upload</a></p>
 								<ul>
-									<li>Defined in src/core/s3Client.ts:120</li>
+									<li>Defined in src/core/s3Client.ts:132</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>

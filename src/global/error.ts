@@ -51,6 +51,26 @@ export class S3DeleteError extends Error {
   }
 }
 
+/**
+ * Indicates that Sudo Service is not deployed into your runtime instance or the config
+ * file that you are using is invalid.
+ */
+export class SudoServiceConfigNotFoundError extends Error {
+  constructor(message?: string) {
+    super(message)
+  }
+}
+
+/**
+ * Indicates that the configuration that was passed to `SudoProfilesClient` instance
+ * was invalid.
+ */
+export class InvalidConfigError extends Error {
+  constructor(message?: string) {
+    super(message)
+  }
+}
+
 export function graphQLErrorsToClientError(
   error: AppSyncError,
   logger: Logger,

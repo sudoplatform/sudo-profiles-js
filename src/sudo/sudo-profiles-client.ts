@@ -4,9 +4,11 @@ import {
 } from '@sudoplatform/sudo-api-client'
 import {
   Base64,
+  ConfigurationSetNotFoundError,
   DecodeError,
   DefaultConfigurationManager,
   DefaultLogger,
+  DefaultSudoKeyManager,
   FatalError,
   IllegalArgumentError,
   IllegalStateError,
@@ -18,9 +20,16 @@ import { SudoUserClient } from '@sudoplatform/sudo-user'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import localForage from 'localforage'
 import { ApiClient } from '../client/apiClient'
-import { IdentityServiceConfig } from '../core/identity-service-config'
+import {
+  IdentityServiceConfig,
+  IdentityServiceConfigCodec,
+} from '../core/identity-service-config'
 import { DefaultQueryCache } from '../core/query-cache'
 import { DefaultS3Client, S3Client } from '../core/s3Client'
+import {
+  SudoServiceConfig,
+  SudoServiceConfigCodec,
+} from '../core/sudo-service-config'
 import {
   OnCreateSudoSubscription,
   OnDeleteSudoSubscription,
@@ -29,7 +38,10 @@ import {
   SecureS3ObjectInput,
   Sudo as GQLSudo,
 } from '../gen/graphql-types'
-import { SudoNotFoundError } from '../global/error'
+import {
+  SudoNotFoundError,
+  SudoServiceConfigNotFoundError,
+} from '../global/error'
 import { Entitlement } from './entitlement'
 import { SubscriptionManager } from './SubscriptionManager'
 import {
@@ -40,6 +52,7 @@ import {
   Sudo,
 } from './sudo'
 import { ChangeType, ConnectionState, SudoSubscriber } from './sudo-subscriber'
+import { WebSudoCryptoProvider } from '@sudoplatform/sudo-web-crypto-provider'
 
 export interface SudoProfileOptions {
   sudoUserClient: SudoUserClient
@@ -48,6 +61,7 @@ export interface SudoProfileOptions {
   blobCache?: typeof localForage
   logger?: Logger
   disableOffline?: boolean
+  keyManager?: SudoKeyManager
 }
 
 export enum ClaimVisibility {
@@ -246,30 +260,53 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
 
   constructor(options: SudoProfileOptions) {
     this._sudoUserClient = options.sudoUserClient
-    this._keyManager = this._sudoUserClient.sudoKeyManager
+
+    if (options?.keyManager) {
+      this._keyManager = options?.keyManager
+    } else {
+      const cryptoProvider = new WebSudoCryptoProvider(
+        'SudoProfilesClient',
+        'com.sudoplatform.appservicename',
+      )
+      this._keyManager = new DefaultSudoKeyManager(cryptoProvider)
+    }
     this._logger =
       options.logger ?? new DefaultLogger('Sudo User Profiles', 'info')
 
-    const apiClientConfig = DefaultConfigurationManager.getInstance().bindConfigSet<ApiClientConfig>(
-      ApiClientConfig,
-      'apiService',
-    )
+    const apiClientConfig =
+      DefaultConfigurationManager.getInstance().bindConfigSet<ApiClientConfig>(
+        ApiClientConfig,
+        'apiService',
+      )
 
-    const identityServiceConfig = DefaultConfigurationManager.getInstance().bindConfigSet<IdentityServiceConfig>(
-      IdentityServiceConfig,
-      'identityService',
-    )
+    const identityServiceConfig =
+      DefaultConfigurationManager.getInstance().bindConfigSet<IdentityServiceConfig>(
+        IdentityServiceConfigCodec,
+        'identityService',
+      )
 
-    const defaultApiClientManager = DefaultApiClientManager.getInstance()
-      .setConfig(apiClientConfig)
-      .setAuthClient(this._sudoUserClient)
-      .getClient({ disableOffline: options.disableOffline ?? false })
+    if (
+      !DefaultConfigurationManager.getInstance().getConfigSet('sudoService')
+    ) {
+      throw new SudoServiceConfigNotFoundError()
+    }
 
-    defaultApiClientManager.cache = new InMemoryCache()
+    const sudoServiceConfig =
+      DefaultConfigurationManager.getInstance().bindConfigSet<SudoServiceConfig>(
+        SudoServiceConfigCodec,
+        'sudoService',
+      )
 
     if (options.apiClient) {
       this._apiClient = options.apiClient
     } else {
+      const defaultApiClientManager = DefaultApiClientManager.getInstance()
+        .setConfig(apiClientConfig)
+        .setAuthClient(this._sudoUserClient)
+        .getClient({ disableOffline: options.disableOffline ?? false })
+
+      defaultApiClientManager.cache = new InMemoryCache()
+
       const queryCache = new DefaultQueryCache(
         defaultApiClientManager,
         this._logger,
@@ -288,6 +325,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
       new DefaultS3Client(
         this._sudoUserClient,
         identityServiceConfig,
+        sudoServiceConfig,
         this._logger,
       )
 
@@ -298,7 +336,8 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
         driver: localForage.INDEXEDDB,
       })
 
-    this._onCreateSudoSubscriptionManager = new SubscriptionManager<OnCreateSudoSubscription>()
+    this._onCreateSudoSubscriptionManager =
+      new SubscriptionManager<OnCreateSudoSubscription>()
     this._onUpdateSudoSubscriptionManager = new SubscriptionManager()
     this._onDeleteSudoSubscriptionManager = new SubscriptionManager()
   }
@@ -337,7 +376,8 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
     }
 
     const secureClaims: Array<SecureClaimInput> = new Array<SecureClaimInput>()
-    const secureS3Objects: Array<SecureS3ObjectInput> = new Array<SecureS3ObjectInput>()
+    const secureS3Objects: Array<SecureS3ObjectInput> =
+      new Array<SecureS3ObjectInput>()
 
     for (const [name, claim] of sudo.claims) {
       if (claim.visibility === ClaimVisibility.Private) {
@@ -358,10 +398,8 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
               sudo.claims.set(name, newClaim)
 
               // Setup blob claim for saving
-              const encryptedData = await this._keyManager.encryptWithSymmetricKey(
-                keyId,
-                data,
-              )
+              const encryptedData =
+                await this._keyManager.encryptWithSymmetricKeyName(keyId, data)
               const key = await this._s3Client.upload(encryptedData, cacheId)
 
               const secureS3ObjectInput: SecureS3ObjectInput = {
@@ -479,11 +517,11 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
         // if subscription manager watcher and subscription hasn't been setup yet
         // create them and watch for sudo changes per `owner`
         if (!this._onCreateSudoSubscriptionManager.watcher) {
-          this._onCreateSudoSubscriptionManager.watcher = this._apiClient.subscribeToOnCreateSudo(
-            owner,
-          )
+          this._onCreateSudoSubscriptionManager.watcher =
+            this._apiClient.subscribeToOnCreateSudo(owner)
 
-          this._onCreateSudoSubscriptionManager.subscription = this.executeCreateSudoSubscriptionWatcher()
+          this._onCreateSudoSubscriptionManager.subscription =
+            this.executeCreateSudoSubscriptionWatcher()
 
           this._onCreateSudoSubscriptionManager.connectionStatusChanged(
             ConnectionState.Connected,
@@ -495,11 +533,11 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
         // if subscription manager watcher and subscription hasn't been setup yet
         // create them and watch for sudo changes per `owner`
         if (!this._onUpdateSudoSubscriptionManager.watcher) {
-          this._onUpdateSudoSubscriptionManager.watcher = this._apiClient.subscribeToOnUpdateSudo(
-            owner,
-          )
+          this._onUpdateSudoSubscriptionManager.watcher =
+            this._apiClient.subscribeToOnUpdateSudo(owner)
 
-          this._onUpdateSudoSubscriptionManager.subscription = this.executeUpdateSudoSubscriptionWatcher()
+          this._onUpdateSudoSubscriptionManager.subscription =
+            this.executeUpdateSudoSubscriptionWatcher()
 
           this._onUpdateSudoSubscriptionManager.connectionStatusChanged(
             ConnectionState.Connected,
@@ -511,11 +549,11 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
         // if subscription manager watcher and subscription hasn't been setup yet
         // create them and watch for sudo changes per `owner`
         if (!this._onDeleteSudoSubscriptionManager.watcher) {
-          this._onDeleteSudoSubscriptionManager.watcher = this._apiClient.subscribeToOnDeleteSudo(
-            owner,
-          )
+          this._onDeleteSudoSubscriptionManager.watcher =
+            this._apiClient.subscribeToOnDeleteSudo(owner)
 
-          this._onDeleteSudoSubscriptionManager.subscription = this.executeDeleteSudoSubscription()
+          this._onDeleteSudoSubscriptionManager.subscription =
+            this.executeDeleteSudoSubscription()
 
           this._onDeleteSudoSubscriptionManager.connectionStatusChanged(
             ConnectionState.Connected,
@@ -565,8 +603,8 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
   private executeCreateSudoSubscriptionWatcher():
     | ZenObservable.Subscription
     | undefined {
-    const subscription = this._onCreateSudoSubscriptionManager.watcher?.subscribe(
-      {
+    const subscription =
+      this._onCreateSudoSubscriptionManager.watcher?.subscribe({
         complete: () => {
           this._logger.info('Completed onCreateSudo subscription')
           // Subscription was terminated. Notify the subscribers.
@@ -621,14 +659,13 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
           }
           return Promise.resolve()
         },
-      },
-    )
+      })
 
     return subscription
   }
 
   public async deleteSudo(sudo: Sudo): Promise<void> {
-    console.log('delete sudo')
+    this._logger.info('Deleting a Sudo.')
 
     const sudoId = sudo.id
     if (!sudoId) {
@@ -675,8 +712,8 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
   private executeUpdateSudoSubscriptionWatcher():
     | ZenObservable.Subscription
     | undefined {
-    const subscription = this._onUpdateSudoSubscriptionManager.watcher?.subscribe(
-      {
+    const subscription =
+      this._onUpdateSudoSubscriptionManager.watcher?.subscribe({
         complete: () => {
           this._logger.info('Completed onUpdateSudo subscription')
           // Subscription was terminated. Notify the subscribers.
@@ -735,8 +772,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
 
           return Promise.resolve()
         },
-      },
-    )
+      })
 
     return subscription
   }
@@ -744,8 +780,8 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
   private executeDeleteSudoSubscription():
     | ZenObservable.Subscription
     | undefined {
-    const subscription = this._onDeleteSudoSubscriptionManager.watcher?.subscribe(
-      {
+    const subscription =
+      this._onDeleteSudoSubscriptionManager.watcher?.subscribe({
         complete: () => {
           this._logger.info('Completed onDeleteSudo subscription')
           // Subscription was terminated. Notify the subscribers.
@@ -800,8 +836,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
           }
           return Promise.resolve()
         },
-      },
-    )
+      })
     return subscription
   }
 
@@ -872,10 +907,11 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
             }
           } else {
             const data = await this._s3Client.download(secureObject.key)
-            const decryptedData = await this._keyManager.decryptWithSymmetricKeyName(
-              secureObject.keyId,
-              data,
-            )
+            const decryptedData =
+              await this._keyManager.decryptWithSymmetricKeyName(
+                secureObject.keyId,
+                data,
+              )
             const cacheId = this.getObjectId(item.id, secureObject.name)
             if (!cacheId) {
               throw new Error('Key not found for blob claim.')
@@ -927,7 +963,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
     }
 
     const byteArray = new TextEncoder().encode(value)
-    const encryptedData = await this._keyManager.encryptWithSymmetricKey(
+    const encryptedData = await this._keyManager.encryptWithSymmetricKeyName(
       keyId,
       byteArray,
     )

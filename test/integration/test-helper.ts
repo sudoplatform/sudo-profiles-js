@@ -36,6 +36,5 @@ export async function signOut(
 }
 
 export async function delay(ms: number): Promise<void> {
-  console.log(`Waiting ${ms} milleseconds...`)
   return new Promise((resolve) => setTimeout(resolve, ms))
 }

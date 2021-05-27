@@ -22,7 +22,12 @@ DefaultConfigurationManager.getInstance().setConfig(JSON.stringify(config))
 const userClient = new DefaultSudoUserClient()
 const logger = new DefaultLogger('s3Client tests')
 
-const s3Client = new DefaultS3Client(userClient, config.identityService, logger)
+const s3Client = new DefaultS3Client(
+  userClient,
+  config.identityService,
+  config.sudoService,
+  logger,
+)
 
 beforeEach(async (): Promise<void> => {
   await signIn(userClient)
@@ -135,7 +140,6 @@ describe('s3ClientIntegrationTests', () => {
       await s3Client.delete(objectId)
 
       //Try to get file from S3
-      console.log('confirm file has been deleted from s3')
       await delay(5000)
 
       await expect(s3Client.download(key)).rejects.toThrow(S3DownloadError)

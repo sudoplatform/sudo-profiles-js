@@ -12,8 +12,12 @@ import * as path from 'path'
 import { anything, mock, when } from 'ts-mockito'
 import * as uuid from 'uuid'
 import config from '../../config/sudoplatformconfig.json'
-import { IdentityServiceConfig } from '../../src/core/identity-service-config'
+import {
+  IdentityServiceConfig,
+  IdentityServiceConfigCodec,
+} from '../../src/core/identity-service-config'
 import { DefaultS3Client } from '../../src/core/s3Client'
+import { SudoServiceConfigCodec } from '../../src/core/sudo-service-config'
 import { S3DownloadError } from '../../src/global/error'
 import { FetchOption, Sudo } from '../../src/sudo/sudo'
 import { DefaultSudoProfilesClient } from '../../src/sudo/sudo-profiles-client'
@@ -38,13 +42,11 @@ class MySubscriber implements SudoSubscriber {
   public sudo: Sudo | undefined = undefined
 
   sudoChanged(changeType: ChangeType, sudo: Sudo): void {
-    console.log('MySubscriber sudo changed event')
     this.sudo = sudo
     this.changeType = changeType
   }
 
   connectionStatusChanged(state: ConnectionState): void {
-    console.log('MySubscriber connection status changed event')
     this.connectionState = state
   }
 }
@@ -54,12 +56,24 @@ DefaultConfigurationManager.getInstance().setConfig(JSON.stringify(config))
 
 const userClient = new DefaultSudoUserClient()
 
-const identityServiceConfig = DefaultConfigurationManager.getInstance().bindConfigSet<IdentityServiceConfig>(
-  IdentityServiceConfig,
-  'identityService',
-)
+const identityServiceConfig =
+  DefaultConfigurationManager.getInstance().bindConfigSet<IdentityServiceConfig>(
+    IdentityServiceConfigCodec,
+    'identityService',
+  )
 
-const s3Client = new DefaultS3Client(userClient, identityServiceConfig, logger)
+const sudoServiceConfig =
+  DefaultConfigurationManager.getInstance().bindConfigSet<IdentityServiceConfig>(
+    SudoServiceConfigCodec,
+    'sudoService',
+  )
+
+const s3Client = new DefaultS3Client(
+  userClient,
+  identityServiceConfig,
+  sudoServiceConfig,
+  logger,
+)
 
 const blobCacheMock: LocalForage = mock()
 

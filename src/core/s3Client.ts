@@ -2,8 +2,14 @@ import { Logger } from '@sudoplatform/sudo-common'
 import { SudoUserClient } from '@sudoplatform/sudo-user'
 import { CognitoIdentityCredentials } from 'aws-sdk/lib/core'
 import S3, { ManagedUpload } from 'aws-sdk/clients/s3'
-import { S3DeleteError, S3DownloadError, S3UploadError } from '../global/error'
+import {
+  InvalidConfigError,
+  S3DeleteError,
+  S3DownloadError,
+  S3UploadError,
+} from '../global/error'
 import { IdentityServiceConfig } from './identity-service-config'
+import { SudoServiceConfig } from './sudo-service-config'
 
 /**
  * S3 client wrapper protocol mainly used for providing an abstraction layer on top of
@@ -65,10 +71,16 @@ export class DefaultS3Client implements S3Client {
   constructor(
     sudoUserClient: SudoUserClient,
     identityServiceConfig: IdentityServiceConfig,
+    sudoServiceConfig: SudoServiceConfig,
     logger: Logger,
   ) {
-    this._region = identityServiceConfig.region
-    this._bucket = identityServiceConfig.bucket
+    const region = sudoServiceConfig.region ?? identityServiceConfig.region
+    const bucket = sudoServiceConfig.bucket ?? identityServiceConfig.bucket
+    if (!(region && bucket)) {
+      throw new InvalidConfigError('Bucket or region missing.')
+    }
+    this._region = region
+    this._bucket = bucket
     this._identityPoolId = identityServiceConfig.identityPoolId
     this._providerName = `cognito-idp.${this._region}.amazonaws.com/${identityServiceConfig.poolId}`
 
