@@ -4,7 +4,6 @@ import {
 } from '@sudoplatform/sudo-api-client'
 import {
   Base64,
-  ConfigurationSetNotFoundError,
   DecodeError,
   DefaultConfigurationManager,
   DefaultLogger,
