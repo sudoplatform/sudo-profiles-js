@@ -694,7 +694,6 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
         if (cacheId) {
           const cacheEntry = await this._blobCache.getItem(cacheId)
           if (cacheEntry) {
-            await this._s3Client.delete(cacheId)
             this._blobCache.removeItem(cacheId)
           }
         }

@@ -393,10 +393,6 @@ describe('sudoProfilesClientIntegrationTests', () => {
           region: 'us-east-1',
         },
       )
-
-      await credentialsProvider.getPromise()
-      const key = `${credentialsProvider.identityId}/${cacheId}`
-      await expect(s3Client.download(key)).rejects.toThrow(S3DownloadError)
     }, 120000)
   })
 })
