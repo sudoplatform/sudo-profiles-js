@@ -37,7 +37,7 @@
     "apollo-link-context": "^1.0.20",
     "apollo-link-http": "^1.5.17",
     "asn1js": "^2.1.1",
-    "aws-appsync": "^4.0.3",
+    "aws-appsync": "4.0.3",
     "aws-sdk": "^2.932.0",
     "bunyan": "^1.8.15",
     "cross-fetch": "^3.1.4",
@@ -53,7 +53,8 @@
     "newtype-ts": "^0.3.4",
     "uuid": "^8.3.2",
     "ws": "^7.5.0",
-    "@sudoplatform/sudo-web-crypto-provider": "^1.0.2"
+    "@sudoplatform/sudo-web-crypto-provider": "^1.0.2",
+    "apollo-link": "^1.2.5"
   },
   "devDependencies": {
     "@babel/cli": "^7.14.5",
@@ -68,8 +69,8 @@
     "@graphql-codegen/typescript": "^1.22.3",
     "@graphql-codegen/typescript-operations": "^1.18.2",
     "@graphql-typed-document-node/apollo-client-2": "^1.0.0",
-    "@sudoplatform/sudo-api-client": "^8.0.2",
-    "@sudoplatform/sudo-common": "^5.0.2",
+    "@sudoplatform/sudo-api-client": "^8.0.4",
+    "@sudoplatform/sudo-common": "^5.2.1",
     "@sudoplatform/sudo-user": "^8.0.3",
     "@types/jest": "^26.0.23",
     "@types/jsonwebtoken": "^8.5.2",
@@ -87,7 +88,11 @@
     "prettier": "^2.3.1",
     "ts-mockito": "^2.6.1",
     "typedoc": "^0.19.2",
-    "typescript": "^4.3.4"
+    "typescript": "^4.3.4",
+    "aws-appsync-auth-link": "2.0.3",
+    "aws-appsync-subscription-link": "2.2.1",
+    "apollo-link-http": "^1.5.17",
+    "apollo-link-http-common": "^0.2.16"
   },
   "resolutions": {
     "aws-appsync/**/apollo-cache-inmemory": "^1.6.6",
@@ -96,11 +101,13 @@
     "@graphql-codegen/**/ws": "^7.5.0",
     "@graphql-codegen/**/normalize-url": "^4.5.1",
     "**/glob-parent": "^5.1.2",
-    "typedoc/marked": "^2.0.3"
+    "typedoc/marked": "^2.0.3",
+    "aws-appsync-auth-link": "2.0.3",
+    "aws-appsync-subscription-link": "2.2.1"
   },
   "peerDependencies": {
-    "@sudoplatform/sudo-api-client": "^8.0.1",
-    "@sudoplatform/sudo-common": "^5.0.1",
-    "@sudoplatform/sudo-user": "^8.0.0"
+    "@sudoplatform/sudo-api-client": "^8.0.4",
+    "@sudoplatform/sudo-common": "^5.2.1",
+    "@sudoplatform/sudo-user": "^8.0.3"
   }
 }

@@ -52,6 +52,7 @@ import {
 } from './sudo'
 import { ChangeType, ConnectionState, SudoSubscriber } from './sudo-subscriber'
 import { WebSudoCryptoProvider } from '@sudoplatform/sudo-web-crypto-provider'
+import { ApolloLink } from 'apollo-link'
 
 export interface SudoProfileOptions {
   sudoUserClient: SudoUserClient
@@ -60,6 +61,7 @@ export interface SudoProfileOptions {
   blobCache?: typeof localForage
   logger?: Logger
   disableOffline?: boolean
+  link?: ApolloLink
   keyManager?: SudoKeyManager
 }
 
@@ -302,7 +304,10 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
       const defaultApiClientManager = DefaultApiClientManager.getInstance()
         .setConfig(apiClientConfig)
         .setAuthClient(this._sudoUserClient)
-        .getClient({ disableOffline: options.disableOffline ?? false })
+        .getClient({
+          disableOffline: options.disableOffline ?? false,
+          link: options.link,
+        })
 
       defaultApiClientManager.cache = new InMemoryCache()
 

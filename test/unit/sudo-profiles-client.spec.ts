@@ -163,6 +163,7 @@ describe('SudoProfilesClient', () => {
     it('should throw IllegalStateError when symmetric key id not set', async () => {
       const sudoProfilesClientUnit = new DefaultSudoProfilesClient({
         sudoUserClient: sudoUserClient,
+        disableOffline: true,
       })
 
       when(sudoKeyManagerMock.getSymmetricKey('symmetricKeyId')).thenResolve(
@@ -295,6 +296,7 @@ describe('SudoProfilesClient', () => {
         new DefaultSudoProfilesClient({
           sudoUserClient: sudoUserClient,
           keyManager: keyManager,
+          disableOffline: true,
         })
       }).toThrow(InvalidConfigError)
     })
@@ -331,6 +333,7 @@ describe('SudoProfilesClient', () => {
         new DefaultSudoProfilesClient({
           sudoUserClient: sudoUserClient,
           keyManager: keyManager,
+          disableOffline: true,
         })
       }).not.toThrow(InvalidConfigError)
     })
@@ -368,6 +371,7 @@ describe('SudoProfilesClient', () => {
         new DefaultSudoProfilesClient({
           sudoUserClient: sudoUserClient,
           keyManager: keyManager,
+          disableOffline: true,
         })
       }).not.toThrow(InvalidConfigError)
     })

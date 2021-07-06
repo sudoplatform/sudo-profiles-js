@@ -1,4 +1,9 @@
-import { FatalError, Logger } from '@sudoplatform/sudo-common'
+import {
+  FatalError,
+  isAppSyncNetworkError,
+  Logger,
+  mapNetworkErrorToClientError,
+} from '@sudoplatform/sudo-common'
 import { SudoUserClient } from '@sudoplatform/sudo-user'
 import { NormalizedCacheObject } from 'apollo-cache-inmemory'
 import { Observable } from 'apollo-client/util/Observable'
@@ -71,6 +76,9 @@ export class ApiClient {
         fetchPolicy: FetchOption.NoCache,
       })
     } catch (err) {
+      if (isAppSyncNetworkError(err)) {
+        throw mapNetworkErrorToClientError(err)
+      }
       throw this.mapGraphQLCallError(err)
     }
 
@@ -92,6 +100,9 @@ export class ApiClient {
         errorPolicy: ErrorOption.All,
       })
     } catch (err) {
+      if (isAppSyncNetworkError(err)) {
+        throw mapNetworkErrorToClientError(err)
+      }
       throw this.mapGraphQLCallError(err)
     }
 
@@ -113,6 +124,9 @@ export class ApiClient {
         variables: { input },
       })
     } catch (err) {
+      if (isAppSyncNetworkError(err)) {
+        throw mapNetworkErrorToClientError(err)
+      }
       throw this.mapGraphQLCallError(err)
     }
 
@@ -132,6 +146,9 @@ export class ApiClient {
         variables: { input },
       })
     } catch (err) {
+      if (isAppSyncNetworkError(err)) {
+        throw mapNetworkErrorToClientError(err)
+      }
       throw this.mapGraphQLCallError(err)
     }
 
@@ -151,6 +168,9 @@ export class ApiClient {
         fetchPolicy: fetchPolicy,
       })
     } catch (err) {
+      if (isAppSyncNetworkError(err)) {
+        throw mapNetworkErrorToClientError(err)
+      }
       throw this.mapGraphQLCallError(err)
     }
 
@@ -172,6 +192,9 @@ export class ApiClient {
         variables: { input },
       })
     } catch (err) {
+      if (isAppSyncNetworkError(err)) {
+        throw mapNetworkErrorToClientError(err)
+      }
       throw this.mapGraphQLCallError(err)
     }
 

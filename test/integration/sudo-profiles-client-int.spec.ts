@@ -1,24 +1,15 @@
 import {
   DefaultConfigurationManager,
-  DefaultLogger,
   InsufficientEntitlementsError,
   VersionMismatchError,
 } from '@sudoplatform/sudo-common'
 import { DefaultSudoUserClient } from '@sudoplatform/sudo-user'
-import { CognitoIdentityCredentials } from 'aws-sdk'
 import FS from 'fs'
 import { LocalStorage } from 'node-localstorage'
 import * as path from 'path'
 import { anything, mock, when } from 'ts-mockito'
 import * as uuid from 'uuid'
 import config from '../../config/sudoplatformconfig.json'
-import {
-  IdentityServiceConfig,
-  IdentityServiceConfigCodec,
-} from '../../src/core/identity-service-config'
-import { DefaultS3Client } from '../../src/core/s3Client'
-import { SudoServiceConfigCodec } from '../../src/core/sudo-service-config'
-import { S3DownloadError } from '../../src/global/error'
 import { FetchOption, Sudo } from '../../src/sudo/sudo'
 import { DefaultSudoProfilesClient } from '../../src/sudo/sudo-profiles-client'
 import {
@@ -51,29 +42,9 @@ class MySubscriber implements SudoSubscriber {
   }
 }
 
-const logger = new DefaultLogger('Sudo Profiles Client Tests')
 DefaultConfigurationManager.getInstance().setConfig(JSON.stringify(config))
 
 const userClient = new DefaultSudoUserClient()
-
-const identityServiceConfig =
-  DefaultConfigurationManager.getInstance().bindConfigSet<IdentityServiceConfig>(
-    IdentityServiceConfigCodec,
-    'identityService',
-  )
-
-const sudoServiceConfig =
-  DefaultConfigurationManager.getInstance().bindConfigSet<IdentityServiceConfig>(
-    SudoServiceConfigCodec,
-    'sudoService',
-  )
-
-const s3Client = new DefaultS3Client(
-  userClient,
-  identityServiceConfig,
-  sudoServiceConfig,
-  logger,
-)
 
 const blobCacheMock: LocalForage = mock()
 
@@ -341,7 +312,6 @@ describe('sudoProfilesClientIntegrationTests', () => {
       expect(createdSudo.label).toBe(`dummy_label_${id}`)
       expect(createdSudo.notes).toBe(`dummy_notes_${id}`)
       expect(createdSudo.version).toBe(2)
-      const cacheId = `sudo/${createdSudo.id}/avatar`
 
       // list sudos and force download of avatar image
       const downloadedSudos = await sudoProfilesClient.listSudos(
@@ -377,22 +347,6 @@ describe('sudoProfilesClientIntegrationTests', () => {
         FetchOption.RemoteOnly,
       )
       expect(listDeletedSudos).toEqual([])
-
-      // Make sure file has been deleted from S3
-      // Need to get identity
-      const authTokens = await userClient.getLatestAuthToken()
-      const providerName = `cognito-idp.${identityServiceConfig.region}.amazonaws.com/${identityServiceConfig.poolId}`
-      const credentialsProvider = new CognitoIdentityCredentials(
-        {
-          IdentityPoolId: identityServiceConfig.identityPoolId,
-          Logins: {
-            [providerName]: authTokens,
-          },
-        },
-        {
-          region: 'us-east-1',
-        },
-      )
     }, 120000)
   })
 })

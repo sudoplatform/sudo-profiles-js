@@ -2361,10 +2361,10 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@sudoplatform/sudo-api-client@^8.0.2":
-  version "8.0.2"
-  resolved "https://registry.yarnpkg.com/@sudoplatform/sudo-api-client/-/sudo-api-client-8.0.2.tgz#61c6471cace897e6dc643103e437504b618a7472"
-  integrity sha512-IFTZ4QFY3eQLo3+vIfQAf3UcjdOHxVpKgK5DaudA3Pzbr75fCAnh4k91peJJg36yGl+1I4kuRed+k/j3Ei8k2Q==
+"@sudoplatform/sudo-api-client@^8.0.4":
+  version "8.0.4"
+  resolved "https://registry.yarnpkg.com/@sudoplatform/sudo-api-client/-/sudo-api-client-8.0.4.tgz#1fb14bd9f69af5fa9a7a93cbccf81d593cb43972"
+  integrity sha512-+3JLD848RWlf7MLGXKkOt7p+pM7rWOu5/7C+h0NXNdTrgsU1IBxe9aYyu67yQtHhPGRy6k/SEGYrq1ltvy7R/A==
   dependencies:
     "@redux-offline/redux-offline" "^2.6.0-native.0"
     "@types/graphql" "^14.5.0"
@@ -2375,10 +2375,10 @@
     apollo-link-http "^1.5.17"
     aws-appsync "^4.0.3"
 
-"@sudoplatform/sudo-common@^5.0.2":
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/@sudoplatform/sudo-common/-/sudo-common-5.0.2.tgz#f3bb3cf762f96782aa1fcdc05ec4a7d58ff255f1"
-  integrity sha512-k5Ev483gYdRRvI6m1jtSFbe5l7nx2kwGoQ8inPzxM2i00J6ssEnR115EhHC2LNOWgQ/woCMzGD6d4MiWpSrsgQ==
+"@sudoplatform/sudo-common@^5.2.1":
+  version "5.2.1"
+  resolved "https://registry.yarnpkg.com/@sudoplatform/sudo-common/-/sudo-common-5.2.1.tgz#c96098996755c8dca35d440fbbcb337bdfae0aee"
+  integrity sha512-rVvFaVtnFCD9JAqPlyr5tozl2UK3BaQO1LymqPICBh3w8MLp2mFdrjmdpI+GG9qiOg3vQd9j/FEXqE15UMOzXw==
   dependencies:
     browser-bunyan "^1.6.3"
 
@@ -3225,7 +3225,7 @@ auto-bind@~4.0.0:
   resolved "https://registry.yarnpkg.com/auto-bind/-/auto-bind-4.0.0.tgz#e3589fc6c2da8f7ca43ba9f84fa52a744fc997fb"
   integrity sha512-Hdw8qdNiqdJ8LqT0iK0sVzkFbzg6fhnQqqfWhBDxcHZvU75+B+ayzTy8x+k5Ix0Y92XOhOUlx74ps+bA6BeYMQ==
 
-aws-appsync-auth-link@^2.0.3:
+aws-appsync-auth-link@2.0.3, aws-appsync-auth-link@^2.0.3:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/aws-appsync-auth-link/-/aws-appsync-auth-link-2.0.3.tgz#1a2d5dc9d8712765354cacb906da27557267d2e2"
   integrity sha512-CfXLILhhjMZvQ6OqKFAt6nd02T8YpQPyWS2H4Fmoe54RcQvYDBQDH9Gu1H3wFK77Wn866cwU3jd+W93UaZ7YXw==
@@ -3234,7 +3234,7 @@ aws-appsync-auth-link@^2.0.3:
     aws-sdk "^2.518.0"
     debug "2.6.9"
 
-aws-appsync-subscription-link@^2.2.1:
+aws-appsync-subscription-link@2.2.1, aws-appsync-subscription-link@^2.2.1:
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/aws-appsync-subscription-link/-/aws-appsync-subscription-link-2.2.1.tgz#712a2e3ad39aa693870a5802debbbb4b415b1406"
   integrity sha512-dqr4P+Zc3oy7ttNzOwBhYuVH7XwEgPKAAOv79DjxzEcQIqSxAn+3HYMxn8gASrFcFNV1H04Cgd1wPxITZsJpnw==
@@ -3247,7 +3247,7 @@ aws-appsync-subscription-link@^2.2.1:
     debug "2.6.9"
     url "^0.11.0"
 
-aws-appsync@^4.0.0, aws-appsync@^4.0.3:
+aws-appsync@4.0.3, aws-appsync@^4.0.0, aws-appsync@^4.0.3:
   version "4.0.3"
   resolved "https://registry.yarnpkg.com/aws-appsync/-/aws-appsync-4.0.3.tgz#2233b482cce1d0316fb581e113d6fec22d91d3ea"
   integrity sha512-ld6hgunSewQzTwQui9Rj2Adzj8ikVLaurPU732/Ci85edvyyYmqCoWZqG8EZZFvNdz7tIYFolJD7BsiggTTwJQ==
