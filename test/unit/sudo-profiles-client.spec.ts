@@ -8,7 +8,7 @@ import {
 import { DefaultSudoUserClient, SudoUserClient } from '@sudoplatform/sudo-user'
 import FS from 'fs'
 import * as path from 'path'
-import { instance, mock, reset, when } from 'ts-mockito'
+import { instance, mock, reset, verify, when } from 'ts-mockito'
 import * as uuid from 'uuid'
 import { ApiClient } from '../../src/client/apiClient'
 import { QueryCache } from '../../src/core/query-cache'
@@ -177,11 +177,11 @@ describe('SudoProfilesClient', () => {
   }) // updateSudo
 
   describe('subscribe()', () => {
-    it('should throw NotSignedInError', async () => {
-      when(sudoUserClientMock.getSubject()).thenReturn(undefined)
+    it('should throw NotSignedInError when no subject is returned', async () => {
+      when(sudoUserClientMock.getSubject()).thenResolve(undefined)
 
       try {
-        sudoProfilesClient.subscribe(
+        await sudoProfilesClient.subscribe(
           'dummy_id',
           ChangeType.Create,
           new MySubscriber(),
@@ -189,6 +189,8 @@ describe('SudoProfilesClient', () => {
       } catch (err) {
         expect(err).toBeInstanceOf(NotSignedInError)
       }
+
+      verify(sudoUserClientMock.getSubject()).once()
     })
   }) // Subscribe
 

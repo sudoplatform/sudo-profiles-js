@@ -503,14 +503,14 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
     this.subscribe(id, ChangeType.Delete, subscriber)
   }
 
-  public subscribe(
+  public async subscribe(
     id: string,
     changeType: ChangeType,
     subscriber: SudoSubscriber,
-  ): void {
+  ): Promise<void> {
     this._logger.info('Subscribing for Sudo change notifications.')
 
-    const owner = this._sudoUserClient.getSubject()
+    const owner = await this._sudoUserClient.getSubject()
     if (!owner) {
       throw new NotSignedInError()
     }
