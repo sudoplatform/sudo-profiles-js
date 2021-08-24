@@ -3,15 +3,10 @@ type Mutation {
   updateSudo(input: UpdateSudoInput!): Sudo
   deleteSudo(input: DeleteSudoInput!): Sudo
   getOwnershipProof(input: GetOwnershipProofInput!): OwnershipProof
-  redeemToken(input: RedeemTokenInput!): [Entitlement!]!
   internalProcessCreateSudoEvent(input: ProcessCreateSudoEventInput!): Sudo
     @aws_iam
   internalProcessDeleteSudoEvent(input: ProcessDeleteSudoEventInput!): Sudo
     @aws_iam
-}
-input RedeemTokenInput {
-  token: String!
-  type: String!
 }
 input GetOwnershipProofInput {
   sudoId: ID!

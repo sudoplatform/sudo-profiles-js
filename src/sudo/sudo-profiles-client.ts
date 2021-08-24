@@ -1,7 +1,4 @@
-import {
-  ApiClientConfig,
-  DefaultApiClientManager,
-} from '@sudoplatform/sudo-api-client'
+import { DefaultApiClientManager } from '@sudoplatform/sudo-api-client'
 import {
   Base64,
   DecodeError,
@@ -16,14 +13,12 @@ import {
   SudoKeyManager,
 } from '@sudoplatform/sudo-common'
 import { SudoUserClient } from '@sudoplatform/sudo-user'
-import { InMemoryCache } from 'apollo-cache-inmemory'
 import localForage from 'localforage'
 import { ApiClient } from '../client/apiClient'
 import {
   IdentityServiceConfig,
   IdentityServiceConfigCodec,
 } from '../core/identity-service-config'
-import { DefaultQueryCache } from '../core/query-cache'
 import { DefaultS3Client, S3Client } from '../core/s3Client'
 import {
   SudoServiceConfig,
@@ -41,7 +36,6 @@ import {
   SudoNotFoundError,
   SudoServiceConfigNotFoundError,
 } from '../global/error'
-import { Entitlement } from './entitlement'
 import { SubscriptionManager } from './SubscriptionManager'
 import {
   BlobClaimValue,
@@ -52,7 +46,6 @@ import {
 } from './sudo'
 import { ChangeType, ConnectionState, SudoSubscriber } from './sudo-subscriber'
 import { WebSudoCryptoProvider } from '@sudoplatform/sudo-web-crypto-provider'
-import { ApolloLink } from 'apollo-link'
 
 export interface SudoProfileOptions {
   sudoUserClient: SudoUserClient
@@ -60,8 +53,6 @@ export interface SudoProfileOptions {
   s3Client?: S3Client
   blobCache?: typeof localForage
   logger?: Logger
-  disableOffline?: boolean
-  link?: ApolloLink
   keyManager?: SudoKeyManager
 }
 
@@ -140,20 +131,6 @@ export interface SudoProfilesClient {
    *  @throws {@link FatalError}
    */
   getOwnershipProof(sudoId: string, audience: string): Promise<string>
-
-  /**
-   * Redeem a token to be granted additional entitlements.
-   *
-   * @param token Token.
-   * @param type Token type. Currently only valid value is "entitlements" but this maybe extended in future.
-   *
-   * @return List<Entitlement>: A list of entitlements
-   *
-   *  @throws {@link ServiceError}
-   *  @throws {@link UnknownGraphQLError}
-   *  @throws {@link FatalError}
-   */
-  redeem(token: string, type: string): Promise<Entitlement[]>
 
   /**
    * Retrieves all Sudos owned by the signed in user.
@@ -274,12 +251,6 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
     this._logger =
       options.logger ?? new DefaultLogger('Sudo User Profiles', 'info')
 
-    const apiClientConfig =
-      DefaultConfigurationManager.getInstance().bindConfigSet<ApiClientConfig>(
-        ApiClientConfig,
-        'apiService',
-      )
-
     const identityServiceConfig =
       DefaultConfigurationManager.getInstance().bindConfigSet<IdentityServiceConfig>(
         IdentityServiceConfigCodec,
@@ -301,27 +272,9 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
     if (options.apiClient) {
       this._apiClient = options.apiClient
     } else {
-      const defaultApiClientManager = DefaultApiClientManager.getInstance()
-        .setConfig(apiClientConfig)
-        .setAuthClient(this._sudoUserClient)
-        .getClient({
-          disableOffline: options.disableOffline ?? false,
-          link: options.link,
-        })
+      const appSyncClient = DefaultApiClientManager.getInstance().getClient()
 
-      defaultApiClientManager.cache = new InMemoryCache()
-
-      const queryCache = new DefaultQueryCache(
-        defaultApiClientManager,
-        this._logger,
-      )
-
-      this._apiClient = new ApiClient(
-        this._sudoUserClient,
-        defaultApiClientManager,
-        queryCache,
-        this._logger,
-      )
+      this._apiClient = new ApiClient(appSyncClient, this._logger)
     }
 
     this._s3Client =
@@ -448,8 +401,6 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
     sudo.createdAt = new Date(updatedSudo.createdAtEpochMs)
     sudo.updatedAt = new Date(updatedSudo.updatedAtEpochMs)
 
-    await this._apiClient.queryCache.add(updatedSudo)
-
     return sudo
   }
 
@@ -465,19 +416,6 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
     })
 
     return ownershipProof.jwt
-  }
-
-  public async redeem(token: string, type: string): Promise<Entitlement[]> {
-    this._logger.info('Redeeming a token')
-
-    const entitlement = await this._apiClient.redeem({
-      token,
-      type,
-    })
-
-    return entitlement.map((redeemToken) => {
-      return new Entitlement(redeemToken.name, redeemToken.value)
-    })
   }
 
   public async listSudos(fetchPolicy?: FetchOption): Promise<Sudo[]> {

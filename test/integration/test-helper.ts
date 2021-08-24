@@ -2,7 +2,9 @@ import { DefaultSudoUserClient } from '@sudoplatform/sudo-user'
 import { TESTAuthenticationProvider } from '@sudoplatform/sudo-user/lib/user/auth-provider'
 import privateKeyParam from '../../config/register_key.json'
 
-export async function signIn(userClient: DefaultSudoUserClient): Promise<void> {
+export async function registerAndSignIn(
+  userClient: DefaultSudoUserClient,
+): Promise<void> {
   // Register
   const privateKeyJson = JSON.parse(JSON.stringify(privateKeyParam))
   const params: [1] = privateKeyJson['Parameters']
@@ -27,7 +29,7 @@ export async function signIn(userClient: DefaultSudoUserClient): Promise<void> {
   await expect(userClient.isSignedIn()).resolves.toBeTruthy()
 }
 
-export async function signOut(
+export async function deregister(
   userClient: DefaultSudoUserClient,
 ): Promise<void> {
   // Deregister

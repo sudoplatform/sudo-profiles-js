@@ -7,18 +7,15 @@ import {
   ServiceError,
   VersionMismatchError,
 } from '@sudoplatform/sudo-common'
-import { DefaultSudoUserClient } from '@sudoplatform/sudo-user'
 import { ApolloError } from 'apollo-client'
 import { AWSAppsyncGraphQLError } from 'aws-appsync/lib/types'
 import { GraphQLError } from 'graphql'
 import config from '../../config/sudoplatformconfig.json'
 import { ApiClient } from '../../src/client/apiClient'
-import { DefaultQueryCache } from '../../src/core/query-cache'
 import {
   CreateSudoDocument,
   DeleteSudoDocument,
   GetOwnershipProofDocument,
-  RedeemTokenDocument,
   UpdateSudoDocument,
 } from '../../src/gen/graphql-types'
 import {
@@ -40,7 +37,6 @@ global.atob = (a) => Buffer.from(a, 'base64').toString()
 const symmetricKeyEncryptionAlgorithm = 'AES/CBC/PKCS7Padding'
 
 DefaultConfigurationManager.getInstance().setConfig(JSON.stringify(config))
-const sudoUserClient = new DefaultSudoUserClient()
 
 const client = {
   mutate: jest.fn(),
@@ -48,12 +44,7 @@ const client = {
 }
 const logger = new DefaultLogger('apiClient tests')
 
-const apiClient = new ApiClient(
-  sudoUserClient,
-  client as any,
-  new DefaultQueryCache(client as any, logger),
-  logger,
-)
+const apiClient = new ApiClient(client as any, logger)
 
 const createBackendError: (
   path: string[],
@@ -279,43 +270,6 @@ describe('ApiClient', () => {
       expect(result).toEqual({ jwt: 'SUDO_ID//AUD' })
     })
   }) // getOwnershipProof
-
-  describe('redeem()', () => {
-    it('should execute mutation', async () => {
-      client.mutate.mockImplementation(async () => {
-        return {
-          data: {
-            redeemToken: [
-              {
-                name: 'sudoplatform.sudo.max',
-                value: 0,
-              },
-            ],
-          },
-        }
-      })
-
-      const entitlements = await apiClient.redeem({
-        token: 'sudoplatform.sudo.max=0',
-        type: 'entitlements',
-      })
-
-      expect(client.mutate).toHaveBeenCalledWith({
-        mutation: RedeemTokenDocument,
-        variables: {
-          input: {
-            token: 'sudoplatform.sudo.max=0',
-            type: 'entitlements',
-          },
-        },
-      })
-
-      expect(entitlements).toBeTruthy()
-      expect(entitlements.length).toEqual(1)
-      expect(entitlements[0].name).toEqual('sudoplatform.sudo.max')
-      expect(entitlements[0].value).toEqual(0)
-    })
-  }) // redeem
 
   describe('listSudos()', () => {
     it('should throw ServiceError when query fails', async () => {

@@ -1,7 +1,0 @@
-
-mutation RedeemToken($input: RedeemTokenInput!) {
-  redeemToken(input: $input) {
-    name
-    value
-  }
-}

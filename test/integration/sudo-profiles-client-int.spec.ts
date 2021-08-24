@@ -1,11 +1,10 @@
 import {
   DefaultConfigurationManager,
-  InsufficientEntitlementsError,
   VersionMismatchError,
 } from '@sudoplatform/sudo-common'
 import { DefaultSudoUserClient } from '@sudoplatform/sudo-user'
+import { DefaultSudoEntitlementsClient } from '@sudoplatform/sudo-entitlements'
 import FS from 'fs'
-import { LocalStorage } from 'node-localstorage'
 import * as path from 'path'
 import { anything, mock, when } from 'ts-mockito'
 import * as uuid from 'uuid'
@@ -17,13 +16,22 @@ import {
   ConnectionState,
   SudoSubscriber,
 } from '../../src/sudo/sudo-subscriber'
-import { delay, signIn, signOut } from './test-helper'
+import { delay, registerAndSignIn, deregister } from './test-helper'
+import { DefaultApiClientManager } from '@sudoplatform/sudo-api-client'
 
-//const globalAny: any = global
 global.WebSocket = require('ws')
+global.window = {
+  setTimeout: setTimeout,
+  clearTimeout: clearTimeout,
+  WebSocket: global.WebSocket,
+  ArrayBuffer: global.ArrayBuffer,
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  addEventListener: function () {},
+  navigator: { onLine: true },
+}
 global.crypto = require('isomorphic-webcrypto')
 require('isomorphic-fetch')
-global.localStorage = new LocalStorage('./scratch')
+
 global.btoa = (b) => Buffer.from(b).toString('base64')
 global.atob = (a) => Buffer.from(a, 'base64').toString()
 
@@ -42,21 +50,53 @@ class MySubscriber implements SudoSubscriber {
   }
 }
 
+export class MyStorage {
+  private items = new Map<string, string>()
+
+  getItem(key: string, cb: (error: Error, result?: string) => void): void {
+    const storedValue = this.items[key]
+    process.nextTick(() => cb(null, storedValue))
+  }
+
+  setItem(key: string, value: string, cb: (error: Error) => void): void {
+    this.items[key] = value
+    process.nextTick(() => cb(null))
+  }
+
+  removeItem(key: string, cb: (error: Error) => void): void {
+    this.items.delete(key)
+    process.nextTick(() => cb(null))
+  }
+
+  getAllKeys(cb: (error: Error, keys?: string[]) => void): void {
+    const keys = [...this.items.keys()]
+    process.nextTick(() => cb(null, keys))
+  }
+}
+
 DefaultConfigurationManager.getInstance().setConfig(JSON.stringify(config))
 
 const userClient = new DefaultSudoUserClient()
+const storage = new MyStorage()
+
+DefaultApiClientManager.getInstance()
+  .setAuthClient(userClient)
+  .getClient({ disableOffline: false, storage })
 
 const blobCacheMock: LocalForage = mock()
 
 const sudoProfilesClient = new DefaultSudoProfilesClient({
   sudoUserClient: userClient,
-  disableOffline: true,
   blobCache: blobCacheMock,
 })
 
+const entitlementsClient = new DefaultSudoEntitlementsClient(userClient)
+
 beforeEach(async (): Promise<void> => {
   try {
-    await signIn(userClient)
+    await registerAndSignIn(userClient)
+
+    await entitlementsClient.redeemEntitlements()
     // Setup symmetric key before each test as
     // with the `afterEach` function we are calling `signOut`
     // which deregisters the user and also resets the keyManager
@@ -71,77 +111,12 @@ beforeEach(async (): Promise<void> => {
 }, 30000)
 
 afterEach(async (): Promise<void> => {
-  await signOut(userClient)
+  await deregister(userClient)
 }, 25000)
 
 describe('sudoProfilesClientIntegrationTests', () => {
-  describe('redeem()', () => {
-    it('should redeem entitlement', async () => {
-      // Redeem Entitlement
-      const entitlements = await sudoProfilesClient.redeem(
-        'sudoplatform.sudo.max=1',
-        'entitlements',
-      )
-      expect(entitlements).toBeTruthy()
-      expect(entitlements.length).toBeGreaterThanOrEqual(1)
-      expect(entitlements[0].name).toBe('sudoplatform.sudo.max')
-      expect(entitlements[0].value).toBe(1)
-
-      // Create new Sudo
-      const newSudo = new Sudo()
-      newSudo.title = 'dummy_title'
-      newSudo.firstName = 'dummy_first_name'
-      newSudo.lastName = 'dummy_last_name'
-      newSudo.label = 'dummy_label'
-      newSudo.notes = 'dummy_notes'
-
-      const createdSudo = await sudoProfilesClient.createSudo(newSudo)
-
-      expect(createdSudo.title).toBe('dummy_title')
-      expect(createdSudo.firstName).toBe('dummy_first_name')
-      expect(createdSudo.lastName).toBe('dummy_last_name')
-      expect(createdSudo.label).toBe('dummy_label')
-      expect(createdSudo.notes).toBe('dummy_notes')
-
-      const sudos = await sudoProfilesClient.listSudos()
-      expect(sudos.length).toBe(1)
-
-      const sudo = sudos[0]
-      expect(sudo.title).toBe('dummy_title')
-      expect(sudo.firstName).toBe('dummy_first_name')
-      expect(sudo.lastName).toBe('dummy_last_name')
-      expect(sudo.label).toBe('dummy_label')
-      expect(sudo.notes).toBe('dummy_notes')
-
-      //Try and create another sudo
-      const anotherSudo = new Sudo()
-      anotherSudo.title = 'dummy2_title'
-      anotherSudo.firstName = 'dummy2_first_name'
-      anotherSudo.lastName = 'dummy2_last_name'
-      anotherSudo.label = 'dummy2_label'
-      anotherSudo.notes = 'dummy2_notes'
-
-      try {
-        await sudoProfilesClient.createSudo(anotherSudo)
-        fail('Creating more sudos was expected to fail.')
-      } catch (error) {
-        expect(error).toBeInstanceOf(InsufficientEntitlementsError)
-      }
-    }, 60000)
-  })
-
   describe('createSudo()', () => {
-    it.skip('should subscribe to createSudo event', async () => {
-      // Redeem Entitlement
-      const entitlements = await sudoProfilesClient.redeem(
-        'sudoplatform.sudo.max=1',
-        'entitlements',
-      )
-      expect(entitlements).toBeTruthy()
-      expect(entitlements.length).toBeGreaterThanOrEqual(1)
-      expect(entitlements[0].name).toBe('sudoplatform.sudo.max')
-      expect(entitlements[0].value).toBe(1)
-
+    it('should subscribe to createSudo event', async () => {
       // Setup subscriber
       const subscriber = new MySubscriber()
       sudoProfilesClient.subscribe('1', ChangeType.Create, subscriber)
@@ -172,6 +147,18 @@ describe('sudoProfilesClientIntegrationTests', () => {
       expect(subscriber.changeType).toBe(ChangeType.Create)
       expect(subscriber.sudo?.id).toBeTruthy()
 
+      sudoProfilesClient.unsubscribeAll()
+
+      const sudos = await sudoProfilesClient.listSudos(FetchOption.RemoteOnly)
+      expect(sudos).toBeTruthy()
+      expect(sudos.length).toBe(1)
+
+      expect(sudos[0].title).toBe(`dummy_title_${id}`)
+      expect(sudos[0].firstName).toBe(`dummy_first_name_${id}`)
+      expect(sudos[0].lastName).toBe(`dummy_last_name_${id}`)
+      expect(sudos[0].label).toBe(`dummy_label_${id}`)
+      expect(sudos[0].notes).toBe(`dummy_notes_${id}`)
+
       const cachedSudos = await sudoProfilesClient.listSudos(
         FetchOption.CacheOnly,
       )
@@ -184,14 +171,12 @@ describe('sudoProfilesClientIntegrationTests', () => {
       expect(cachedSudos[0].label).toBe(`dummy_label_${id}`)
       expect(cachedSudos[0].notes).toBe(`dummy_notes_${id}`)
 
-      sudoProfilesClient.unsubscribeAll()
-
-      await delay(15000)
+      await delay(5000)
     }, 120000)
   })
 
   describe('updateSudo()', () => {
-    it.skip('should subscribe to updateSudo event', async () => {
+    it('should subscribe to updateSudo event', async () => {
       //Create new Sudo
       const id = uuid.v4()
       const newSudo = new Sudo()
@@ -243,6 +228,18 @@ describe('sudoProfilesClientIntegrationTests', () => {
       expect(subscriber.sudo?.label).toBe(`updated_dummy_label_${id}`)
       expect(subscriber.sudo?.notes).toBe(`updated_dummy_notes_${id}`)
 
+      sudoProfilesClient.unsubscribeAll()
+
+      const sudos = await sudoProfilesClient.listSudos(FetchOption.RemoteOnly)
+      expect(sudos).toBeTruthy()
+      expect(sudos.length).toBe(1)
+
+      expect(sudos[0].title).toBe(`updated_dummy_title_${id}`)
+      expect(sudos[0].firstName).toBe(`updated_dummy_first_name_${id}`)
+      expect(sudos[0].lastName).toBe(`updated_dummy_last_name_${id}`)
+      expect(sudos[0].label).toBe(`updated_dummy_label_${id}`)
+      expect(sudos[0].notes).toBe(`updated_dummy_notes_${id}`)
+
       const cachedSudos = await sudoProfilesClient.listSudos(
         FetchOption.CacheOnly,
       )
@@ -255,7 +252,7 @@ describe('sudoProfilesClientIntegrationTests', () => {
       expect(cachedSudos[0].label).toBe(`updated_dummy_label_${id}`)
       expect(cachedSudos[0].notes).toBe(`updated_dummy_notes_${id}`)
 
-      sudoProfilesClient.unsubscribeAll()
+      await delay(5000)
     }, 120000)
 
     it('should throw VersionMismatchError when updating a sudo with the wrong version', async () => {

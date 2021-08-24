@@ -18,7 +18,6 @@ import {
   DeleteSudoDocument,
   DeleteSudoInput,
   DeleteSudoMutation,
-  Entitlement,
   GetOwnershipProofDocument,
   GetOwnershipProofInput,
   GetOwnershipProofMutation,
@@ -31,9 +30,6 @@ import {
   OnUpdateSudoDocument,
   OnUpdateSudoSubscription,
   OwnershipProof,
-  RedeemTokenDocument,
-  RedeemTokenInput,
-  RedeemTokenMutation,
   Sudo,
   UpdateSudoDocument,
   UpdateSudoInput,
@@ -47,24 +43,14 @@ import { ErrorOption, FetchOption } from '../sudo/sudo'
  */
 export class ApiClient {
   private readonly _client: AWSAppSyncClient<NormalizedCacheObject>
-  private readonly _sudoUserClient: SudoUserClient
-  private readonly _queryCache: QueryCache
   private readonly _logger: Logger
 
   public constructor(
-    sudoUserClient: SudoUserClient,
     client: AWSAppSyncClient<NormalizedCacheObject>,
-    queryCache: QueryCache,
     logger: Logger,
   ) {
-    this._sudoUserClient = sudoUserClient
     this._client = client
-    this._queryCache = queryCache
     this._logger = logger
-  }
-
-  public get queryCache(): QueryCache {
-    return this._queryCache
   }
 
   public async createSudo(input: CreateSudoInput): Promise<Sudo> {
@@ -135,28 +121,6 @@ export class ApiClient {
     return this.returnOrThrow(
       result.data?.getOwnershipProof,
       'getOwnershipProof did not return any result.',
-    )
-  }
-
-  public async redeem(input: RedeemTokenInput): Promise<Entitlement[]> {
-    let result
-    try {
-      result = await this._client.mutate<RedeemTokenMutation>({
-        mutation: RedeemTokenDocument,
-        variables: { input },
-      })
-    } catch (err) {
-      if (isAppSyncNetworkError(err)) {
-        throw mapNetworkErrorToClientError(err)
-      }
-      throw this.mapGraphQLCallError(err)
-    }
-
-    this.checkGraphQLResponseErrors(result.errors)
-
-    return this.returnOrThrow(
-      result.data?.redeemToken,
-      'redeem did not return any result.',
     )
   }
 

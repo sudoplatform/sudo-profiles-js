@@ -1,17 +1,21 @@
-import { DefaultConfigurationManager } from '@sudoplatform/sudo-common'
+import {
+  DefaultConfigurationManager,
+  DefaultLogger,
+} from '@sudoplatform/sudo-common'
 import { DefaultSudoUserClient } from '@sudoplatform/sudo-user'
 import { LocalStorage } from 'node-localstorage'
 import { mock } from 'ts-mockito'
 import config from '../../config/sudoplatformconfig.json'
 import { Sudo } from '../../src/sudo/sudo'
 import { DefaultSudoProfilesClient } from '../../src/sudo/sudo-profiles-client'
-import { signIn, signOut } from './test-helper'
+import { deregister, registerAndSignIn } from './test-helper'
 import { ApolloLink, Observable } from 'apollo-link'
 import { AuthLink } from 'aws-appsync-auth-link'
 import { createSubscriptionHandshakeLink } from 'aws-appsync-subscription-link'
-import { AUTH_TYPE } from 'aws-appsync'
+import AWSAppSyncClient, { AUTH_TYPE } from 'aws-appsync'
 import { NotAuthorizedError } from '@sudoplatform/sudo-common/lib/errors/error'
 import { RequestFailedError } from '@sudoplatform/sudo-common/lib/errors/error'
+import { ApiClient } from '../../src/client/apiClient'
 
 //const globalAny: any = global
 global.WebSocket = require('ws')
@@ -54,16 +58,23 @@ const subscriptionLink = createSubscriptionHandshakeLink(
 )
 const link = ApolloLink.from([authLink, subscriptionLink])
 
+const appSyncClient = new AWSAppSyncClient(
+  { ...clientOptions, disableOffline: true },
+  { link },
+)
+
 const sudoProfilesClient = new DefaultSudoProfilesClient({
   sudoUserClient: sudoUserClient,
-  disableOffline: true,
   blobCache: blobCacheMock,
-  link,
+  apiClient: new ApiClient(
+    appSyncClient,
+    new DefaultLogger('Sudo User Profiles', 'info'),
+  ),
 })
 
 beforeEach(async (): Promise<void> => {
   try {
-    await signIn(sudoUserClient)
+    await registerAndSignIn(sudoUserClient)
     // Setup symmetric key before each test as
     // with the `afterEach` function we are calling `signOut`
     // which deregisters the user and also resets the keyManager
@@ -78,7 +89,7 @@ beforeEach(async (): Promise<void> => {
 }, 30000)
 
 afterEach(async (): Promise<void> => {
-  await signOut(sudoUserClient)
+  await deregister(sudoUserClient)
 }, 25000)
 
 describe('test error handling', () => {
