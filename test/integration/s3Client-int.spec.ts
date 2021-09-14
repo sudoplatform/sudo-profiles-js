@@ -12,11 +12,15 @@ import { DefaultS3Client } from '../../src/core/s3Client'
 import { S3DownloadError } from '../../src/global/error'
 import { delay, deregister, registerAndSignIn } from './test-helper'
 import { DefaultApiClientManager } from '@sudoplatform/sudo-api-client'
+import { TextDecoder, TextEncoder } from 'util'
 
 const globalAny: any = global
 globalAny.WebSocket = require('ws')
 require('isomorphic-fetch')
 globalAny.crypto = require('isomorphic-webcrypto')
+
+global.TextEncoder = TextEncoder
+global.TextDecoder = TextDecoder
 
 DefaultConfigurationManager.getInstance().setConfig(JSON.stringify(config))
 

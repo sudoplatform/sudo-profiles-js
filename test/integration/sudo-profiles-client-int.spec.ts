@@ -18,22 +18,14 @@ import {
 } from '../../src/sudo/sudo-subscriber'
 import { delay, registerAndSignIn, deregister } from './test-helper'
 import { DefaultApiClientManager } from '@sudoplatform/sudo-api-client'
+import { TextEncoder, TextDecoder } from 'util'
 
 global.WebSocket = require('ws')
-global.window = {
-  setTimeout: setTimeout,
-  clearTimeout: clearTimeout,
-  WebSocket: global.WebSocket,
-  ArrayBuffer: global.ArrayBuffer,
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  addEventListener: function () {},
-  navigator: { onLine: true },
-}
 global.crypto = require('isomorphic-webcrypto')
 require('isomorphic-fetch')
 
-global.btoa = (b) => Buffer.from(b).toString('base64')
-global.atob = (a) => Buffer.from(a, 'base64').toString()
+global.TextEncoder = TextEncoder
+global.TextDecoder = TextDecoder
 
 class MySubscriber implements SudoSubscriber {
   public connectionState: ConnectionState | undefined = undefined

@@ -25,11 +25,14 @@ import {
   ConnectionState,
   SudoSubscriber,
 } from '../../src/sudo/sudo-subscriber'
+import { TextEncoder, TextDecoder } from 'util'
 
 const globalAny: any = global
 globalAny.WebSocket = require('ws')
 require('isomorphic-fetch')
 global.crypto = require('isomorphic-webcrypto')
+global.TextEncoder = TextEncoder
+global.TextDecoder = TextDecoder
 
 const queryCacheMock: QueryCache = mock()
 const apiClientMock: ApiClient = mock()

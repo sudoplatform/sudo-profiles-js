@@ -30,9 +30,12 @@
     "typings"
   ],
   "dependencies": {
+    "@sudoplatform/sudo-web-crypto-provider": "^2.1.0",
     "apollo-cache-inmemory": "1.6.6",
     "apollo-client": "^2.6.10",
+    "apollo-link": "^1.2.5",
     "aws-appsync": "4.0.3",
+    "aws-sdk": "^2.973.0",
     "fp-ts": "^2.11.1",
     "graphql": "^15.5.1",
     "io-ts": "^2.2.16",
@@ -42,10 +45,7 @@
     "monocle-ts": "^2.3.11",
     "newtype-ts": "^0.3.4",
     "uuid": "^8.3.2",
-    "ws": "^8.2.0",
-    "@sudoplatform/sudo-web-crypto-provider": "^1.0.2",
-    "apollo-link": "^1.2.5",
-    "aws-sdk": "^2.973.0"
+    "ws": "^8.2.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.14.8",
@@ -60,10 +60,10 @@
     "@graphql-codegen/typescript": "^1.23.0",
     "@graphql-codegen/typescript-operations": "^1.18.4",
     "@graphql-typed-document-node/apollo-client-2": "^1.0.0",
-    "@sudoplatform/sudo-api-client": "^8.1.0",
-    "@sudoplatform/sudo-common": "^5.4.0",
-    "@sudoplatform/sudo-user": "^9.0.0",
+    "@sudoplatform/sudo-api-client": "^8.2.0",
+    "@sudoplatform/sudo-common": "^5.7.0",
     "@sudoplatform/sudo-entitlements": "^10.0.1",
+    "@sudoplatform/sudo-user": "^9.1.0",
     "@types/jest": "^26.0.23",
     "@types/lodash": "^4.14.171",
     "@types/node": "^14.17.5",
@@ -71,22 +71,22 @@
     "@types/uuid": "^8.3.1",
     "@typescript-eslint/eslint-plugin": "^4.28.4",
     "@typescript-eslint/parser": "^4.28.4",
+    "aws-appsync-auth-link": "2.0.3",
+    "aws-appsync-subscription-link": "2.2.1",
     "eslint": "^7.31.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.23.4",
     "eslint-plugin-prettier": "^3.4.0",
     "isomorphic-webcrypto": "^2.3.8",
     "jest": "^27.0.6",
+    "node-localstorage": "^2.2.1",
     "prettier": "^2.3.2",
     "ts-mockito": "^2.6.1",
     "typedoc": "^0.21.6",
-    "typescript": "^4.3.5",
-    "aws-appsync-auth-link": "2.0.3",
-    "aws-appsync-subscription-link": "2.2.1",
-    "node-localstorage": "^2.2.1"
+    "typescript": "^4.3.5"
   },
   "resolutions": {
-    "aws-appsync/**/apollo-cache-inmemory": "^1.6.6",
+    "**/apollo-cache-inmemory": "1.6.6",
     "apollo-link": "^1.2.14",
     "node-fetch": "^2.6.1",
     "@graphql-codegen/**/ws": "^7.5.3",
@@ -99,8 +99,8 @@
     "path-parse": "^1.0.7"
   },
   "peerDependencies": {
-    "@sudoplatform/sudo-api-client": "^8.1.0",
-    "@sudoplatform/sudo-common": "^5.4.0",
-    "@sudoplatform/sudo-user": "^9.0.0"
+    "@sudoplatform/sudo-api-client": "^8.2.0",
+    "@sudoplatform/sudo-common": "^5.7.0",
+    "@sudoplatform/sudo-user": "^9.1.0"
   }
 }

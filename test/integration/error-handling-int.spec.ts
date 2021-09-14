@@ -3,7 +3,6 @@ import {
   DefaultLogger,
 } from '@sudoplatform/sudo-common'
 import { DefaultSudoUserClient } from '@sudoplatform/sudo-user'
-import { LocalStorage } from 'node-localstorage'
 import { mock } from 'ts-mockito'
 import config from '../../config/sudoplatformconfig.json'
 import { Sudo } from '../../src/sudo/sudo'
@@ -16,14 +15,15 @@ import AWSAppSyncClient, { AUTH_TYPE } from 'aws-appsync'
 import { NotAuthorizedError } from '@sudoplatform/sudo-common/lib/errors/error'
 import { RequestFailedError } from '@sudoplatform/sudo-common/lib/errors/error'
 import { ApiClient } from '../../src/client/apiClient'
+import { TextEncoder, TextDecoder } from 'util'
 
 //const globalAny: any = global
 global.WebSocket = require('ws')
 global.crypto = require('isomorphic-webcrypto')
 require('isomorphic-fetch')
-global.localStorage = new LocalStorage('./scratch')
-global.btoa = (b) => Buffer.from(b).toString('base64')
-global.atob = (a) => Buffer.from(a, 'base64').toString()
+
+global.TextEncoder = TextEncoder
+global.TextDecoder = TextDecoder
 
 DefaultConfigurationManager.getInstance().setConfig(JSON.stringify(config))
 

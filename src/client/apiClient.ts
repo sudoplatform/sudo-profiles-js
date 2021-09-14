@@ -4,13 +4,11 @@ import {
   Logger,
   mapNetworkErrorToClientError,
 } from '@sudoplatform/sudo-common'
-import { SudoUserClient } from '@sudoplatform/sudo-user'
 import { NormalizedCacheObject } from 'apollo-cache-inmemory'
 import { Observable } from 'apollo-client/util/Observable'
 import { AWSAppSyncClient } from 'aws-appsync'
 import { stringType } from 'aws-sdk/clients/iam'
 import { GraphQLError } from 'graphql'
-import { QueryCache } from '../core/query-cache'
 import {
   CreateSudoDocument,
   CreateSudoInput,

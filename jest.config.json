@@ -1,5 +1,5 @@
 {
-  "testEnvironment": "node",
+  "testEnvironment": "jsdom",
   "testMatch": ["<rootDir>/test/**/*.spec.ts"],
   "testPathIgnorePatterns": ["/node_modules/", "/lib/"],
   "clearMocks": true,

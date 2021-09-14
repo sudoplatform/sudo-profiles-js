@@ -31,8 +31,6 @@ const globalAny: any = global
 globalAny.WebSocket = require('ws')
 require('isomorphic-fetch')
 global.crypto = require('isomorphic-webcrypto')
-global.btoa = (b) => Buffer.from(b).toString('base64')
-global.atob = (a) => Buffer.from(a, 'base64').toString()
 
 const symmetricKeyEncryptionAlgorithm = 'AES/CBC/PKCS7Padding'
 
