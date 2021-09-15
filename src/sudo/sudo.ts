@@ -142,7 +142,7 @@ export class Sudo extends Base {
    * Title
    */
   public get title(): string | undefined {
-    return this._claims.get(Sudo.TITLE)?.value.value as string | undefined
+    return this._claims.get(Sudo.TITLE)?.value.value
   }
   public set title(value: string | undefined) {
     if (value) {
@@ -161,7 +161,7 @@ export class Sudo extends Base {
    * First name
    */
   public get firstName(): string | undefined {
-    return this._claims.get(Sudo.FIRST_NAME)?.value.value as string | undefined
+    return this._claims.get(Sudo.FIRST_NAME)?.value.value
   }
   public set firstName(value: string | undefined) {
     if (value) {
@@ -180,7 +180,7 @@ export class Sudo extends Base {
    * Last name
    */
   public get lastName(): string | undefined {
-    return this._claims.get(Sudo.LAST_NAME)?.value.value as string | undefined
+    return this._claims.get(Sudo.LAST_NAME)?.value.value
   }
   public set lastName(value: string | undefined) {
     if (value) {
@@ -199,7 +199,7 @@ export class Sudo extends Base {
    * Label
    */
   public get label(): string | undefined {
-    return this._claims.get(Sudo.LABEL)?.value.value as string | undefined
+    return this._claims.get(Sudo.LABEL)?.value.value
   }
   public set label(value: string | undefined) {
     if (value) {
@@ -218,7 +218,7 @@ export class Sudo extends Base {
    * Notes.
    */
   public get notes(): string | undefined {
-    return this._claims.get(Sudo.NOTES)?.value.value as string | undefined
+    return this._claims.get(Sudo.NOTES)?.value.value
   }
   public set notes(value: string | undefined) {
     if (value) {

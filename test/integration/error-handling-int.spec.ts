@@ -4,7 +4,6 @@ import {
 } from '@sudoplatform/sudo-common'
 import { DefaultSudoUserClient } from '@sudoplatform/sudo-user'
 import { mock } from 'ts-mockito'
-import config from '../../config/sudoplatformconfig.json'
 import { Sudo } from '../../src/sudo/sudo'
 import { DefaultSudoProfilesClient } from '../../src/sudo/sudo-profiles-client'
 import { deregister, registerAndSignIn } from './test-helper'
@@ -15,15 +14,22 @@ import AWSAppSyncClient, { AUTH_TYPE } from 'aws-appsync'
 import { NotAuthorizedError } from '@sudoplatform/sudo-common/lib/errors/error'
 import { RequestFailedError } from '@sudoplatform/sudo-common/lib/errors/error'
 import { ApiClient } from '../../src/client/apiClient'
-import { TextEncoder, TextDecoder } from 'util'
+import { TextDecoder, TextEncoder } from 'util'
+import { SudoNotFoundError } from '../../src/global/error'
+import FS from 'fs'
 
 //const globalAny: any = global
 global.WebSocket = require('ws')
 global.crypto = require('isomorphic-webcrypto')
+global.TextEncoder = TextEncoder
+global.TextDecoder = TextDecoder as typeof global.TextDecoder
 require('isomorphic-fetch')
 
-global.TextEncoder = TextEncoder
-global.TextDecoder = TextDecoder
+const config = JSON.parse(
+  FS.readFileSync(`${__dirname}/../../config/sudoplatformconfig.json`).toString(
+    'binary',
+  ),
+)
 
 DefaultConfigurationManager.getInstance().setConfig(JSON.stringify(config))
 
@@ -93,6 +99,20 @@ afterEach(async (): Promise<void> => {
 }, 25000)
 
 describe('test error handling', () => {
+  it('should fail with SudoNotFoundError', async () => {
+    const newSudo = new Sudo()
+    newSudo.title = 'dummy_title'
+    newSudo.firstName = 'dummy_first_name'
+    newSudo.lastName = 'dummy_last_name'
+    newSudo.label = 'dummy_label'
+    newSudo.notes = 'dummy_notes'
+    newSudo.id = 'not-found'
+
+    await expect(sudoProfilesClient.deleteSudo(newSudo)).rejects.toThrow(
+      new SudoNotFoundError(),
+    )
+  })
+
   it('should fail with NotAuthorizedError', async () => {
     // Create new Sudo
     const newSudo = new Sudo()
@@ -151,7 +171,7 @@ describe('test error handling', () => {
 
     try {
       await sudoProfilesClient.createSudo(newSudo)
-    } catch (error) {
+    } catch (error: any) {
       expect(error).toBeInstanceOf(RequestFailedError)
       expect(error.statusCode).toBe(500)
     }

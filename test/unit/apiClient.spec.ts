@@ -1,6 +1,5 @@
 import {
   Base64,
-  DefaultConfigurationManager,
   DefaultLogger,
   FatalError,
   InsufficientEntitlementsError,
@@ -10,7 +9,6 @@ import {
 import { ApolloError } from 'apollo-client'
 import { AWSAppsyncGraphQLError } from 'aws-appsync/lib/types'
 import { GraphQLError } from 'graphql'
-import config from '../../config/sudoplatformconfig.json'
 import { ApiClient } from '../../src/client/apiClient'
 import {
   CreateSudoDocument,
@@ -33,8 +31,6 @@ require('isomorphic-fetch')
 global.crypto = require('isomorphic-webcrypto')
 
 const symmetricKeyEncryptionAlgorithm = 'AES/CBC/PKCS7Padding'
-
-DefaultConfigurationManager.getInstance().setConfig(JSON.stringify(config))
 
 const client = {
   mutate: jest.fn(),
@@ -238,7 +234,7 @@ describe('ApiClient', () => {
 
   describe('getOwnwershipProof()', () => {
     it('should execute mutation', async () => {
-      client.mutate.mockImplementation(async (opts) => {
+      client.mutate.mockImplementation((opts) => {
         return {
           data: {
             getOwnershipProof: {
@@ -295,7 +291,7 @@ describe('ApiClient', () => {
 
   describe('deleteSudo()', () => {
     it('should execute mutation', async () => {
-      client.mutate.mockImplementation(async () => {
+      client.mutate.mockImplementation(() => {
         return {}
       })
 
@@ -335,7 +331,7 @@ describe('ApiClient', () => {
     })
 
     it('should throw VersionMismatchError when expectedVersion is different', async () => {
-      client.mutate.mockImplementation(async () => {
+      client.mutate.mockImplementation(() => {
         return {
           data: {},
           errors: [

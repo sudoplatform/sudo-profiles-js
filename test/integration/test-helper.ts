@@ -1,19 +1,23 @@
 import { DefaultSudoUserClient } from '@sudoplatform/sudo-user'
 import { TESTAuthenticationProvider } from '@sudoplatform/sudo-user/lib/user/auth-provider'
-import privateKeyParam from '../../config/register_key.json'
-
+import * as fs from 'fs'
 export async function registerAndSignIn(
   userClient: DefaultSudoUserClient,
 ): Promise<void> {
   // Register
-  const privateKeyJson = JSON.parse(JSON.stringify(privateKeyParam))
-  const params: [1] = privateKeyJson['Parameters']
-  const param = JSON.parse(JSON.stringify(params[0]))
-  const privateKey = param.Value
+  const privateKey = fs
+    .readFileSync(`${__dirname}/../../config/register_key.private`)
+    .toString('utf-8')
+    .trim()
+  const keyId = fs
+    .readFileSync(`${__dirname}/../../config/register_key.id`)
+    .toString('utf-8')
+    .trim()
 
   const testAuthenticationProvider = new TESTAuthenticationProvider(
     'SudoUser',
     privateKey,
+    keyId,
   )
 
   await userClient.registerWithAuthenticationProvider(

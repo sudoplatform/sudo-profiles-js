@@ -9,7 +9,9 @@ import { DefaultSudoUserClient, SudoUserClient } from '@sudoplatform/sudo-user'
 import FS from 'fs'
 import * as path from 'path'
 import { instance, mock, reset, verify, when } from 'ts-mockito'
+import { TextEncoder, TextDecoder } from 'util'
 import * as uuid from 'uuid'
+
 import { ApiClient } from '../../src/client/apiClient'
 import { QueryCache } from '../../src/core/query-cache'
 import { S3Client } from '../../src/core/s3Client'
@@ -25,14 +27,13 @@ import {
   ConnectionState,
   SudoSubscriber,
 } from '../../src/sudo/sudo-subscriber'
-import { TextEncoder, TextDecoder } from 'util'
 
 const globalAny: any = global
 globalAny.WebSocket = require('ws')
 require('isomorphic-fetch')
 global.crypto = require('isomorphic-webcrypto')
 global.TextEncoder = TextEncoder
-global.TextDecoder = TextDecoder
+global.TextDecoder = TextDecoder as typeof global.TextDecoder
 
 const queryCacheMock: QueryCache = mock()
 const apiClientMock: ApiClient = mock()
@@ -103,7 +104,12 @@ const sudoProfilesClient = new DefaultSudoProfilesClient({
   blobCache: blobCacheMock,
 })
 
-sudoProfilesClient.pushSymmetricKey('1234', '14A9B3C3540142A11E70ACBB1BD8969F')
+beforeAll(async () => {
+  await sudoProfilesClient.pushSymmetricKey(
+    '1234',
+    '14A9B3C3540142A11E70ACBB1BD8969F',
+  )
+})
 
 class MySubscriber implements SudoSubscriber {
   public connectionState: ConnectionState | undefined = undefined
@@ -227,7 +233,7 @@ describe('SudoProfilesClient', () => {
 
       jest
         .spyOn(sudoProfilesClient, 'listSudos')
-        .mockImplementation(async () => [sudo])
+        .mockImplementation(() => Promise.resolve([sudo]))
       when(blobCacheMock.getItem(cacheId)).thenResolve(arrayBuffer)
       when(s3ClientMock.delete(cacheId)).thenResolve()
       when(blobCacheMock.removeItem(cacheId)).thenResolve()
@@ -237,7 +243,7 @@ describe('SudoProfilesClient', () => {
   })
 
   describe('config tests', () => {
-    it('should throw SudoSerivceConfigNotFoundError when sudoService config is missing.', async () => {
+    it('should throw SudoSerivceConfigNotFoundError when sudoService config is missing.', () => {
       DefaultConfigurationManager.getInstance().setConfig(
         JSON.stringify({
           identityService: {
@@ -272,7 +278,7 @@ describe('SudoProfilesClient', () => {
       }).toThrow(SudoServiceConfigNotFoundError)
     })
 
-    it('should throw InvalidConfigError if no bucket information is found in identityService or sudoService config', async () => {
+    it('should throw InvalidConfigError if no bucket information is found in identityService or sudoService config', () => {
       DefaultConfigurationManager.getInstance().setConfig(
         JSON.stringify({
           identityService: {
@@ -307,7 +313,7 @@ describe('SudoProfilesClient', () => {
       }).toThrow(InvalidConfigError)
     })
 
-    it('should succeed if sudoService config does not contain bucket information but identityService config does.', async () => {
+    it('should succeed if sudoService config does not contain bucket information but identityService config does.', () => {
       DefaultConfigurationManager.getInstance().setConfig(
         JSON.stringify({
           identityService: {
@@ -344,7 +350,7 @@ describe('SudoProfilesClient', () => {
       }).not.toThrow(InvalidConfigError)
     })
 
-    it('should succeed if sudoService config contains bucket information but identityService config does not.', async () => {
+    it('should succeed if sudoService config contains bucket information but identityService config does not.', () => {
       DefaultConfigurationManager.getInstance().setConfig(
         JSON.stringify({
           identityService: {

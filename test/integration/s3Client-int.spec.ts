@@ -1,26 +1,30 @@
+import { DefaultApiClientManager } from '@sudoplatform/sudo-api-client'
 import {
   DefaultConfigurationManager,
   DefaultLogger,
 } from '@sudoplatform/sudo-common'
-import { DefaultSudoUserClient } from '@sudoplatform/sudo-user'
 import { DefaultSudoEntitlementsClient } from '@sudoplatform/sudo-entitlements'
+import { DefaultSudoUserClient } from '@sudoplatform/sudo-user'
 import FS from 'fs'
 import * as path from 'path'
 import * as uuid from 'uuid'
-import config from '../../config/sudoplatformconfig.json'
 import { DefaultS3Client } from '../../src/core/s3Client'
 import { S3DownloadError } from '../../src/global/error'
 import { delay, deregister, registerAndSignIn } from './test-helper'
-import { DefaultApiClientManager } from '@sudoplatform/sudo-api-client'
 import { TextDecoder, TextEncoder } from 'util'
 
 const globalAny: any = global
 globalAny.WebSocket = require('ws')
 require('isomorphic-fetch')
 globalAny.crypto = require('isomorphic-webcrypto')
-
 global.TextEncoder = TextEncoder
-global.TextDecoder = TextDecoder
+global.TextDecoder = TextDecoder as typeof global.TextDecoder
+
+const config = JSON.parse(
+  FS.readFileSync(`${__dirname}/../../config/sudoplatformconfig.json`).toString(
+    'binary',
+  ),
+)
 
 DefaultConfigurationManager.getInstance().setConfig(JSON.stringify(config))
 
@@ -38,12 +42,12 @@ const s3Client = new DefaultS3Client(
   logger,
 )
 
-beforeEach(async (): Promise<void> => {
+beforeEach(async () => {
   await registerAndSignIn(userClient)
   await entitlementsClient.redeemEntitlements()
 }, 20000)
 
-afterEach(async (): Promise<void> => {
+afterEach(async () => {
   await deregister(userClient)
 }, 10000)
 

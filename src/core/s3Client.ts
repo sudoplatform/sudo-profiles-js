@@ -1,7 +1,8 @@
 import { Logger } from '@sudoplatform/sudo-common'
 import { SudoUserClient } from '@sudoplatform/sudo-user'
-import { CognitoIdentityCredentials } from 'aws-sdk/lib/core'
 import S3, { ManagedUpload } from 'aws-sdk/clients/s3'
+import { CognitoIdentityCredentials } from 'aws-sdk/lib/core'
+
 import {
   InvalidConfigError,
   S3DeleteError,
@@ -164,7 +165,8 @@ export class DefaultS3Client implements S3Client {
       const response = await managedUpload.promise()
       this._logger.info('Upload response: ', { response })
       return response.Key
-    } catch (error) {
+    } catch (err) {
+      const error = err as Error
       throw new S3UploadError(error.message)
     }
   }
@@ -190,12 +192,13 @@ export class DefaultS3Client implements S3Client {
       } else if (response.Body instanceof Buffer) {
         return response.Body
       } else if (response.Body instanceof Uint8Array) {
-        return (response.Body as Uint8Array).buffer
+        return response.Body.buffer
       } else {
         throw new S3DownloadError('Object type is not supported in browser.')
       }
-    } catch (error) {
-      this._logger.error(error)
+    } catch (err) {
+      const error = err as Error
+      this._logger.error(error.message)
       throw new S3DownloadError(error.message)
     }
   }
@@ -215,7 +218,8 @@ export class DefaultS3Client implements S3Client {
       }
       this._logger.info('Deleting: ', { key })
       await s3Client.deleteObject(params).promise()
-    } catch (error) {
+    } catch (err) {
+      const error = err as Error
       throw new S3DeleteError(error.message)
     }
   }

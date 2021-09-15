@@ -36,7 +36,7 @@ import {
   SudoNotFoundError,
   SudoServiceConfigNotFoundError,
 } from '../global/error'
-import { SubscriptionManager } from './SubscriptionManager'
+import { SubscriptionManager, SubscriptionResult } from './SubscriptionManager'
 import {
   BlobClaimValue,
   Claim,
@@ -293,8 +293,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
         driver: localForage.INDEXEDDB,
       })
 
-    this._onCreateSudoSubscriptionManager =
-      new SubscriptionManager<OnCreateSudoSubscription>()
+    this._onCreateSudoSubscriptionManager = new SubscriptionManager()
     this._onUpdateSudoSubscriptionManager = new SubscriptionManager()
     this._onDeleteSudoSubscriptionManager = new SubscriptionManager()
   }
@@ -435,10 +434,12 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
     await this._blobCache.clear()
   }
 
-  public subscribeAll(id: string, subscriber: SudoSubscriber): void {
-    this.subscribe(id, ChangeType.Create, subscriber)
-    this.subscribe(id, ChangeType.Update, subscriber)
-    this.subscribe(id, ChangeType.Delete, subscriber)
+  public subscribeAll(id: string, subscriber: SudoSubscriber): Promise<void> {
+    return Promise.all([
+      this.subscribe(id, ChangeType.Create, subscriber),
+      this.subscribe(id, ChangeType.Update, subscriber),
+      this.subscribe(id, ChangeType.Delete, subscriber),
+    ]).then(() => Promise.resolve())
   }
 
   public async subscribe(
@@ -562,10 +563,11 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
           )
         },
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        next: async (result: any): Promise<void> => {
+        next: async (
+          result: SubscriptionResult<OnCreateSudoSubscription>,
+        ): Promise<void> => {
           this._logger.info('executing onCreateSudo subscription', result)
-          const data = (result.data as OnCreateSudoSubscription)?.onCreateSudo
+          const data = result?.data?.onCreateSudo
           if (!data) {
             throw new FatalError(
               'onCreateSudo subscription response contained error',
@@ -637,7 +639,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
         if (cacheId) {
           const cacheEntry = await this._blobCache.getItem(cacheId)
           if (cacheEntry) {
-            this._blobCache.removeItem(cacheId)
+            await this._blobCache.removeItem(cacheId)
           }
         }
       }
@@ -669,10 +671,12 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
             ConnectionState.Disconnected,
           )
         },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        next: async (result: any): Promise<void> => {
+
+        next: async (
+          result: SubscriptionResult<OnUpdateSudoSubscription>,
+        ): Promise<void> => {
           this._logger.info('executing onUpdateSudo subscription', result)
-          const data = (result.data as OnUpdateSudoSubscription)?.onUpdateSudo
+          const data = result?.data?.onUpdateSudo
           if (!data) {
             throw new FatalError(
               'onUpdateSudo subscription response contained error',
@@ -737,10 +741,12 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
             ConnectionState.Disconnected,
           )
         },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        next: async (result: any): Promise<void> => {
+
+        next: async (
+          result: SubscriptionResult<OnDeleteSudoSubscription>,
+        ): Promise<void> => {
           this._logger.info('executing onDeleteSudo subscription', result)
-          const data = (result.data as OnDeleteSudoSubscription)?.onDeleteSudo
+          const data = result?.data?.onDeleteSudo
           if (!data) {
             throw new FatalError(
               'onDeleteSudo subscription response contained error',
@@ -890,7 +896,8 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
         symmetricKeyBuffer,
       )
     } catch (err) {
-      throw new DecodeError(err.message)
+      const error = err as Error
+      throw new DecodeError(error.message)
     }
   }
 
@@ -937,7 +944,8 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
         decryptedData,
       )
     } catch (err) {
-      throw new DecodeError(err.message)
+      const error = err as Error
+      throw new DecodeError(error.message)
     }
 
     return new Claim(

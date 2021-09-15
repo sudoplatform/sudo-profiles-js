@@ -5,6 +5,7 @@ import {
   mapNetworkErrorToClientError,
 } from '@sudoplatform/sudo-common'
 import { NormalizedCacheObject } from 'apollo-cache-inmemory'
+import { ApolloError } from 'apollo-client'
 import { Observable } from 'apollo-client/util/Observable'
 import { AWSAppSyncClient } from 'aws-appsync'
 import { stringType } from 'aws-sdk/clients/iam'
@@ -34,6 +35,7 @@ import {
   UpdateSudoMutation,
 } from '../gen/graphql-types'
 import { graphQLErrorsToClientError } from '../global/error'
+import { SubscriptionResult } from '../sudo/SubscriptionManager'
 import { ErrorOption, FetchOption } from '../sudo/sudo'
 
 /**
@@ -60,10 +62,11 @@ export class ApiClient {
         fetchPolicy: FetchOption.NoCache,
       })
     } catch (err) {
-      if (isAppSyncNetworkError(err)) {
-        throw mapNetworkErrorToClientError(err)
+      const error = err as Error
+      if (isAppSyncNetworkError(error)) {
+        throw mapNetworkErrorToClientError(error)
       }
-      throw this.mapGraphQLCallError(err)
+      throw this.mapGraphQLCallError(error)
     }
 
     this.checkGraphQLResponseErrors(result.errors)
@@ -84,10 +87,11 @@ export class ApiClient {
         errorPolicy: ErrorOption.All,
       })
     } catch (err) {
-      if (isAppSyncNetworkError(err)) {
-        throw mapNetworkErrorToClientError(err)
+      const error = err as Error
+      if (isAppSyncNetworkError(error)) {
+        throw mapNetworkErrorToClientError(error)
       }
-      throw this.mapGraphQLCallError(err)
+      throw this.mapGraphQLCallError(error)
     }
 
     this.checkGraphQLResponseErrors(result.errors)
@@ -108,10 +112,11 @@ export class ApiClient {
         variables: { input },
       })
     } catch (err) {
-      if (isAppSyncNetworkError(err)) {
-        throw mapNetworkErrorToClientError(err)
+      const error = err as Error
+      if (isAppSyncNetworkError(error)) {
+        throw mapNetworkErrorToClientError(error)
       }
-      throw this.mapGraphQLCallError(err)
+      throw this.mapGraphQLCallError(error)
     }
 
     this.checkGraphQLResponseErrors(result.errors)
@@ -130,10 +135,11 @@ export class ApiClient {
         fetchPolicy: fetchPolicy,
       })
     } catch (err) {
-      if (isAppSyncNetworkError(err)) {
-        throw mapNetworkErrorToClientError(err)
+      const error = err as Error
+      if (isAppSyncNetworkError(error)) {
+        throw mapNetworkErrorToClientError(error)
       }
-      throw this.mapGraphQLCallError(err)
+      throw this.mapGraphQLCallError(error)
     }
 
     this.checkGraphQLResponseErrors(result.errors)
@@ -154,10 +160,11 @@ export class ApiClient {
         variables: { input },
       })
     } catch (err) {
-      if (isAppSyncNetworkError(err)) {
-        throw mapNetworkErrorToClientError(err)
+      const error = err as Error
+      if (isAppSyncNetworkError(error)) {
+        throw mapNetworkErrorToClientError(error)
       }
-      throw this.mapGraphQLCallError(err)
+      throw this.mapGraphQLCallError(error)
     }
 
     this.checkGraphQLResponseErrors(result.errors)
@@ -169,7 +176,7 @@ export class ApiClient {
 
   public subscribeToOnCreateSudo(
     owner: string,
-  ): Observable<OnCreateSudoSubscription> {
+  ): Observable<SubscriptionResult<OnCreateSudoSubscription>> {
     return this._client.subscribe({
       query: OnCreateSudoDocument,
       variables: { owner },
@@ -178,7 +185,7 @@ export class ApiClient {
 
   public subscribeToOnUpdateSudo(
     owner: string,
-  ): Observable<OnUpdateSudoSubscription> {
+  ): Observable<SubscriptionResult<OnUpdateSudoSubscription>> {
     return this._client.subscribe({
       query: OnUpdateSudoDocument,
       variables: { owner },
@@ -187,7 +194,7 @@ export class ApiClient {
 
   public subscribeToOnDeleteSudo(
     owner: string,
-  ): Observable<OnDeleteSudoSubscription> {
+  ): Observable<SubscriptionResult<OnDeleteSudoSubscription>> {
     return this._client.subscribe({
       query: OnDeleteSudoDocument,
       variables: { owner },
@@ -223,10 +230,9 @@ export class ApiClient {
     }
   }
 
-  /* eslint-disable @typescript-eslint/no-explicit-any*/
-  /* eslint-disable @typescript-eslint/explicit-module-boundary-types*/
-  mapGraphQLCallError = (err: any): Error => {
-    const error = err.graphQLErrors?.[0]
+  mapGraphQLCallError = (err: Error): Error => {
+    const apolloError = err as ApolloError
+    const error = apolloError.graphQLErrors?.[0]
     if (error) {
       return graphQLErrorsToClientError(error, this._logger)
     } else {
@@ -234,9 +240,7 @@ export class ApiClient {
     }
   }
 
-  /* eslint-disable @typescript-eslint/no-explicit-any*/
-  /* eslint-disable @typescript-eslint/explicit-module-boundary-types*/
-  returnOrThrow = (data: any, message: stringType): any => {
+  returnOrThrow = <T>(data: T | undefined, message: stringType): T => {
     if (data) {
       return data
     } else {

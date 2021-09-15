@@ -1,5 +1,6 @@
 import { Logger, UnknownGraphQLError } from '@sudoplatform/sudo-common'
 import { NormalizedCacheObject } from 'apollo-cache-inmemory'
+import { ApolloError } from 'apollo-client'
 import AWSAppSyncClient from 'aws-appsync'
 import { cloneDeep } from 'lodash'
 import { ListSudosDocument, ListSudosQuery, Sudo } from '../gen/graphql-types'
@@ -34,7 +35,8 @@ export class DefaultQueryCache implements QueryCache {
         fetchPolicy: FetchOption.CacheOnly,
       })
     } catch (err) {
-      const error = err.graphQLErrors?.[0]
+      const apolloError = err as ApolloError
+      const error = apolloError.graphQLErrors?.[0]
       if (error) {
         throw graphQLErrorsToClientError(error, this._logger)
       } else {

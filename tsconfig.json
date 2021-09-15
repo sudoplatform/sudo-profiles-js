@@ -16,6 +16,6 @@
     "target": "es2017",
     "typeRoots": ["./node_modules/@types", "./typings"],
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "typings", "test/**"]
+  "include": ["src/**/*.ts", "test/**/*.ts" ],
+  "exclude": ["node_modules", "typings"]
 }

@@ -2,12 +2,14 @@ import { SudoSubscriber, ChangeType, ConnectionState } from './sudo-subscriber'
 import { Sudo } from './sudo'
 import { Observable } from 'apollo-client/util/Observable'
 
+export type SubscriptionResult<T> = { data: T }
+
 export class SubscriptionManager<T> {
   public subscribers: Record<string, SudoSubscriber> = {}
 
   public subscription: ZenObservable.Subscription | undefined = undefined
 
-  public watcher: Observable<T> | undefined = undefined
+  public watcher: Observable<SubscriptionResult<T>> | undefined = undefined
 
   /**
    * Adds or replaces a subscriber with the specified ID.

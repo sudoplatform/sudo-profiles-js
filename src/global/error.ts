@@ -16,12 +16,16 @@ export const GRAPHQL_ERROR_SERVER_ERROR = 'sudoplatform.sudo.ServerError'
 /**
  * Error when Symmetric key not found in KeyStore
  */
-export declare class SymmetricKeyNotFoundError extends Error {
-  constructor()
+export class SymmetricKeyNotFoundError extends Error {
+  constructor() {
+    super('SymmetricKeyNotFoundError')
+  }
 }
 
-export declare class SudoNotFoundError extends Error {
-  constructor()
+export class SudoNotFoundError extends Error {
+  constructor() {
+    super('SudoNotFoundError')
+  }
 }
 
 /**

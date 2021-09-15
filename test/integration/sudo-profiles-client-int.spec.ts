@@ -1,14 +1,16 @@
+import { DefaultApiClientManager } from '@sudoplatform/sudo-api-client'
 import {
   DefaultConfigurationManager,
   VersionMismatchError,
 } from '@sudoplatform/sudo-common'
-import { DefaultSudoUserClient } from '@sudoplatform/sudo-user'
 import { DefaultSudoEntitlementsClient } from '@sudoplatform/sudo-entitlements'
+import { DefaultSudoUserClient } from '@sudoplatform/sudo-user'
 import FS from 'fs'
 import * as path from 'path'
 import { anything, mock, when } from 'ts-mockito'
 import * as uuid from 'uuid'
-import config from '../../config/sudoplatformconfig.json'
+import { TextDecoder, TextEncoder } from 'util'
+
 import { FetchOption, Sudo } from '../../src/sudo/sudo'
 import { DefaultSudoProfilesClient } from '../../src/sudo/sudo-profiles-client'
 import {
@@ -16,16 +18,19 @@ import {
   ConnectionState,
   SudoSubscriber,
 } from '../../src/sudo/sudo-subscriber'
-import { delay, registerAndSignIn, deregister } from './test-helper'
-import { DefaultApiClientManager } from '@sudoplatform/sudo-api-client'
-import { TextEncoder, TextDecoder } from 'util'
+import { delay, deregister, registerAndSignIn } from './test-helper'
 
 global.WebSocket = require('ws')
 global.crypto = require('isomorphic-webcrypto')
+global.TextEncoder = TextEncoder
+global.TextDecoder = TextDecoder as typeof global.TextDecoder
 require('isomorphic-fetch')
 
-global.TextEncoder = TextEncoder
-global.TextDecoder = TextDecoder
+const config = JSON.parse(
+  FS.readFileSync(`${__dirname}/../../config/sudoplatformconfig.json`).toString(
+    'binary',
+  ),
+)
 
 class MySubscriber implements SudoSubscriber {
   public connectionState: ConnectionState | undefined = undefined
@@ -45,22 +50,25 @@ class MySubscriber implements SudoSubscriber {
 export class MyStorage {
   private items = new Map<string, string>()
 
-  getItem(key: string, cb: (error: Error, result?: string) => void): void {
-    const storedValue = this.items[key]
+  getItem(
+    key: string,
+    cb: (error: Error | null, result?: string) => void,
+  ): void {
+    const storedValue = this.items.get(key)
     process.nextTick(() => cb(null, storedValue))
   }
 
-  setItem(key: string, value: string, cb: (error: Error) => void): void {
-    this.items[key] = value
+  setItem(key: string, value: string, cb: (error: Error | null) => void): void {
+    this.items.set(key, value)
     process.nextTick(() => cb(null))
   }
 
-  removeItem(key: string, cb: (error: Error) => void): void {
+  removeItem(key: string, cb: (error: Error | null) => void): void {
     this.items.delete(key)
     process.nextTick(() => cb(null))
   }
 
-  getAllKeys(cb: (error: Error, keys?: string[]) => void): void {
+  getAllKeys(cb: (error: Error | null, keys?: string[]) => void): void {
     const keys = [...this.items.keys()]
     process.nextTick(() => cb(null, keys))
   }
@@ -98,7 +106,7 @@ beforeEach(async (): Promise<void> => {
       '14A9B3C3540142A11E70ACBB1BD8969F',
     )
   } catch (error) {
-    fail(error)
+    console.log(error)
   }
 }, 30000)
 
@@ -111,7 +119,7 @@ describe('sudoProfilesClientIntegrationTests', () => {
     it('should subscribe to createSudo event', async () => {
       // Setup subscriber
       const subscriber = new MySubscriber()
-      sudoProfilesClient.subscribe('1', ChangeType.Create, subscriber)
+      await sudoProfilesClient.subscribe('1', ChangeType.Create, subscriber)
 
       await delay(5000)
 
@@ -180,7 +188,7 @@ describe('sudoProfilesClientIntegrationTests', () => {
 
       // Setup subscriber
       const subscriber = new MySubscriber()
-      sudoProfilesClient.subscribe('1', ChangeType.Update, subscriber)
+      await sudoProfilesClient.subscribe('1', ChangeType.Update, subscriber)
 
       await delay(5000)
 
