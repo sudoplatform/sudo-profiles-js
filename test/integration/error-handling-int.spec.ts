@@ -20,7 +20,8 @@ import FS from 'fs'
 
 //const globalAny: any = global
 global.WebSocket = require('ws')
-global.crypto = require('isomorphic-webcrypto')
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+global.crypto = require('crypto').webcrypto
 global.TextEncoder = TextEncoder
 global.TextDecoder = TextDecoder as typeof global.TextDecoder
 require('isomorphic-fetch')

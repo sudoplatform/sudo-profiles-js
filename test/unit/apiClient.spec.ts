@@ -28,7 +28,8 @@ import { ErrorOption, FetchOption } from '../../src/sudo/sudo'
 const globalAny: any = global
 globalAny.WebSocket = require('ws')
 require('isomorphic-fetch')
-global.crypto = require('isomorphic-webcrypto')
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+global.crypto = require('crypto').webcrypto
 
 const symmetricKeyEncryptionAlgorithm = 'AES/CBC/PKCS7Padding'
 

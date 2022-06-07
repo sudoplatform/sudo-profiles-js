@@ -5,7 +5,6 @@ config
 docs
 lib
 node_modules
-src/gen
 scratch
 yarn-error.log
 sampleapp/build
