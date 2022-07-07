@@ -22,6 +22,15 @@ export class SymmetricKeyNotFoundError extends Error {
   }
 }
 
+/**
+ * Error when the encrypted payload is invalid.
+ */
+export class InvalidEncryptedDataError extends Error {
+  constructor() {
+    super('InvalidEncryptedDataError')
+  }
+}
+
 export class SudoNotFoundError extends Error {
   constructor() {
     super('SudoNotFoundError')

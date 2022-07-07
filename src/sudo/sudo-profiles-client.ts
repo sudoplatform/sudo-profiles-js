@@ -33,6 +33,7 @@ import {
   Sudo as GQLSudo,
 } from '../gen/graphql-types'
 import {
+  InvalidEncryptedDataError,
   SudoNotFoundError,
   SudoServiceConfigNotFoundError,
 } from '../global/error'
@@ -46,6 +47,7 @@ import {
 } from './sudo'
 import { ChangeType, ConnectionState, SudoSubscriber } from './sudo-subscriber'
 import { WebSudoCryptoProvider } from '@sudoplatform/sudo-web-crypto-provider'
+import { BufferUtil } from '../util/buffer'
 
 export interface SudoProfileOptions {
   sudoUserClient: SudoUserClient
@@ -354,9 +356,18 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
               sudo.claims.set(name, newClaim)
 
               // Setup blob claim for saving
+              const iv = await this._keyManager.generateRandomData(16)
               const encryptedData =
-                await this._keyManager.encryptWithSymmetricKeyName(keyId, data)
-              const key = await this._s3Client.upload(encryptedData, cacheId)
+                await this._keyManager.encryptWithSymmetricKeyName(
+                  keyId,
+                  data,
+                  { iv },
+                )
+
+              const key = await this._s3Client.upload(
+                BufferUtil.concat(encryptedData, iv),
+                cacheId,
+              )
 
               const secureS3ObjectInput: SecureS3ObjectInput = {
                 name: name,
@@ -854,10 +865,15 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
             }
           } else {
             const data = await this._s3Client.download(secureObject.key)
+            if (data.byteLength <= 16) {
+              throw new InvalidEncryptedDataError()
+            }
+            const splitted = BufferUtil.split(data, data.byteLength - 16)
             const decryptedData =
               await this._keyManager.decryptWithSymmetricKeyName(
                 secureObject.keyId,
-                data,
+                splitted.lhs,
+                { iv: splitted.rhs },
               )
             const cacheId = this.getObjectId(item.id, secureObject.name)
             if (!cacheId) {
@@ -911,18 +927,20 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
     }
 
     const byteArray = new TextEncoder().encode(value)
+    const iv = await this._keyManager.generateRandomData(16)
+
     const encryptedData = await this._keyManager.encryptWithSymmetricKeyName(
       keyId,
       byteArray,
+      { iv },
     )
-
     const input: SecureClaimInput = {
       name: name,
       version: 1,
       algorithm:
         DefaultSudoProfilesClient.Constants.symmetricKeyEncryptionAlgorithm,
       keyId: keyId,
-      base64Data: Base64.encode(encryptedData),
+      base64Data: Base64.encode(BufferUtil.concat(encryptedData, iv)),
     }
 
     return input
@@ -933,9 +951,15 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
     keyId: string,
     base64Data: string,
   ): Promise<Claim> {
+    const data = Base64.decode(base64Data)
+    if (data.byteLength <= 16) {
+      throw new InvalidEncryptedDataError()
+    }
+    const splitted = BufferUtil.split(data, data.byteLength - 16)
     const decryptedData = await this._keyManager.decryptWithSymmetricKeyName(
       keyId,
-      Base64.decode(base64Data),
+      splitted.lhs,
+      { iv: splitted.rhs },
     )
 
     let decodedString = undefined
