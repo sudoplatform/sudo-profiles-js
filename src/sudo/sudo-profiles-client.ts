@@ -80,11 +80,11 @@ export interface SudoProfilesClient {
    *
    * @return Sudo: The new Sudo
    *
-   * @throws {@link IllegalStateError}
-   * @throws {@link InsufficientEntitlementsError}
-   * @throws {@link ServiceError}
-   * @throws {@link UnknownGraphQLError}
-   * @throws {@link FatalError}
+   * @throws IllegalStateError
+   * @throws InsufficientEntitlementsError
+   * @throws ServiceError
+   * @throws UnknownGraphQLError
+   * @throws FatalError
    */
   createSudo(sudo: Sudo): Promise<Sudo>
 
@@ -96,13 +96,13 @@ export interface SudoProfilesClient {
    *
    * @return Sudo: The updated Sudo
    *
-   * @throws {@link IllegalArgumentException}
-   * @throws {@link IllegalStateError}
-   * @throws {@link VersionMismatchError}
-   * @throws {@link UploadError}
-   * @throws {@link ServiceError}
-   * @throws {@link UnknownGraphQLError}
-   * @throws {@link FatalError}
+   * @throws IllegalArgumentException
+   * @throws IllegalStateError
+   * @throws VersionMismatchError
+   * @throws UploadError
+   * @throws ServiceError
+   * @throws UnknownGraphQLError
+   * @throws FatalError
    */
   updateSudo(sudo: Sudo, keyId: string): Promise<Sudo>
 
@@ -128,9 +128,9 @@ export interface SudoProfilesClient {
    *
    *  @return String: The JWT
    *
-   *  @throws {@link ServiceError}
-   *  @throws {@link UnknownGraphQLError}
-   *  @throws {@link FatalError}
+   *  @throws ServiceError
+   *  @throws UnknownGraphQLError
+   *  @throws FatalError
    */
   getOwnershipProof(sudoId: string, audience: string): Promise<string>
 
@@ -141,10 +141,10 @@ export interface SudoProfilesClient {
    *
    * @return Sudo[]: An array of Sudos
    *
-   * @throws {@link DownloadError}
-   * @throws {@link ServiceError}
-   * @throws {@link UnknownGraphQLError}
-   * @throws {@link FatalError}
+   * @throws DownloadError
+   * @throws ServiceError
+   * @throws UnknownGraphQLError
+   * @throws FatalError
    */
   listSudos(fetchPolicy?: FetchOption): Promise<Sudo[]>
 
@@ -160,7 +160,7 @@ export interface SudoProfilesClient {
    * @param id unique ID for the subscriber.
    * @param subscriber subscriber to notify.
    *
-   * @throws {@link NotSignedInError}
+   * @throws NotSignedInError
    */
   subscribeAll(id: string, subscriber: SudoSubscriber): void
 
@@ -172,7 +172,7 @@ export interface SudoProfilesClient {
    * @param changeType change type to subscribe to.
    * @param subscriber subscriber to notify.
    *
-   * @throws {@link NotSignedInError}
+   * @throws NotSignedInError
    */
   subscribe(
     id: string,
@@ -201,9 +201,9 @@ export interface SudoProfilesClient {
    *
    * @return void
    *
-   * @throws {@link IllegalArgumentError}
-   * @throws {@link FatalError}
-   * @throws {@link SudoNotFoundError}
+   * @throws IllegalArgumentError
+   * @throws FatalError
+   * @throws SudoNotFoundError
    */
   deleteSudo(sudo: Sudo): Promise<void>
 
@@ -566,7 +566,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
             ConnectionState.Disconnected,
           )
         },
-        error: (error) => {
+        error: (error: Record<string, unknown> | undefined) => {
           this._logger.error('Failed to create a subscription', error)
           //Notify the subscribers.
           this._onCreateSudoSubscriptionManager.connectionStatusChanged(
@@ -574,45 +574,46 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
           )
         },
 
-        next: async (
-          result: SubscriptionResult<OnCreateSudoSubscription>,
-        ): Promise<void> => {
-          this._logger.info('executing onCreateSudo subscription', result)
-          const data = result?.data?.onCreateSudo
-          if (!data) {
-            throw new FatalError(
-              'onCreateSudo subscription response contained error',
-            )
-          } else {
-            this._logger.info('onUpdateSudo subscription successful', data)
-            const items: GQLSudo[] = [data]
-            const sudos = await this.processListSudos(
-              items,
-              FetchOption.CacheOnly,
-              false,
-            )
-            if (sudos?.length > 0) {
-              // Add new item to cache
-              const sudo = sudos[0]
-              const cachedItems = await this._apiClient.getCachedQueryItems()
-              this._logger.info(
-                `Found ${cachedItems?.length} in listsudosquery cache`,
-              )
-              if (cachedItems) {
-                cachedItems.push(items[0])
-
-                this._apiClient.replaceCachedQueryItems(cachedItems)
-              }
-
-              this._onCreateSudoSubscriptionManager.sudoChanged(
-                ChangeType.Create,
-                sudo,
+        next: (result: SubscriptionResult<OnCreateSudoSubscription>) => {
+          return void (async (
+            result: SubscriptionResult<OnCreateSudoSubscription>,
+          ): Promise<void> => {
+            this._logger.info('executing onCreateSudo subscription', result)
+            const data = result?.data?.onCreateSudo
+            if (!data) {
+              throw new FatalError(
+                'onCreateSudo subscription response contained error',
               )
             } else {
-              this._logger.info('No sudos found in cache')
+              this._logger.info('onUpdateSudo subscription successful', data)
+              const items: GQLSudo[] = [data]
+              const sudos = await this.processListSudos(
+                items,
+                FetchOption.CacheOnly,
+                false,
+              )
+              if (sudos?.length > 0) {
+                // Add new item to cache
+                const sudo = sudos[0]
+                const cachedItems = await this._apiClient.getCachedQueryItems()
+                this._logger.info(
+                  `Found ${cachedItems?.length} in listsudosquery cache`,
+                )
+                if (cachedItems) {
+                  cachedItems.push(items[0])
+
+                  this._apiClient.replaceCachedQueryItems(cachedItems)
+                }
+
+                this._onCreateSudoSubscriptionManager.sudoChanged(
+                  ChangeType.Create,
+                  sudo,
+                )
+              } else {
+                this._logger.info('No sudos found in cache')
+              }
             }
-          }
-          return Promise.resolve()
+          })(result)
         },
       })
 
@@ -675,7 +676,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
             ConnectionState.Disconnected,
           )
         },
-        error: (error) => {
+        error: (error: Record<string, unknown> | undefined) => {
           this._logger.error('Failed to update a subscription', error)
           //Notify the subscribers.
           this._onUpdateSudoSubscriptionManager.connectionStatusChanged(
@@ -683,50 +684,50 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
           )
         },
 
-        next: async (
-          result: SubscriptionResult<OnUpdateSudoSubscription>,
-        ): Promise<void> => {
-          this._logger.info('executing onUpdateSudo subscription', result)
-          const data = result?.data?.onUpdateSudo
-          if (!data) {
-            throw new FatalError(
-              'onUpdateSudo subscription response contained error',
-            )
-          } else {
-            this._logger.info('onUpdateSudo subscription successful', data)
-            const items: GQLSudo[] = [data]
-            const sudos = await this.processListSudos(
-              items,
-              FetchOption.CacheOnly,
-              false,
-            )
-
-            if (sudos?.length > 0) {
-              // Add new item to cache
-              const sudo = sudos[0]
-              const cachedItems = (
-                await this._apiClient.getCachedQueryItems()
-              ).filter((element) => {
-                return element.id !== items[0].id
-              })
-              this._logger.info(
-                `Found ${cachedItems?.length} in listsudosquery cache`,
-              )
-              if (cachedItems) {
-                cachedItems.push(items[0])
-                this._apiClient.replaceCachedQueryItems(cachedItems)
-              }
-
-              this._onUpdateSudoSubscriptionManager.sudoChanged(
-                ChangeType.Update,
-                sudo,
+        next: (result: SubscriptionResult<OnCreateSudoSubscription>) => {
+          return void (async (
+            result: SubscriptionResult<OnUpdateSudoSubscription>,
+          ): Promise<void> => {
+            this._logger.info('executing onUpdateSudo subscription', result)
+            const data = result?.data?.onUpdateSudo
+            if (!data) {
+              throw new FatalError(
+                'onUpdateSudo subscription response contained error',
               )
             } else {
-              this._logger.info('No sudos found in cache')
-            }
-          }
+              this._logger.info('onUpdateSudo subscription successful', data)
+              const items: GQLSudo[] = [data]
+              const sudos = await this.processListSudos(
+                items,
+                FetchOption.CacheOnly,
+                false,
+              )
 
-          return Promise.resolve()
+              if (sudos?.length > 0) {
+                // Add new item to cache
+                const sudo = sudos[0]
+                const cachedItems = (
+                  await this._apiClient.getCachedQueryItems()
+                ).filter((element) => {
+                  return element.id !== items[0].id
+                })
+                this._logger.info(
+                  `Found ${cachedItems?.length} in listsudosquery cache`,
+                )
+                if (cachedItems) {
+                  cachedItems.push(items[0])
+                  this._apiClient.replaceCachedQueryItems(cachedItems)
+                }
+
+                this._onUpdateSudoSubscriptionManager.sudoChanged(
+                  ChangeType.Update,
+                  sudo,
+                )
+              } else {
+                this._logger.info('No sudos found in cache')
+              }
+            }
+          })(result)
         },
       })
 
@@ -745,7 +746,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
             ConnectionState.Disconnected,
           )
         },
-        error: (error) => {
+        error: (error: Record<string, unknown> | undefined) => {
           this._logger.error('Failed to update a subscription', error)
           //Notify the subscribers.
           this._onDeleteSudoSubscriptionManager.connectionStatusChanged(
@@ -753,46 +754,47 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
           )
         },
 
-        next: async (
-          result: SubscriptionResult<OnDeleteSudoSubscription>,
-        ): Promise<void> => {
-          this._logger.info('executing onDeleteSudo subscription', result)
-          const data = result?.data?.onDeleteSudo
-          if (!data) {
-            throw new FatalError(
-              'onDeleteSudo subscription response contained error',
-            )
-          } else {
-            this._logger.info('onDeleteSudo subscription successful', data)
-            const items: GQLSudo[] = [data]
-            const sudos = await this.processListSudos(
-              items,
-              FetchOption.CacheOnly,
-              false,
-            )
-            if (sudos?.length > 0) {
-              const sudo = sudos[0]
-              const cachedItems = await this._apiClient.getCachedQueryItems()
-              this._logger.info(
-                `Found ${cachedItems?.length} in listsudosquery cache`,
+        next: (result: SubscriptionResult<OnCreateSudoSubscription>) => {
+          return void (async (
+            result: SubscriptionResult<OnDeleteSudoSubscription>,
+          ): Promise<void> => {
+            this._logger.info('executing onDeleteSudo subscription', result)
+            const data = result?.data?.onDeleteSudo
+            if (!data) {
+              throw new FatalError(
+                'onDeleteSudo subscription response contained error',
               )
-              if (cachedItems) {
-                this._apiClient.replaceCachedQueryItems(
-                  cachedItems.filter((element) => {
-                    return element.id !== sudo.id
-                  }),
-                )
-
-                this._onDeleteSudoSubscriptionManager.sudoChanged(
-                  ChangeType.Delete,
-                  sudo,
-                )
-              }
             } else {
-              this._logger.info('No sudos found in cache')
+              this._logger.info('onDeleteSudo subscription successful', data)
+              const items: GQLSudo[] = [data]
+              const sudos = await this.processListSudos(
+                items,
+                FetchOption.CacheOnly,
+                false,
+              )
+              if (sudos?.length > 0) {
+                const sudo = sudos[0]
+                const cachedItems = await this._apiClient.getCachedQueryItems()
+                this._logger.info(
+                  `Found ${cachedItems?.length} in listsudosquery cache`,
+                )
+                if (cachedItems) {
+                  this._apiClient.replaceCachedQueryItems(
+                    cachedItems.filter((element) => {
+                      return element.id !== sudo.id
+                    }),
+                  )
+
+                  this._onDeleteSudoSubscriptionManager.sudoChanged(
+                    ChangeType.Delete,
+                    sudo,
+                  )
+                }
+              } else {
+                this._logger.info('No sudos found in cache')
+              }
             }
-          }
-          return Promise.resolve()
+          })(result)
         },
       })
     return subscription
