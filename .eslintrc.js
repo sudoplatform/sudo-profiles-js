@@ -9,7 +9,8 @@ module.exports = {
     },
     {
       files: ['**/*.ts'],
-      plugins: ['@typescript-eslint', 'import', 'prettier'],
+      excludedFiles: ['**/*.spec.ts'],
+      plugins: ['@typescript-eslint', 'import', 'prettier', 'tree-shaking'],
       parser: '@typescript-eslint/parser',
       parserOptions: {
         project: './tsconfig.json',
@@ -54,6 +55,7 @@ module.exports = {
             ignoreStatic: true,
           },
         ],
+        'tree-shaking/no-side-effects-in-initialization': 2,
       },
     },
     {
@@ -63,12 +65,10 @@ module.exports = {
       },
     },
     {
-      files: [
-        'test/**/*.ts',
-      ],
+      files: ['test/**/*.ts'],
       parser: '@typescript-eslint/parser',
       parserOptions: {
-        project: `${__dirname}/tsconfig.json`,
+        project: `${__dirname}/tsconfig.test.json`,
       },
       extends: [
         'plugin:@typescript-eslint/recommended',

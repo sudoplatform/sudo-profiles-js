@@ -1,22 +1,22 @@
 import {
   DefaultConfigurationManager,
   DefaultLogger,
+  NotAuthorizedError,
+  RequestFailedError,
 } from '@sudoplatform/sudo-common'
 import { DefaultSudoUserClient } from '@sudoplatform/sudo-user'
+import { ApolloLink, Observable } from 'apollo-link'
+import AWSAppSyncClient, { AUTH_TYPE } from 'aws-appsync'
+import { AuthLink } from 'aws-appsync-auth-link'
+import { createSubscriptionHandshakeLink } from 'aws-appsync-subscription-link'
+import FS from 'fs'
 import { mock } from 'ts-mockito'
+import { TextDecoder, TextEncoder } from 'util'
+import { ApiClient } from '../../src/client/apiClient'
+import { SudoNotFoundError } from '../../src/global/error'
 import { Sudo } from '../../src/sudo/sudo'
 import { DefaultSudoProfilesClient } from '../../src/sudo/sudo-profiles-client'
 import { deregister, registerAndSignIn } from './test-helper'
-import { ApolloLink, Observable } from 'apollo-link'
-import { AuthLink } from 'aws-appsync-auth-link'
-import { createSubscriptionHandshakeLink } from 'aws-appsync-subscription-link'
-import AWSAppSyncClient, { AUTH_TYPE } from 'aws-appsync'
-import { NotAuthorizedError } from '@sudoplatform/sudo-common/lib/errors/error'
-import { RequestFailedError } from '@sudoplatform/sudo-common/lib/errors/error'
-import { ApiClient } from '../../src/client/apiClient'
-import { TextDecoder, TextEncoder } from 'util'
-import { SudoNotFoundError } from '../../src/global/error'
-import FS from 'fs'
 
 //const globalAny: any = global
 global.WebSocket = require('ws')

@@ -10,8 +10,7 @@ import FS from 'fs'
 import * as path from 'path'
 import { instance, mock, reset, verify, when } from 'ts-mockito'
 import { TextEncoder, TextDecoder } from 'util'
-import * as uuid from 'uuid'
-
+import { v4 } from 'uuid'
 import { ApiClient } from '../../src/client/apiClient'
 import { QueryCache } from '../../src/core/query-cache'
 import { S3Client } from '../../src/core/s3Client'
@@ -215,7 +214,7 @@ describe('SudoProfilesClient', () => {
     })
 
     it('should throw SudoNotFoundError when sudo not found', async () => {
-      const sudo = new Sudo(uuid.v4())
+      const sudo = new Sudo(v4())
 
       await expect(sudoProfilesClient.deleteSudo(sudo)).rejects.toThrow(
         SudoNotFoundError,

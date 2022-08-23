@@ -3,7 +3,9 @@
 yalc.lock
 config
 docs
+cjs
 lib
+types
 node_modules
 scratch
 yarn-error.log

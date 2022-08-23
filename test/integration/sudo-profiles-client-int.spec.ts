@@ -8,9 +8,8 @@ import { DefaultSudoUserClient } from '@sudoplatform/sudo-user'
 import FS from 'fs'
 import * as path from 'path'
 import { anything, mock, when } from 'ts-mockito'
-import * as uuid from 'uuid'
+import { v4 } from 'uuid'
 import { TextDecoder, TextEncoder } from 'util'
-
 import { FetchOption, Sudo } from '../../src/sudo/sudo'
 import { DefaultSudoProfilesClient } from '../../src/sudo/sudo-profiles-client'
 import {
@@ -127,7 +126,7 @@ describe('sudoProfilesClientIntegrationTests', () => {
       expect(subscriber.connectionState).toBe(ConnectionState.Connected)
 
       //Create new Sudo
-      const id = uuid.v4()
+      const id = v4()
       const newSudo = new Sudo()
       newSudo.title = `dummy_title_${id}`
       newSudo.firstName = `dummy_first_name_${id}`
@@ -179,7 +178,7 @@ describe('sudoProfilesClientIntegrationTests', () => {
   describe('updateSudo()', () => {
     it('should subscribe to updateSudo event', async () => {
       //Create new Sudo
-      const id = uuid.v4()
+      const id = v4()
       const newSudo = new Sudo()
       newSudo.title = `dummy_title_${id}`
       newSudo.firstName = `dummy_first_name_${id}`
@@ -258,7 +257,7 @@ describe('sudoProfilesClientIntegrationTests', () => {
 
     it('should throw VersionMismatchError when updating a sudo with the wrong version', async () => {
       //Create new Sudo
-      const id = uuid.v4()
+      const id = v4()
       const newSudo = new Sudo()
       newSudo.title = `dummy_title_${id}`
       newSudo.firstName = `dummy_first_name_${id}`
@@ -286,7 +285,7 @@ describe('sudoProfilesClientIntegrationTests', () => {
   describe('deleteSudo()', () => {
     it('should delete sudo, blob cache and s3 image', async () => {
       //Create new Sudo
-      const id = uuid.v4()
+      const id = v4()
       const newSudo = new Sudo()
       newSudo.title = `dummy_title_${id}`
       newSudo.firstName = `dummy_first_name_${id}`

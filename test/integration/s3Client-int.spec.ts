@@ -7,7 +7,7 @@ import { DefaultSudoEntitlementsClient } from '@sudoplatform/sudo-entitlements'
 import { DefaultSudoUserClient } from '@sudoplatform/sudo-user'
 import FS from 'fs'
 import * as path from 'path'
-import * as uuid from 'uuid'
+import { v4 } from 'uuid'
 import { DefaultS3Client } from '../../src/core/s3Client'
 import { S3DownloadError } from '../../src/global/error'
 import { delay, deregister, registerAndSignIn } from './test-helper'
@@ -57,7 +57,7 @@ describe('s3ClientIntegrationTests', () => {
   describe('e2e test', () => {
     it('should upload, download, delete and cleanup', async () => {
       // Upload file
-      const objectId = `integration-test-${uuid.v4()}`
+      const objectId = `integration-test-${v4()}`
       const fileData = FS.readFileSync(path.resolve(__dirname, './jordan.png'))
       const key = await s3Client.upload(fileData, objectId)
       expect(key).toBeTruthy()

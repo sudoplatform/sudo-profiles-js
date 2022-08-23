@@ -1,5 +1,7 @@
-import { DefaultSudoUserClient } from '@sudoplatform/sudo-user'
-import { TESTAuthenticationProvider } from '@sudoplatform/sudo-user/lib/user/auth-provider'
+import {
+  DefaultSudoUserClient,
+  TESTAuthenticationProvider,
+} from '@sudoplatform/sudo-user'
 import * as fs from 'fs'
 export async function registerAndSignIn(
   userClient: DefaultSudoUserClient,
