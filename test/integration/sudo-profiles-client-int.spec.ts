@@ -346,4 +346,76 @@ describe('sudoProfilesClientIntegrationTests', () => {
       expect(listDeletedSudos).toEqual([])
     }, 120000)
   })
+
+  describe('cache tests', () => {
+    it('should update list cache after create, delete and update', async () => {
+      // Initialize the query cache. We can only do that by performing
+      // a remote query.
+      await sudoProfilesClient.listSudos(FetchOption.RemoteOnly)
+
+      let cachedSudos = await sudoProfilesClient.listSudos(
+        FetchOption.CacheOnly,
+      )
+      expect(cachedSudos.length).toBe(0)
+
+      const id = v4()
+      const newSudo = new Sudo()
+      newSudo.title = `dummy_title_${id}`
+      newSudo.firstName = `dummy_first_name_${id}`
+      newSudo.lastName = `dummy_last_name_${id}`
+      newSudo.label = `dummy_label_${id}`
+      newSudo.notes = `dummy_notes_${id}`
+
+      const createdSudo = await sudoProfilesClient.createSudo(newSudo)
+
+      expect(createdSudo.id).toBeTruthy()
+      expect(createdSudo.title).toBe(`dummy_title_${id}`)
+      expect(createdSudo.firstName).toBe(`dummy_first_name_${id}`)
+      expect(createdSudo.lastName).toBe(`dummy_last_name_${id}`)
+      expect(createdSudo.label).toBe(`dummy_label_${id}`)
+      expect(createdSudo.notes).toBe(`dummy_notes_${id}`)
+      expect(createdSudo.version).toBe(2)
+
+      // Make sure cache has been populated
+      cachedSudos = await sudoProfilesClient.listSudos(FetchOption.CacheOnly)
+      expect(cachedSudos.length).toBe(1)
+      expect(cachedSudos[0].title).toBe(`dummy_title_${id}`)
+      expect(cachedSudos[0].firstName).toBe(`dummy_first_name_${id}`)
+      expect(cachedSudos[0].lastName).toBe(`dummy_last_name_${id}`)
+      expect(cachedSudos[0].label).toBe(`dummy_label_${id}`)
+      expect(cachedSudos[0].notes).toBe(`dummy_notes_${id}`)
+
+      // Update Sudo
+      createdSudo.title = `updated_dummy_title_${id}`
+      createdSudo.firstName = `updated_dummy_first_name_${id}`
+      createdSudo.lastName = `updated_dummy_last_name_${id}`
+      createdSudo.label = `updated_dummy_label_${id}`
+      createdSudo.notes = `updated_dummy_notes_${id}`
+      const updatedSudo = await sudoProfilesClient.updateSudo(createdSudo)
+
+      expect(updatedSudo.title).toBe(`updated_dummy_title_${id}`)
+      expect(updatedSudo.firstName).toBe(`updated_dummy_first_name_${id}`)
+      expect(updatedSudo.lastName).toBe(`updated_dummy_last_name_${id}`)
+      expect(updatedSudo.label).toBe(`updated_dummy_label_${id}`)
+      expect(updatedSudo.notes).toBe(`updated_dummy_notes_${id}`)
+
+      // Make sure cache has been updated
+      cachedSudos = await sudoProfilesClient.listSudos(FetchOption.CacheOnly)
+      expect(cachedSudos.length).toBe(1)
+      expect(cachedSudos[0].title).toBe(`updated_dummy_title_${id}`)
+      expect(cachedSudos[0].firstName).toBe(`updated_dummy_first_name_${id}`)
+      expect(cachedSudos[0].lastName).toBe(`updated_dummy_last_name_${id}`)
+      expect(cachedSudos[0].label).toBe(`updated_dummy_label_${id}`)
+      expect(cachedSudos[0].notes).toBe(`updated_dummy_notes_${id}`)
+
+      // Delete Sudo
+      await sudoProfilesClient.deleteSudo(createdSudo)
+
+      // Make sure sudo has been removed from cache.
+      const listDeletedSudos = await sudoProfilesClient.listSudos(
+        FetchOption.CacheOnly,
+      )
+      expect(listDeletedSudos).toEqual([])
+    }, 120000)
+  })
 })

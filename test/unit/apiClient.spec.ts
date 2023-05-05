@@ -23,7 +23,6 @@ import {
   GRAPHQL_ERROR_SUDO_NOT_FOUND,
   SudoNotFoundError,
 } from '../../src/global/error'
-import { ErrorOption, FetchOption } from '../../src/sudo/sudo'
 
 const globalAny: any = global
 globalAny.WebSocket = require('ws')
@@ -70,15 +69,24 @@ const createGraphQLError: (error: GraphQLError) => ApolloError = (
 describe('ApiClient', () => {
   describe('createSudo()', () => {
     it('should execute mutation', async () => {
-      client.mutate.mockResolvedValue({
-        data: {
-          createSudo: {
-            id: 'SUDO_ID',
+      client.mutate.mockImplementation((options) => {
+        expect(options.mutation).toEqual(CreateSudoDocument)
+        expect(options.variables).toEqual({
+          input: {
+            claims: [],
+            objects: [],
           },
-          updateSudo: {
-            id: 'SUDO_ID',
+        })
+        return {
+          data: {
+            createSudo: {
+              id: 'SUDO_ID',
+            },
+            updateSudo: {
+              id: 'SUDO_ID',
+            },
           },
-        },
+        }
       })
 
       const result = await apiClient.createSudo({
@@ -86,16 +94,6 @@ describe('ApiClient', () => {
         objects: [],
       })
 
-      expect(client.mutate).toHaveBeenCalledWith({
-        mutation: CreateSudoDocument,
-        variables: {
-          input: {
-            claims: [],
-            objects: [],
-          },
-        },
-        fetchPolicy: FetchOption.NoCache,
-      })
       expect(result).toBeDefined()
       expect(result.id).toBe('SUDO_ID')
     })
@@ -144,15 +142,34 @@ describe('ApiClient', () => {
       const iv = Buffer.from('dummy_iv', 'utf8')
       const encryptedData = Buffer.concat([encrypted, iv])
 
-      client.mutate.mockResolvedValue({
-        data: {
-          updateSudo: {
+      client.mutate.mockImplementation((options) => {
+        expect(options.mutation).toEqual(UpdateSudoDocument)
+        expect(options.variables).toEqual({
+          input: {
             id: 'dummy_id',
-            version: 2,
-            createdAtEpochMs: epoch,
-            updatedAtEpochMs: epoch,
+            expectedVersion: 2,
+            claims: [
+              {
+                name: 'firstName',
+                version: 2,
+                algorithm: symmetricKeyEncryptionAlgorithm,
+                keyId: symmetricKeyId,
+                base64Data: Base64.encode(encryptedData),
+              },
+            ],
+            objects: [],
           },
-        },
+        })
+        return {
+          data: {
+            updateSudo: {
+              id: 'dummy_id',
+              version: 2,
+              createdAtEpochMs: epoch,
+              updatedAtEpochMs: epoch,
+            },
+          },
+        }
       })
 
       await apiClient.updateSudo({
@@ -168,28 +185,6 @@ describe('ApiClient', () => {
           },
         ],
         objects: [],
-      })
-
-      expect(client.mutate).toHaveBeenCalledWith({
-        mutation: UpdateSudoDocument,
-        variables: {
-          input: {
-            id: 'dummy_id',
-            expectedVersion: 2,
-            claims: [
-              {
-                name: 'firstName',
-                version: 2,
-                algorithm: symmetricKeyEncryptionAlgorithm,
-                keyId: symmetricKeyId,
-                base64Data: Base64.encode(encryptedData),
-              },
-            ],
-            objects: [],
-          },
-        },
-        fetchPolicy: FetchOption.NoCache,
-        errorPolicy: ErrorOption.All,
       })
     })
 
@@ -292,23 +287,20 @@ describe('ApiClient', () => {
 
   describe('deleteSudo()', () => {
     it('should execute mutation', async () => {
-      client.mutate.mockImplementation(() => {
+      client.mutate.mockImplementation((options) => {
+        expect(options.mutation).toEqual(DeleteSudoDocument)
+        expect(options.variables).toEqual({
+          input: {
+            id: 'SUDO_ID',
+            expectedVersion: 2,
+          },
+        })
         return {}
       })
 
       await apiClient.deleteSudo({
         id: 'SUDO_ID',
         expectedVersion: 2,
-      })
-
-      expect(client.mutate).toHaveBeenCalledWith({
-        mutation: DeleteSudoDocument,
-        variables: {
-          input: {
-            id: 'SUDO_ID',
-            expectedVersion: 2,
-          },
-        },
       })
     })
 

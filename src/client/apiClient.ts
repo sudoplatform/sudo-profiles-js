@@ -59,7 +59,25 @@ export class ApiClient {
       result = await this._client.mutate<CreateSudoMutation>({
         mutation: CreateSudoDocument,
         variables: { input },
-        fetchPolicy: FetchOption.NoCache,
+        update: (proxy, mutationResult) => {
+          const data = proxy.readQuery<ListSudosQuery>({
+            query: ListSudosDocument,
+          })
+
+          const newSudo = mutationResult.data?.createSudo
+
+          if (newSudo && data && data.listSudos && data.listSudos.items) {
+            // Work around a bug in AppSync that causes "update" to be called
+            // multiple times.
+            if (!data.listSudos.items.find((item) => item.id === newSudo.id)) {
+              data.listSudos.items.push(newSudo)
+              proxy.writeQuery({
+                query: ListSudosDocument,
+                data,
+              })
+            }
+          }
+        },
       })
     } catch (err) {
       const error = err as Error
@@ -83,8 +101,34 @@ export class ApiClient {
       result = await this._client.mutate<UpdateSudoMutation>({
         mutation: UpdateSudoDocument,
         variables: { input },
-        fetchPolicy: FetchOption.NoCache,
         errorPolicy: ErrorOption.All,
+        update: (proxy, mutationResult) => {
+          const data = proxy.readQuery<ListSudosQuery>({
+            query: ListSudosDocument,
+          })
+
+          const updatedSudo = mutationResult.data?.updateSudo
+          if (
+            updatedSudo &&
+            data &&
+            data.listSudos &&
+            data.listSudos.items &&
+            data.listSudos.items.length > 0
+          ) {
+            data.listSudos.items = data.listSudos.items.map((item) => {
+              if (item.id === updatedSudo.id) {
+                return updatedSudo
+              } else {
+                return item
+              }
+            })
+
+            proxy.writeQuery({
+              query: ListSudosDocument,
+              data,
+            })
+          }
+        },
       })
     } catch (err) {
       const error = err as Error
@@ -158,6 +202,29 @@ export class ApiClient {
       result = await this._client.mutate<DeleteSudoMutation>({
         mutation: DeleteSudoDocument,
         variables: { input },
+        update: (proxy, mutationResult) => {
+          const data = proxy.readQuery<ListSudosQuery>({
+            query: ListSudosDocument,
+          })
+
+          const deletedSudo = mutationResult.data?.deleteSudo
+          if (
+            deletedSudo &&
+            data &&
+            data.listSudos &&
+            data.listSudos.items &&
+            data.listSudos.items.length > 0
+          ) {
+            data.listSudos.items = data.listSudos.items.filter(
+              (item) => item.id !== deletedSudo.id,
+            )
+
+            proxy.writeQuery({
+              query: ListSudosDocument,
+              data,
+            })
+          }
+        },
       })
     } catch (err) {
       const error = err as Error
