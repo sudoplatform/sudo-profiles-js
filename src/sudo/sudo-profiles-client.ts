@@ -34,7 +34,7 @@ import {
 } from '../gen/graphql-types'
 import {
   InvalidEncryptedDataError,
-  SudoNotFoundError,
+  SudoNotFoundInCacheError,
   SudoServiceConfigNotFoundError,
 } from '../global/error'
 import { SubscriptionManager, SubscriptionResult } from './SubscriptionManager'
@@ -639,7 +639,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
   private async deleteSecureS3Object(sudoId: string): Promise<void> {
     const sudo = await this.getSudo(sudoId)
     if (!sudo) {
-      throw new SudoNotFoundError()
+      throw new SudoNotFoundInCacheError()
     }
 
     for (const [name, claim] of sudo.claims) {

@@ -13,7 +13,10 @@ import FS from 'fs'
 import { mock } from 'ts-mockito'
 import { TextDecoder, TextEncoder } from 'util'
 import { ApiClient } from '../../src/client/apiClient'
-import { SudoNotFoundError } from '../../src/global/error'
+import {
+  SudoNotFoundError,
+  SudoNotFoundInCacheError,
+} from '../../src/global/error'
 import { Sudo } from '../../src/sudo/sudo'
 import { DefaultSudoProfilesClient } from '../../src/sudo/sudo-profiles-client'
 import { deregister, registerAndSignIn } from './test-helper'
@@ -100,7 +103,7 @@ afterEach(async (): Promise<void> => {
 }, 25000)
 
 describe('test error handling', () => {
-  it('should fail with SudoNotFoundError', async () => {
+  it('should fail with SudoNotFoundInCacheError', async () => {
     const newSudo = new Sudo()
     newSudo.title = 'dummy_title'
     newSudo.firstName = 'dummy_first_name'
@@ -110,7 +113,7 @@ describe('test error handling', () => {
     newSudo.id = 'not-found'
 
     await expect(sudoProfilesClient.deleteSudo(newSudo)).rejects.toThrow(
-      new SudoNotFoundError(),
+      new SudoNotFoundInCacheError(),
     )
   })
 

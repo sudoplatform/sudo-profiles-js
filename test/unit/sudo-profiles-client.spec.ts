@@ -17,6 +17,7 @@ import { S3Client } from '../../src/core/s3Client'
 import {
   InvalidConfigError,
   SudoNotFoundError,
+  SudoNotFoundInCacheError,
   SudoServiceConfigNotFoundError,
 } from '../../src/global/error'
 import { Sudo } from '../../src/sudo/sudo'
@@ -213,11 +214,11 @@ describe('SudoProfilesClient', () => {
       )
     })
 
-    it('should throw SudoNotFoundError when sudo not found', async () => {
+    it('should throw SudoNotFoundInCacheError when sudo not found', async () => {
       const sudo = new Sudo(v4())
 
       await expect(sudoProfilesClient.deleteSudo(sudo)).rejects.toThrow(
-        SudoNotFoundError,
+        SudoNotFoundInCacheError,
       )
     })
 

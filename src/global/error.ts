@@ -38,6 +38,20 @@ export class SudoNotFoundError extends Error {
 }
 
 /**
+ * Error thrown when deleteSudo API is called without initializing the list query
+ * cache. Delete API relies on cached information to remove all the data related
+ * to a Sudo so it must be called after calling listSudos API to initialize the
+ * query and blob cache. The listSudos API is required to be called only once
+ * at any time during the lifetime of the client. Typically, this is already done
+ * since in order to delete a Sudo you need to retrieve its ID via listSudos.
+ */
+export class SudoNotFoundInCacheError extends Error {
+  constructor() {
+    super('SudoNotFoundInCacheError')
+  }
+}
+
+/**
  * Error when uploading a file to S3
  */
 export class S3UploadError extends Error {
