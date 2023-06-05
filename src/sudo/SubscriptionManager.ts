@@ -1,3 +1,9 @@
+/*
+ * Copyright © 2023 Anonyome Labs, Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { SudoSubscriber, ChangeType, ConnectionState } from './sudo-subscriber'
 import { Sudo } from './sudo'
 import { Observable } from 'apollo-client/util/Observable'
