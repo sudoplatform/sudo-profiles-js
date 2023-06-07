@@ -6,33 +6,35 @@ export type InputMaybe<T> = T | undefined;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
+export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: string;
-  String: string;
-  Boolean: boolean;
-  Int: number;
-  Float: number;
-  AWSDate: any;
-  AWSDateTime: any;
-  AWSEmail: any;
-  AWSIPAddress: any;
-  AWSJSON: unknown;
-  AWSPhone: any;
-  AWSTime: any;
-  AWSTimestamp: any;
-  AWSURL: any;
+  ID: { input: string; output: string; }
+  String: { input: string; output: string; }
+  Boolean: { input: boolean; output: boolean; }
+  Int: { input: number; output: number; }
+  Float: { input: number; output: number; }
+  AWSDate: { input: any; output: any; }
+  AWSDateTime: { input: any; output: any; }
+  AWSEmail: { input: any; output: any; }
+  AWSIPAddress: { input: any; output: any; }
+  AWSJSON: { input: unknown; output: unknown; }
+  AWSPhone: { input: any; output: any; }
+  AWSTime: { input: any; output: any; }
+  AWSTimestamp: { input: any; output: any; }
+  AWSURL: { input: any; output: any; }
 };
 
 export type Attribute = {
   __typename?: 'Attribute';
-  name: Scalars['String'];
-  value: Scalars['String'];
+  name: Scalars['String']['output'];
+  value: Scalars['String']['output'];
 };
 
 export type AttributeInput = {
-  name: Scalars['String'];
-  value: Scalars['String'];
+  name: Scalars['String']['input'];
+  value: Scalars['String']['input'];
 };
 
 export type CreateSudoInput = {
@@ -41,25 +43,25 @@ export type CreateSudoInput = {
 };
 
 export type DeleteSudoInput = {
-  expectedVersion: Scalars['Int'];
-  id: Scalars['ID'];
+  expectedVersion: Scalars['Int']['input'];
+  id: Scalars['ID']['input'];
 };
 
 export type Entitlement = {
   __typename?: 'Entitlement';
-  name: Scalars['String'];
-  value: Scalars['Int'];
+  name: Scalars['String']['output'];
+  value: Scalars['Int']['output'];
 };
 
 export type GetOwnershipProofInput = {
-  audience: Scalars['String'];
-  sudoId: Scalars['ID'];
+  audience: Scalars['String']['input'];
+  sudoId: Scalars['ID']['input'];
 };
 
 export type ModelSudoConnection = {
   __typename?: 'ModelSudoConnection';
   items?: Maybe<Array<Sudo>>;
-  nextToken?: Maybe<Scalars['String']>;
+  nextToken?: Maybe<Scalars['String']['output']>;
 };
 
 export type Mutation = {
@@ -104,19 +106,19 @@ export type MutationUpdateSudoArgs = {
 
 export type OwnershipProof = {
   __typename?: 'OwnershipProof';
-  jwt: Scalars['String'];
+  jwt: Scalars['String']['output'];
 };
 
 export type ProcessCreateSudoEventInput = {
   claims: Array<SecureClaimInput>;
   metadata: Array<AttributeInput>;
   objects: Array<SecureS3ObjectInput>;
-  owner: Scalars['ID'];
+  owner: Scalars['ID']['input'];
 };
 
 export type ProcessDeleteSudoEventInput = {
-  id: Scalars['ID'];
-  owner: Scalars['ID'];
+  id: Scalars['ID']['input'];
+  owner: Scalars['ID']['input'];
 };
 
 export type Query = {
@@ -127,51 +129,51 @@ export type Query = {
 
 
 export type QueryGetSudoArgs = {
-  id: Scalars['ID'];
+  id: Scalars['ID']['input'];
 };
 
 
 export type QueryListSudosArgs = {
-  limit?: InputMaybe<Scalars['Int']>;
-  nextToken?: InputMaybe<Scalars['String']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  nextToken?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type SecureClaim = {
   __typename?: 'SecureClaim';
-  algorithm: Scalars['String'];
-  base64Data: Scalars['String'];
-  keyId: Scalars['String'];
-  name: Scalars['String'];
-  version: Scalars['Int'];
+  algorithm: Scalars['String']['output'];
+  base64Data: Scalars['String']['output'];
+  keyId: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  version: Scalars['Int']['output'];
 };
 
 export type SecureClaimInput = {
-  algorithm: Scalars['String'];
-  base64Data: Scalars['String'];
-  keyId: Scalars['String'];
-  name: Scalars['String'];
-  version: Scalars['Int'];
+  algorithm: Scalars['String']['input'];
+  base64Data: Scalars['String']['input'];
+  keyId: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  version: Scalars['Int']['input'];
 };
 
 export type SecureS3Object = {
   __typename?: 'SecureS3Object';
-  algorithm: Scalars['String'];
-  bucket: Scalars['String'];
-  key: Scalars['String'];
-  keyId: Scalars['String'];
-  name: Scalars['String'];
-  region: Scalars['String'];
-  version: Scalars['Int'];
+  algorithm: Scalars['String']['output'];
+  bucket: Scalars['String']['output'];
+  key: Scalars['String']['output'];
+  keyId: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  region: Scalars['String']['output'];
+  version: Scalars['Int']['output'];
 };
 
 export type SecureS3ObjectInput = {
-  algorithm: Scalars['String'];
-  bucket: Scalars['String'];
-  key: Scalars['String'];
-  keyId: Scalars['String'];
-  name: Scalars['String'];
-  region: Scalars['String'];
-  version: Scalars['Int'];
+  algorithm: Scalars['String']['input'];
+  bucket: Scalars['String']['input'];
+  key: Scalars['String']['input'];
+  keyId: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  region: Scalars['String']['input'];
+  version: Scalars['Int']['input'];
 };
 
 export type Subscription = {
@@ -183,35 +185,35 @@ export type Subscription = {
 
 
 export type SubscriptionOnCreateSudoArgs = {
-  owner: Scalars['ID'];
+  owner: Scalars['ID']['input'];
 };
 
 
 export type SubscriptionOnDeleteSudoArgs = {
-  owner: Scalars['ID'];
+  owner: Scalars['ID']['input'];
 };
 
 
 export type SubscriptionOnUpdateSudoArgs = {
-  owner: Scalars['ID'];
+  owner: Scalars['ID']['input'];
 };
 
 export type Sudo = {
   __typename?: 'Sudo';
   claims: Array<SecureClaim>;
-  createdAtEpochMs: Scalars['Float'];
-  id: Scalars['ID'];
+  createdAtEpochMs: Scalars['Float']['output'];
+  id: Scalars['ID']['output'];
   metadata: Array<Attribute>;
   objects: Array<SecureS3Object>;
-  owner: Scalars['ID'];
-  updatedAtEpochMs: Scalars['Float'];
-  version: Scalars['Int'];
+  owner: Scalars['ID']['output'];
+  updatedAtEpochMs: Scalars['Float']['output'];
+  version: Scalars['Int']['output'];
 };
 
 export type UpdateSudoInput = {
   claims?: InputMaybe<Array<SecureClaimInput>>;
-  expectedVersion: Scalars['Int'];
-  id: Scalars['ID'];
+  expectedVersion: Scalars['Int']['input'];
+  id: Scalars['ID']['input'];
   objects?: InputMaybe<Array<SecureS3ObjectInput>>;
 };
 
@@ -258,36 +260,36 @@ export type UpdateSudoMutationVariables = Exact<{
 export type UpdateSudoMutation = { __typename?: 'Mutation', updateSudo?: { __typename?: 'Sudo', id: string, createdAtEpochMs: number, updatedAtEpochMs: number, version: number, owner: string, claims: Array<{ __typename?: 'SecureClaim', name: string, version: number, keyId: string, algorithm: string, base64Data: string }>, objects: Array<{ __typename?: 'SecureS3Object', name: string, version: number, algorithm: string, keyId: string, bucket: string, region: string, key: string }>, metadata: Array<{ __typename?: 'Attribute', name: string, value: string }> } | undefined };
 
 export type OnCreateSudoSubscriptionVariables = Exact<{
-  owner: Scalars['ID'];
+  owner: Scalars['ID']['input'];
 }>;
 
 
 export type OnCreateSudoSubscription = { __typename?: 'Subscription', onCreateSudo?: { __typename?: 'Sudo', id: string, createdAtEpochMs: number, updatedAtEpochMs: number, version: number, owner: string, claims: Array<{ __typename?: 'SecureClaim', name: string, version: number, algorithm: string, keyId: string, base64Data: string }>, objects: Array<{ __typename?: 'SecureS3Object', name: string, version: number, algorithm: string, keyId: string, bucket: string, region: string, key: string }>, metadata: Array<{ __typename?: 'Attribute', name: string, value: string }> } | undefined };
 
 export type OnDeleteSudoSubscriptionVariables = Exact<{
-  owner: Scalars['ID'];
+  owner: Scalars['ID']['input'];
 }>;
 
 
 export type OnDeleteSudoSubscription = { __typename?: 'Subscription', onDeleteSudo?: { __typename?: 'Sudo', id: string, createdAtEpochMs: number, updatedAtEpochMs: number, version: number, owner: string, claims: Array<{ __typename?: 'SecureClaim', name: string, version: number, algorithm: string, keyId: string, base64Data: string }>, objects: Array<{ __typename?: 'SecureS3Object', name: string, version: number, algorithm: string, keyId: string, bucket: string, region: string, key: string }>, metadata: Array<{ __typename?: 'Attribute', name: string, value: string }> } | undefined };
 
 export type OnUpdateSudoSubscriptionVariables = Exact<{
-  owner: Scalars['ID'];
+  owner: Scalars['ID']['input'];
 }>;
 
 
 export type OnUpdateSudoSubscription = { __typename?: 'Subscription', onUpdateSudo?: { __typename?: 'Sudo', id: string, createdAtEpochMs: number, updatedAtEpochMs: number, version: number, owner: string, claims: Array<{ __typename?: 'SecureClaim', name: string, version: number, algorithm: string, keyId: string, base64Data: string }>, objects: Array<{ __typename?: 'SecureS3Object', name: string, version: number, algorithm: string, keyId: string, bucket: string, region: string, key: string }>, metadata: Array<{ __typename?: 'Attribute', name: string, value: string }> } | undefined };
 
 export type GetSudoQueryVariables = Exact<{
-  id: Scalars['ID'];
+  id: Scalars['ID']['input'];
 }>;
 
 
 export type GetSudoQuery = { __typename?: 'Query', getSudo?: { __typename?: 'Sudo', id: string, createdAtEpochMs: number, updatedAtEpochMs: number, version: number, owner: string, claims: Array<{ __typename?: 'SecureClaim', name: string, version: number, keyId: string, algorithm: string, base64Data: string }>, objects: Array<{ __typename?: 'SecureS3Object', name: string, version: number, algorithm: string, keyId: string, bucket: string, region: string, key: string }>, metadata: Array<{ __typename?: 'Attribute', name: string, value: string }> } | undefined };
 
 export type ListSudosQueryVariables = Exact<{
-  limit?: InputMaybe<Scalars['Int']>;
-  nextToken?: InputMaybe<Scalars['String']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  nextToken?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 

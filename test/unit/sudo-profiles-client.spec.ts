@@ -16,7 +16,6 @@ import { QueryCache } from '../../src/core/query-cache'
 import { S3Client } from '../../src/core/s3Client'
 import {
   InvalidConfigError,
-  SudoNotFoundError,
   SudoNotFoundInCacheError,
   SudoServiceConfigNotFoundError,
 } from '../../src/global/error'

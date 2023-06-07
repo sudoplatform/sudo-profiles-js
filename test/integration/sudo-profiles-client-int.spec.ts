@@ -18,7 +18,6 @@ import {
   SudoSubscriber,
 } from '../../src/sudo/sudo-subscriber'
 import { delay, deregister, registerAndSignIn } from './test-helper'
-import { SudoNotFoundInCacheError } from '../../src/global/error'
 
 global.WebSocket = require('ws')
 // eslint-disable-next-line @typescript-eslint/no-var-requires

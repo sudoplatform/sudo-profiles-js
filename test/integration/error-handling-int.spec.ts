@@ -13,10 +13,7 @@ import FS from 'fs'
 import { mock } from 'ts-mockito'
 import { TextDecoder, TextEncoder } from 'util'
 import { ApiClient } from '../../src/client/apiClient'
-import {
-  SudoNotFoundError,
-  SudoNotFoundInCacheError,
-} from '../../src/global/error'
+import { SudoNotFoundInCacheError } from '../../src/global/error'
 import { Sudo } from '../../src/sudo/sudo'
 import { DefaultSudoProfilesClient } from '../../src/sudo/sudo-profiles-client'
 import { deregister, registerAndSignIn } from './test-helper'
