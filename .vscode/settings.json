@@ -2,5 +2,9 @@
   "editor.formatOnSave": true,
   "typescript.tsdk": "./node_modules/typescript/lib",
   "eslint.validate": ["typescript"],
-  "sort-imports.on-save": true
+  "sort-imports.on-save": true,
+  "cSpell.words": [
+    "AWSS",
+    "Sudos"
+  ]
 }

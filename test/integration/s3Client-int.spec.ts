@@ -65,7 +65,7 @@ describe('s3ClientIntegrationTests', () => {
       // Download file
       const downloadResponse = await s3Client.download(key)
       expect(downloadResponse).toBeTruthy()
-      expect(downloadResponse.byteLength).toBeGreaterThanOrEqual(1800)
+      expect(downloadResponse.byteLength).toEqual(fileData.byteLength)
 
       // Delete file from S3
       await s3Client.delete(objectId)

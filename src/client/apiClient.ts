@@ -14,7 +14,6 @@ import { NormalizedCacheObject } from 'apollo-cache-inmemory'
 import { ApolloError } from 'apollo-client'
 import { Observable } from 'apollo-client/util/Observable'
 import { AWSAppSyncClient } from 'aws-appsync'
-import { stringType } from 'aws-sdk/clients/iam'
 import { GraphQLError } from 'graphql'
 import {
   CreateSudoDocument,
@@ -313,7 +312,7 @@ export class ApiClient {
     }
   }
 
-  returnOrThrow = <T>(data: T | undefined, message: stringType): T => {
+  returnOrThrow = <T>(data: T | undefined, message: string): T => {
     if (data) {
       return data
     } else {

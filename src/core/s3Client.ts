@@ -6,8 +6,11 @@
 
 import { Logger } from '@sudoplatform/sudo-common'
 import { SudoUserClient } from '@sudoplatform/sudo-user'
-import S3, { ManagedUpload } from 'aws-sdk/clients/s3'
-import { CognitoIdentityCredentials } from 'aws-sdk/lib/core'
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  S3Client as AWSS3Client,
+} from '@aws-sdk/client-s3'
 
 import {
   InvalidConfigError,
@@ -17,6 +20,9 @@ import {
 } from '../global/error'
 import { IdentityServiceConfig } from './identity-service-config'
 import { SudoServiceConfig } from './sudo-service-config'
+import { Progress, Upload } from '@aws-sdk/lib-storage'
+import { fromCognitoIdentityPool } from '@aws-sdk/credential-providers'
+import { CognitoIdentityCredentials } from '@aws-sdk/credential-provider-cognito-identity'
 
 /**
  * S3 client wrapper protocol mainly used for providing an abstraction layer on top of
@@ -42,7 +48,7 @@ export interface S3Client {
   /**
    * Get events raised as part of httpUploadProgress
    */
-  getHttpUploadProgress(): ManagedUpload.Progress[]
+  getHttpUploadProgress(): Progress[]
 
   /**
    * Downloads a blob from AWS S3.
@@ -66,7 +72,7 @@ export interface S3Client {
 }
 
 export class DefaultS3Client implements S3Client {
-  private _progressEvents: ManagedUpload.Progress[] = []
+  private _progressEvents: Progress[] = []
 
   private readonly _region: string
   private readonly _bucket: string
@@ -103,36 +109,31 @@ export class DefaultS3Client implements S3Client {
     return this._region
   }
 
-  public getHttpUploadProgress(): ManagedUpload.Progress[] {
+  public getHttpUploadProgress(): Progress[] {
     return this._progressEvents
   }
 
-  private async getInitData(): Promise<[S3, CognitoIdentityCredentials]> {
+  private async getInitData(): Promise<
+    [AWSS3Client, CognitoIdentityCredentials]
+  > {
     const authTokens = await this._sudoUserClient.getLatestAuthToken()
 
-    const credentialsProvider = new CognitoIdentityCredentials(
-      {
-        IdentityPoolId: this._identityPoolId,
-        Logins: {
-          [this._providerName]: authTokens,
-        },
+    const credentialsProvider = fromCognitoIdentityPool({
+      identityPoolId: this._identityPoolId,
+      logins: {
+        [this._providerName]: authTokens,
       },
-      {
-        region: 'us-east-1',
-      },
-    )
+      clientConfig: { region: this._region },
+    })
 
-    await credentialsProvider.getPromise()
+    const credentials = await credentialsProvider()
 
     return [
-      new S3({
+      new AWSS3Client({
         region: this._region,
         credentials: credentialsProvider,
-        params: {
-          bucket: this._bucket,
-        },
       }),
-      credentialsProvider,
+      credentials,
     ]
   }
 
@@ -151,10 +152,8 @@ export class DefaultS3Client implements S3Client {
 
     const bufferData = Buffer.from(data)
 
-    const managedUpload = new S3.ManagedUpload(<
-      S3.ManagedUpload.ManagedUploadOptions
-    >{
-      service: s3Client,
+    const upload = new Upload({
+      client: s3Client,
       params: {
         Bucket: this._bucket,
         Key: key,
@@ -162,18 +161,20 @@ export class DefaultS3Client implements S3Client {
       },
     })
 
-    managedUpload.on('httpUploadProgress', (progress) => {
+    upload.on('httpUploadProgress', (progress) => {
       this._logger.info('httpUploadProgress', { progress })
       this._progressEvents.push(progress)
     })
 
     try {
-      const response = await managedUpload.promise()
+      const response = await upload.done()
       this._logger.info('Upload response: ', { response })
-      return response.Key
+      return key
     } catch (err) {
       const error = err as Error
-      throw new S3UploadError(error.message)
+      const msg = `${error.name}: ${error.message}`
+      this._logger.error(msg)
+      throw new S3UploadError(msg)
     }
   }
 
@@ -188,24 +189,18 @@ export class DefaultS3Client implements S3Client {
         Bucket: this._bucket,
         Key: key,
       }
-      const response = await s3Client.getObject(params).promise()
+      const getObjectCommand = new GetObjectCommand(params)
+      const response = await s3Client.send(getObjectCommand)
       if (!response.Body) {
         throw new S3DownloadError('Did not find file to download.')
       }
 
-      if (typeof response.Body === 'string') {
-        return new TextEncoder().encode(response.Body)
-      } else if (response.Body instanceof Buffer) {
-        return response.Body
-      } else if (response.Body instanceof Uint8Array) {
-        return response.Body.buffer
-      } else {
-        throw new S3DownloadError('Object type is not supported in browser.')
-      }
+      return response.Body.transformToByteArray()
     } catch (err) {
       const error = err as Error
-      this._logger.error(error.message)
-      throw new S3DownloadError(error.message)
+      const msg = `${error.name}: ${error.message}`
+      this._logger.error(msg)
+      throw new S3DownloadError(msg)
     }
   }
 
@@ -214,19 +209,22 @@ export class DefaultS3Client implements S3Client {
 
     const initData = await this.getInitData()
     const s3Client = initData[0]
-    const credentialsProvider = initData[1]
+    const credentials = initData[1]
 
     try {
-      const key = `${credentialsProvider.identityId}/${objectId}`
+      const key = `${credentials.identityId}/${objectId}`
       const params = {
         Bucket: this._bucket,
         Key: key,
       }
       this._logger.info('Deleting: ', { key })
-      await s3Client.deleteObject(params).promise()
+      const deleteObjectCommand = new DeleteObjectCommand(params)
+      await s3Client.send(deleteObjectCommand)
     } catch (err) {
       const error = err as Error
-      throw new S3DeleteError(error.message)
+      const msg = `${error.name}: ${error.message}`
+      this._logger.error(msg)
+      throw new S3DeleteError(msg)
     }
   }
 }
