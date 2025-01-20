@@ -19,11 +19,13 @@ import { DefaultSudoProfilesClient } from '../../src/sudo/sudo-profiles-client'
 import { deregister, registerAndSignIn } from './test-helper'
 
 //const globalAny: any = global
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 global.WebSocket = require('ws')
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+// eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
 global.crypto = require('crypto').webcrypto
 global.TextEncoder = TextEncoder
 global.TextDecoder = TextDecoder as typeof global.TextDecoder
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 require('isomorphic-fetch')
 
 const config = JSON.parse(

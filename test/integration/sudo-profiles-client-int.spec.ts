@@ -19,18 +19,14 @@ import {
 } from '../../src/sudo/sudo-subscriber'
 import { delay, deregister, registerAndSignIn } from './test-helper'
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 global.WebSocket = require('ws')
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+// eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
 global.crypto = require('crypto').webcrypto
 global.TextEncoder = TextEncoder
 global.TextDecoder = TextDecoder as typeof global.TextDecoder
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 require('isomorphic-fetch')
-
-const config = JSON.parse(
-  FS.readFileSync(`${__dirname}/../../config/sudoplatformconfig.json`).toString(
-    'binary',
-  ),
-)
 
 class MySubscriber implements SudoSubscriber {
   public connectionState: ConnectionState | undefined = undefined
@@ -47,56 +43,68 @@ class MySubscriber implements SudoSubscriber {
   }
 }
 
-export class MyStorage {
-  private items = new Map<string, string>()
+let sudoEntitlements: DefaultSudoEntitlementsClient
+let sudoUser: DefaultSudoUserClient
+let sudoProfilesClient: DefaultSudoProfilesClient
+let blobCacheMock: LocalForage
+let beforeAllComplete = false
+let beforeEachComplete = false
 
-  getItem(
-    key: string,
-    cb: (error: Error | null, result?: string) => void,
-  ): void {
-    const storedValue = this.items.get(key)
-    process.nextTick(() => cb(null, storedValue))
+beforeAll(() => {
+  const sudoPlatformConfigPath =
+    process.env.SUDO_PLATFORM_CONFIG ||
+    `${__dirname}/../../config/sudoplatformconfig.json`
+  const registerKeyPath =
+    process.env.REGISTER_KEY || `${__dirname}/../../config/register_key.private`
+  const registerKeyIdPath =
+    process.env.REGISTER_KEY_ID || `${__dirname}/../../config/register_key.id`
+
+  expect(sudoPlatformConfigPath).toMatch(/.+/)
+  expect(registerKeyPath).toMatch(/.+/)
+  expect(registerKeyIdPath).toMatch(/.+/)
+
+  const registerKey = FS.readFileSync(registerKeyPath).toString()
+  const registerKeyId = FS.readFileSync(registerKeyIdPath).toString().trim()
+  const sudoPlatformConfig = FS.readFileSync(sudoPlatformConfigPath).toString()
+  expect(registerKey).toMatch(/.+/)
+  expect(registerKeyId).toMatch(/.+/)
+  DefaultConfigurationManager.getInstance().setConfig(sudoPlatformConfig.trim())
+
+  const configurationManager = DefaultConfigurationManager.getInstance()
+  configurationManager.setConfig(sudoPlatformConfig)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const identityServiceConfig: any =
+    configurationManager.getConfigSet('identityService')
+  expect(identityServiceConfig?.poolId).toBeTruthy()
+  if (!identityServiceConfig?.poolId) {
+    fail('identityServiceConfig.poolId unexpectedly falsy')
   }
 
-  setItem(key: string, value: string, cb: (error: Error | null) => void): void {
-    this.items.set(key, value)
-    process.nextTick(() => cb(null))
-  }
+  sudoUser = new DefaultSudoUserClient()
+  DefaultApiClientManager.getInstance().setAuthClient(sudoUser)
+  sudoEntitlements = new DefaultSudoEntitlementsClient(sudoUser)
 
-  removeItem(key: string, cb: (error: Error | null) => void): void {
-    this.items.delete(key)
-    process.nextTick(() => cb(null))
-  }
+  blobCacheMock = mock()
 
-  getAllKeys(cb: (error: Error | null, keys?: string[]) => void): void {
-    const keys = [...this.items.keys()]
-    process.nextTick(() => cb(null, keys))
-  }
-}
+  sudoProfilesClient = new DefaultSudoProfilesClient({
+    sudoUserClient: sudoUser,
+    blobCache: blobCacheMock,
+  })
 
-DefaultConfigurationManager.getInstance().setConfig(JSON.stringify(config))
-
-const userClient = new DefaultSudoUserClient()
-const storage = new MyStorage()
-
-DefaultApiClientManager.getInstance()
-  .setAuthClient(userClient)
-  .getClient({ disableOffline: false, storage })
-
-const blobCacheMock: LocalForage = mock()
-
-const sudoProfilesClient = new DefaultSudoProfilesClient({
-  sudoUserClient: userClient,
-  blobCache: blobCacheMock,
+  beforeAllComplete = true
 })
 
-const entitlementsClient = new DefaultSudoEntitlementsClient(userClient)
+afterAll(() => {
+  beforeAllComplete = false
+})
 
 beforeEach(async (): Promise<void> => {
-  try {
-    await registerAndSignIn(userClient)
+  expect({ beforeAllComplete }).toEqual({ beforeAllComplete: true })
 
-    await entitlementsClient.redeemEntitlements()
+  try {
+    await registerAndSignIn(sudoUser)
+    await sudoEntitlements.redeemEntitlements()
+
     // Setup symmetric key before each test as
     // with the `afterEach` function we are calling `signOut`
     // which deregisters the user and also resets the keyManager
@@ -105,18 +113,29 @@ beforeEach(async (): Promise<void> => {
       '1234',
       '14A9B3C3540142A11E70ACBB1BD8969F',
     )
+    beforeEachComplete = true
   } catch (error) {
     console.log(error)
   }
 }, 30000)
 
 afterEach(async (): Promise<void> => {
-  await deregister(userClient)
+  beforeEachComplete = false
+  await deregister(sudoUser)
 }, 25000)
+
+// Failures in beforeAll do not stop tests executing
+function expectSetupComplete(): void {
+  expect({ beforeAllComplete, beforeEachComplete }).toEqual({
+    beforeAllComplete: true,
+    beforeEachComplete: true,
+  })
+}
 
 describe('sudoProfilesClientIntegrationTests', () => {
   describe('createSudo()', () => {
     it('should subscribe to createSudo event', async () => {
+      expectSetupComplete()
       // Setup subscriber
       const subscriber = new MySubscriber()
       await sudoProfilesClient.subscribe('1', ChangeType.Create, subscriber)
@@ -135,6 +154,7 @@ describe('sudoProfilesClientIntegrationTests', () => {
       newSudo.notes = `dummy_notes_${id}`
 
       const createdSudo = await sudoProfilesClient.createSudo(newSudo)
+      expect(createdSudo).toBeTruthy()
 
       await delay(5000)
 
@@ -177,6 +197,7 @@ describe('sudoProfilesClientIntegrationTests', () => {
 
   describe('updateSudo()', () => {
     it('should subscribe to updateSudo event', async () => {
+      expectSetupComplete()
       //Create new Sudo
       const id = v4()
       const newSudo = new Sudo()
@@ -256,6 +277,7 @@ describe('sudoProfilesClientIntegrationTests', () => {
     }, 120000)
 
     it('should throw VersionMismatchError when updating a sudo with the wrong version', async () => {
+      expectSetupComplete()
       //Create new Sudo
       const id = v4()
       const newSudo = new Sudo()
@@ -284,6 +306,7 @@ describe('sudoProfilesClientIntegrationTests', () => {
 
   describe('deleteSudo()', () => {
     it('should delete sudo, blob cache and s3 image', async () => {
+      expectSetupComplete()
       //Create new Sudo
       const id = v4()
       const newSudo = new Sudo()
@@ -292,16 +315,12 @@ describe('sudoProfilesClientIntegrationTests', () => {
       newSudo.lastName = `dummy_last_name_${id}`
       newSudo.label = `dummy_label_${id}`
       newSudo.notes = `dummy_notes_${id}`
-
       const fileData = FS.readFileSync(
         path.resolve(__dirname, '../integration/jordan.png'),
       )
       newSudo.setAvatar(fileData)
-
       when(blobCacheMock.setItem(anything(), fileData)).thenResolve()
-
       const createdSudo = await sudoProfilesClient.createSudo(newSudo)
-
       expect(createdSudo.id).toBeTruthy()
       expect(createdSudo.title).toBe(`dummy_title_${id}`)
       expect(createdSudo.firstName).toBe(`dummy_first_name_${id}`)
@@ -309,7 +328,6 @@ describe('sudoProfilesClientIntegrationTests', () => {
       expect(createdSudo.label).toBe(`dummy_label_${id}`)
       expect(createdSudo.notes).toBe(`dummy_notes_${id}`)
       expect(createdSudo.version).toBe(2)
-
       // list sudos and force download of avatar image
       const downloadedSudos = await sudoProfilesClient.listSudos(
         FetchOption.RemoteOnly,
@@ -322,7 +340,6 @@ describe('sudoProfilesClientIntegrationTests', () => {
       expect(downloadedSudos[0].label).toBe(`dummy_label_${id}`)
       expect(downloadedSudos[0].notes).toBe(`dummy_notes_${id}`)
       expect(downloadedSudos[0].getAvatarFile()).toBeTruthy()
-
       // Make sure cache has been populated
       const cachedSudos = await sudoProfilesClient.listSudos(
         FetchOption.CacheOnly,
@@ -335,10 +352,8 @@ describe('sudoProfilesClientIntegrationTests', () => {
       expect(cachedSudos[0].label).toBe(`dummy_label_${id}`)
       expect(cachedSudos[0].notes).toBe(`dummy_notes_${id}`)
       expect(cachedSudos[0].getAvatarFile()).toBeTruthy()
-
       // Delete Sudo
       await sudoProfilesClient.deleteSudo(createdSudo)
-
       // Make sure sudo has been deleted
       const listDeletedSudos = await sudoProfilesClient.listSudos(
         FetchOption.RemoteOnly,
@@ -349,6 +364,7 @@ describe('sudoProfilesClientIntegrationTests', () => {
 
   describe('cache tests', () => {
     it('should update list cache after create, delete and update', async () => {
+      expectSetupComplete()
       // Initialize the query cache. We can only do that by performing
       // a remote query.
       await sudoProfilesClient.listSudos(FetchOption.RemoteOnly)

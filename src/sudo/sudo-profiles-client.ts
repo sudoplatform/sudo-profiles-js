@@ -168,7 +168,7 @@ export interface SudoProfilesClient {
    *
    * @throws NotSignedInError
    */
-  subscribeAll(id: string, subscriber: SudoSubscriber): void
+  subscribeAll(id: string, subscriber: SudoSubscriber): Promise<void>
 
   /**
    * Subscribes to be notified of new, updated or deleted Sudos. Blob data is not downloaded automatically
@@ -184,7 +184,7 @@ export interface SudoProfilesClient {
     id: string,
     changeType: ChangeType,
     subscriber: SudoSubscriber,
-  ): void
+  ): Promise<void>
 
   /**
    * Unsubscribes the specified subscriber so that it no longer receives notifications about

@@ -1,6 +1,6 @@
 {
   "preset": "ts-jest",
-  "testEnvironment": "jsdom",
+  "testEnvironment": "node",
   "testMatch": ["<rootDir>/test/**/*.spec.ts"],
   "testPathIgnorePatterns": ["/node_modules/", "/lib/"],
   "clearMocks": true,
@@ -15,10 +15,9 @@
       "lines": 90
     }
   },
-  "globals": {
-    "ts-jest": {
-      "tsconfig": "tsconfig.commonjs.json"
-    }
+  "transformIgnorePatterns": ["/node_modules/(?!(\\@aws-sdk)/)"],
+  "transform": {
+    ".*\\.ts$": ["ts-jest", { "tsconfig": "tsconfig.test.json" }]
   },
   "modulePathIgnorePatterns": ["<rootDir>/sampleapp/"]
 }

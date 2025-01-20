@@ -28,9 +28,11 @@ import {
 } from '../../src/sudo/sudo-subscriber'
 
 const globalAny: any = global
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 globalAny.WebSocket = require('ws')
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 require('isomorphic-fetch')
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+// eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
 global.crypto = require('crypto').webcrypto
 global.TextEncoder = TextEncoder
 global.TextDecoder = TextDecoder as typeof global.TextDecoder

@@ -55,6 +55,7 @@ module.exports = {
             ignoreStatic: true,
           },
         ],
+        '@typescript-eslint/no-floating-promises': 'error',
         'tree-shaking/no-side-effects-in-initialization': 2,
       },
     },
@@ -77,6 +78,7 @@ module.exports = {
         'plugin:prettier/recommended',
       ],
       rules: {
+        '@typescript-eslint/no-floating-promises': 'error',
         '@typescript-eslint/no-namespace': 'off',
         '@typescript-eslint/no-explicit-any': 'off',
         '@typescript-eslint/no-non-null-assertion': 'off',
