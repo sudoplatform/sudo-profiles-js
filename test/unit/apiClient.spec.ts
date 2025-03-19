@@ -8,7 +8,7 @@ import {
 } from '@sudoplatform/sudo-common'
 import { ApolloError } from 'apollo-client'
 import { AWSAppsyncGraphQLError } from 'aws-appsync/lib/types'
-import { GraphQLError } from 'graphql'
+import { GraphQLError, GraphQLFormattedError } from 'graphql'
 import { ApiClient } from '../../src/client/apiClient'
 import {
   CreateSudoDocument,
@@ -63,7 +63,14 @@ const createGraphQLError: (error: GraphQLError) => ApolloError = (
   backendError,
 ) =>
   new ApolloError({
-    graphQLErrors: [{ ...backendError }],
+    graphQLErrors: [
+      {
+        ...backendError,
+        toJSON: function (): GraphQLFormattedError {
+          throw new Error('Function not implemented.')
+        },
+      },
+    ],
     networkError: null,
     errorMessage: `GraphQL error: ${backendError.message}`,
   })

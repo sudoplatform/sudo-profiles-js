@@ -143,7 +143,7 @@ export interface SudoProfilesClient {
   /**
    * Retrieves all Sudos owned by the signed in user.
    *
-   * @param fetchPolicy: option for controlling the behaviour of this API. Refer to `FetchOption` enum.
+   * @param fetchPolicy option for controlling the behaviour of this API. Refer to `FetchOption` enum.
    *
    * @return Sudo[]: An array of Sudos
    *
