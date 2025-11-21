@@ -22,6 +22,6 @@ export class BufferUtil {
     const array = new Uint8Array(buffer)
     const lhs = array.slice(0, lhsLength)
     const rhs = array.slice(lhsLength, array.length)
-    return { lhs, rhs }
+    return { lhs: lhs.buffer, rhs: rhs.buffer }
   }
 }

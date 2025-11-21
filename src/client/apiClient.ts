@@ -6,15 +6,12 @@
 
 import {
   FatalError,
-  isAppSyncNetworkError,
+  isGraphQLNetworkError,
   Logger,
   mapNetworkErrorToClientError,
 } from '@sudoplatform/sudo-common'
-import { NormalizedCacheObject } from 'apollo-cache-inmemory'
-import { ApolloError } from 'apollo-client'
-import { Observable } from 'apollo-client/util/Observable'
-import { AWSAppSyncClient } from 'aws-appsync'
 import { GraphQLError } from 'graphql'
+import Observable from 'zen-observable'
 import {
   CreateSudoDocument,
   CreateSudoInput,
@@ -41,19 +38,19 @@ import {
 } from '../gen/graphql-types'
 import { graphQLErrorsToClientError } from '../global/error'
 import { SubscriptionResult } from '../sudo/SubscriptionManager'
-import { ErrorOption, FetchOption } from '../sudo/sudo'
+import { FetchOption } from '../sudo/sudo'
+import { GraphQLClient } from '@sudoplatform/sudo-user'
 
 /**
  * AppSync wrapper to use to invoke Sudo Profiles Service APIs.
  */
 export class ApiClient {
-  private readonly _client: AWSAppSyncClient<NormalizedCacheObject>
+  private readonly _client: GraphQLClient
   private readonly _logger: Logger
 
-  public constructor(
-    client: AWSAppSyncClient<NormalizedCacheObject>,
-    logger: Logger,
-  ) {
+  private _cache: Sudo[] | null = null
+  private _cachePromise: Promise<void> | null = null
+  public constructor(client: GraphQLClient, logger: Logger) {
     this._client = client
     this._logger = logger
   }
@@ -64,29 +61,18 @@ export class ApiClient {
       result = await this._client.mutate<CreateSudoMutation>({
         mutation: CreateSudoDocument,
         variables: { input },
-        update: (proxy, mutationResult) => {
-          const data = proxy.readQuery<ListSudosQuery>({
-            query: ListSudosDocument,
-          })
-
-          const newSudo = mutationResult.data?.createSudo
-
-          if (newSudo && data && data.listSudos && data.listSudos.items) {
-            // Work around a bug in AppSync that causes "update" to be called
-            // multiple times.
-            if (!data.listSudos.items.find((item) => item.id === newSudo.id)) {
-              data.listSudos.items.push(newSudo)
-              proxy.writeQuery({
-                query: ListSudosDocument,
-                data,
-              })
-            }
-          }
-        },
       })
+      // Update the cache by inserting the new Sudo:
+      const existingSudos = await this.getCachedQueryItems()
+      const newSudo = result.data?.createSudo
+      if (newSudo && !existingSudos.find((item) => item.id === newSudo.id)) {
+        existingSudos.push(newSudo)
+      }
+
+      await this.replaceCachedQueryItems(existingSudos)
     } catch (err) {
       const error = err as Error
-      if (isAppSyncNetworkError(error)) {
+      if (isGraphQLNetworkError(error)) {
         throw mapNetworkErrorToClientError(error)
       }
       throw this.mapGraphQLCallError(error)
@@ -106,38 +92,19 @@ export class ApiClient {
       result = await this._client.mutate<UpdateSudoMutation>({
         mutation: UpdateSudoDocument,
         variables: { input },
-        errorPolicy: ErrorOption.All,
-        update: (proxy, mutationResult) => {
-          const data = proxy.readQuery<ListSudosQuery>({
-            query: ListSudosDocument,
-          })
-
-          const updatedSudo = mutationResult.data?.updateSudo
-          if (
-            updatedSudo &&
-            data &&
-            data.listSudos &&
-            data.listSudos.items &&
-            data.listSudos.items.length > 0
-          ) {
-            data.listSudos.items = data.listSudos.items.map((item) => {
-              if (item.id === updatedSudo.id) {
-                return updatedSudo
-              } else {
-                return item
-              }
-            })
-
-            proxy.writeQuery({
-              query: ListSudosDocument,
-              data,
-            })
-          }
-        },
       })
+      // Update the modified sudo in the cache
+      let existingSudos = await this.getCachedQueryItems()
+      const updatedSudo = result.data?.updateSudo
+      if (updatedSudo && existingSudos.length > 0) {
+        existingSudos = existingSudos.map((item) =>
+          item.id !== updatedSudo.id ? item : updatedSudo,
+        )
+      }
+      await this.replaceCachedQueryItems(existingSudos)
     } catch (err) {
       const error = err as Error
-      if (isAppSyncNetworkError(error)) {
+      if (isGraphQLNetworkError(error)) {
         throw mapNetworkErrorToClientError(error)
       }
       throw this.mapGraphQLCallError(error)
@@ -162,13 +129,13 @@ export class ApiClient {
       })
     } catch (err) {
       const error = err as Error
-      if (isAppSyncNetworkError(error)) {
+      if (isGraphQLNetworkError(error)) {
         throw mapNetworkErrorToClientError(error)
       }
       throw this.mapGraphQLCallError(error)
     }
 
-    this.checkGraphQLResponseErrors(result.errors)
+    this.checkGraphQLResponseErrors(result?.errors)
 
     return this.returnOrThrow(
       result.data?.getOwnershipProof,
@@ -178,27 +145,53 @@ export class ApiClient {
 
   public async listSudos(fetchPolicy?: FetchOption): Promise<Sudo[]> {
     let result
+    let cachedSudos: Sudo[] = []
+    let networkSudos: Sudo[] = []
+    const cachePolicyToUse = fetchPolicy ?? FetchOption.CacheFirst // The Apollo default
+
     try {
-      result = await this._client.query<ListSudosQuery>({
-        query: ListSudosDocument,
-        fetchPolicy: fetchPolicy,
-      })
+      // We have to determine the cache behaviour and act accordingly because we are managing
+      // the cache ourselves.
+      if (this.fetchPolicyRequiresCacheRead(cachePolicyToUse)) {
+        cachedSudos = await this.getCachedQueryItems()
+      }
+      if (this.fetchPolicyRequiresNetworkFetch(cachePolicyToUse, cachedSudos)) {
+        result = await this._client.query<ListSudosQuery>({
+          query: ListSudosDocument,
+        })
+        if (result.data.listSudos?.items) {
+          if (cachePolicyToUse != FetchOption.NoCache) {
+            await this.replaceCachedQueryItems(result.data.listSudos.items)
+          }
+          networkSudos = result.data.listSudos.items
+        }
+      }
     } catch (err) {
       const error = err as Error
-      if (isAppSyncNetworkError(error)) {
+      if (isGraphQLNetworkError(error)) {
         throw mapNetworkErrorToClientError(error)
       }
       throw this.mapGraphQLCallError(error)
     }
 
-    this.checkGraphQLResponseErrors(result.errors)
-
-    if (result.data) {
-      const sudos = result.data.listSudos?.items
-      return !sudos ? [] : sudos
-    } else {
-      throw new FatalError('listSudos did not return any result')
+    this.checkGraphQLResponseErrors(result?.errors ?? [])
+    let sudos: Sudo[] = []
+    switch (cachePolicyToUse) {
+      case FetchOption.CacheFirst:
+        sudos = cachedSudos.length > 0 ? cachedSudos : networkSudos
+        break
+      case FetchOption.RemoteOnly:
+      case FetchOption.NoCache:
+        sudos = networkSudos
+        break
+      case FetchOption.CacheOnly:
+        sudos = cachedSudos
+        break
+      case FetchOption.CacheAndRemote:
+        sudos = this.mergeSudoArrays(cachedSudos, networkSudos)
+        break
     }
+    return sudos
   }
 
   public async deleteSudo(input: DeleteSudoInput): Promise<void> {
@@ -207,33 +200,19 @@ export class ApiClient {
       result = await this._client.mutate<DeleteSudoMutation>({
         mutation: DeleteSudoDocument,
         variables: { input },
-        update: (proxy, mutationResult) => {
-          const data = proxy.readQuery<ListSudosQuery>({
-            query: ListSudosDocument,
-          })
-
-          const deletedSudo = mutationResult.data?.deleteSudo
-          if (
-            deletedSudo &&
-            data &&
-            data.listSudos &&
-            data.listSudos.items &&
-            data.listSudos.items.length > 0
-          ) {
-            data.listSudos.items = data.listSudos.items.filter(
-              (item) => item.id !== deletedSudo.id,
-            )
-
-            proxy.writeQuery({
-              query: ListSudosDocument,
-              data,
-            })
-          }
-        },
       })
+      // Update the cache by removing the deleted Sudo:
+      let existingSudos = await this.getCachedQueryItems()
+      const deletedSudo = result.data?.deleteSudo
+      if (deletedSudo && existingSudos.length > 0) {
+        existingSudos = existingSudos.filter(
+          (item) => item.id !== deletedSudo.id,
+        )
+      }
+      await this.replaceCachedQueryItems(existingSudos)
     } catch (err) {
       const error = err as Error
-      if (isAppSyncNetworkError(error)) {
+      if (isGraphQLNetworkError(error)) {
         throw mapNetworkErrorToClientError(error)
       }
       throw this.mapGraphQLCallError(error)
@@ -242,60 +221,50 @@ export class ApiClient {
     this.checkGraphQLResponseErrors(result.errors)
   }
 
-  public async reset(): Promise<void> {
-    await this._client.resetStore()
-  }
+  public async reset(): Promise<void> {}
 
   public subscribeToOnCreateSudo(
     owner: string,
-  ): Observable<SubscriptionResult<OnCreateSudoSubscription>> {
+  ): Promise<Observable<SubscriptionResult<OnCreateSudoSubscription>>> {
     return this._client.subscribe({
-      query: OnCreateSudoDocument,
+      subscription: OnCreateSudoDocument,
       variables: { owner },
     })
   }
 
   public subscribeToOnUpdateSudo(
     owner: string,
-  ): Observable<SubscriptionResult<OnUpdateSudoSubscription>> {
+  ): Promise<Observable<SubscriptionResult<OnUpdateSudoSubscription>>> {
     return this._client.subscribe({
-      query: OnUpdateSudoDocument,
+      subscription: OnUpdateSudoDocument,
       variables: { owner },
     })
   }
 
   public subscribeToOnDeleteSudo(
     owner: string,
-  ): Observable<SubscriptionResult<OnDeleteSudoSubscription>> {
+  ): Promise<Observable<SubscriptionResult<OnDeleteSudoSubscription>>> {
     return this._client.subscribe({
-      query: OnDeleteSudoDocument,
+      subscription: OnDeleteSudoDocument,
       variables: { owner },
     })
   }
 
   public async getCachedQueryItems(): Promise<Sudo[]> {
-    const sudos = await this.listSudos(FetchOption.CacheOnly)
-    return !sudos ? <Sudo[]>[] : sudos
+    // Return a copy to prevent external mutation
+    return await this.withCacheLock(() =>
+      Promise.resolve([...(this._cache ?? [])]),
+    )
   }
 
-  public replaceCachedQueryItems(items: Sudo[]): void {
-    const data = {
-      listSudos: {
-        __typename: 'ModelSudoConnection',
-        items,
-        nextToken: null,
-      },
-    }
-
-    this._client.writeQuery({
-      query: ListSudosDocument,
-      data,
+  public async replaceCachedQueryItems(items: Sudo[]): Promise<void> {
+    await this.withCacheLock(() => {
+      this._cache = [...items]
+      return Promise.resolve()
     })
   }
 
-  checkGraphQLResponseErrors = (
-    errors: readonly GraphQLError[] | undefined,
-  ): void => {
+  checkGraphQLResponseErrors = (errors: GraphQLError[] | undefined): void => {
     const error = errors?.[0]
     if (error) {
       throw graphQLErrorsToClientError(error, this._logger)
@@ -303,13 +272,19 @@ export class ApiClient {
   }
 
   mapGraphQLCallError = (err: Error): Error => {
-    const apolloError = err as ApolloError
-    const error = apolloError.graphQLErrors?.[0]
-    if (error) {
-      return graphQLErrorsToClientError(error, this._logger)
-    } else {
-      return new FatalError(err.message)
+    if ('graphQLErrors' in err && Array.isArray(err.graphQLErrors)) {
+      const error = err.graphQLErrors[0] as { errorType: string }
+      if (error) {
+        return graphQLErrorsToClientError(error, this._logger)
+      }
     }
+    if ('errorType' in err) {
+      return graphQLErrorsToClientError(
+        err as { errorType: string },
+        this._logger,
+      )
+    }
+    return new FatalError(err.message)
   }
 
   returnOrThrow = <T>(data: T | undefined, message: string): T => {
@@ -318,5 +293,61 @@ export class ApiClient {
     } else {
       throw new FatalError(message)
     }
+  }
+
+  private async withCacheLock<T>(operation: () => Promise<T>): Promise<T> {
+    // Wait for any pending cache operation to complete
+    while (this._cachePromise) {
+      await this._cachePromise
+    }
+
+    // Execute the operation with a new promise to block other operations
+    const promise = (async () => {
+      try {
+        return await operation()
+      } finally {
+        this._cachePromise = null
+      }
+    })()
+
+    this._cachePromise = promise.then(() => {})
+    return promise
+  }
+
+  private mergeSudoArrays(existingArray: Sudo[], newArray: Sudo[]): Sudo[] {
+    const merged = [...existingArray]
+
+    newArray.forEach((newSudo) => {
+      const existingIndex = merged.findIndex(
+        (existing) => existing.id === newSudo.id,
+      )
+      if (existingIndex !== -1) {
+        merged[existingIndex] = newSudo // Overwrite existing
+      } else {
+        merged.push(newSudo) // Add new
+      }
+    })
+
+    return merged
+  }
+
+  private fetchPolicyRequiresCacheRead(cachePolicyToUse: FetchOption): boolean {
+    return (
+      cachePolicyToUse === FetchOption.CacheFirst ||
+      cachePolicyToUse === FetchOption.CacheOnly ||
+      cachePolicyToUse === FetchOption.CacheAndRemote
+    )
+  }
+
+  private fetchPolicyRequiresNetworkFetch(
+    cachePolicyToUse: FetchOption,
+    cachedSudos: Sudo[],
+  ): boolean {
+    return (
+      cachePolicyToUse === FetchOption.CacheAndRemote ||
+      cachePolicyToUse === FetchOption.RemoteOnly ||
+      cachePolicyToUse === FetchOption.NoCache ||
+      (cachePolicyToUse === FetchOption.CacheFirst && cachedSudos.length === 0)
+    )
   }
 }

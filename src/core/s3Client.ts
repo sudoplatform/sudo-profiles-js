@@ -195,7 +195,7 @@ export class DefaultS3Client implements S3Client {
         throw new S3DownloadError('Did not find file to download.')
       }
 
-      return response.Body.transformToByteArray()
+      return new Uint8Array(await response.Body.transformToByteArray()).buffer
     } catch (err) {
       const error = err as Error
       const msg = `${error.name}: ${error.message}`

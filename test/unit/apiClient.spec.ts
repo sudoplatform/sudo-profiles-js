@@ -6,8 +6,7 @@ import {
   ServiceError,
   VersionMismatchError,
 } from '@sudoplatform/sudo-common'
-import { ApolloError } from 'apollo-client'
-import { AWSAppsyncGraphQLError } from 'aws-appsync/lib/types'
+
 import { GraphQLError, GraphQLFormattedError } from 'graphql'
 import { ApiClient } from '../../src/client/apiClient'
 import {
@@ -46,7 +45,7 @@ const createBackendError: (
   path: string[],
   errorType: string,
   rest?: any,
-) => AWSAppsyncGraphQLError = (path = [], errorType, rest = {}) => {
+) => GraphQLError = (path = [], errorType, rest = {}) => {
   const error = {
     path,
     data: null,
@@ -55,14 +54,12 @@ const createBackendError: (
     locations: [{ line: 2, column: 3 }],
     message: 'Some error message',
     ...rest,
-  } as AWSAppsyncGraphQLError
+  } as GraphQLError
 
   return error
 }
-const createGraphQLError: (error: GraphQLError) => ApolloError = (
-  backendError,
-) =>
-  new ApolloError({
+const createGraphQLError: (error: GraphQLError) => Error = (backendError) => {
+  return {
     graphQLErrors: [
       {
         ...backendError,
@@ -72,8 +69,11 @@ const createGraphQLError: (error: GraphQLError) => ApolloError = (
       },
     ],
     networkError: null,
+    name: 'GraphQLError',
+    message: 'GraphQLError test',
     errorMessage: `GraphQL error: ${backendError.message}`,
-  })
+  }
+}
 
 describe('ApiClient', () => {
   describe('createSudo()', () => {
@@ -163,7 +163,7 @@ describe('ApiClient', () => {
                 version: 2,
                 algorithm: symmetricKeyEncryptionAlgorithm,
                 keyId: symmetricKeyId,
-                base64Data: Base64.encode(encryptedData),
+                base64Data: Base64.encode(encryptedData.buffer),
               },
             ],
             objects: [],
@@ -190,7 +190,7 @@ describe('ApiClient', () => {
             version: 2,
             algorithm: symmetricKeyEncryptionAlgorithm,
             keyId: symmetricKeyId,
-            base64Data: Base64.encode(encryptedData),
+            base64Data: Base64.encode(encryptedData.buffer),
           },
         ],
         objects: [],
@@ -237,7 +237,7 @@ describe('ApiClient', () => {
     })
   }) // updateSudo
 
-  describe('getOwnwershipProof()', () => {
+  describe('getOwnershipProof()', () => {
     it('should execute mutation', async () => {
       client.mutate.mockImplementation((opts) => {
         return {
@@ -272,6 +272,7 @@ describe('ApiClient', () => {
 
   describe('listSudos()', () => {
     it('should throw ServiceError when query fails', async () => {
+      await apiClient.replaceCachedQueryItems([])
       const backendError = createBackendError(
         ['listSudo'],
         GRAPHQL_ERROR_SERVER_ERROR,
@@ -286,6 +287,7 @@ describe('ApiClient', () => {
     })
 
     it('should throw FatalError when mutation succeeds but graph response contains no data', async () => {
+      await apiClient.replaceCachedQueryItems([])
       client.query.mockResolvedValue({
         data: null,
       })

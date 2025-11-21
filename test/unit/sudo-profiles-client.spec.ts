@@ -12,7 +12,6 @@ import { instance, mock, reset, verify, when } from 'ts-mockito'
 import { TextEncoder, TextDecoder } from 'util'
 import { v4 } from 'uuid'
 import { ApiClient } from '../../src/client/apiClient'
-import { QueryCache } from '../../src/core/query-cache'
 import { S3Client } from '../../src/core/s3Client'
 import {
   InvalidConfigError,
@@ -37,7 +36,6 @@ global.crypto = require('crypto').webcrypto
 global.TextEncoder = TextEncoder
 global.TextDecoder = TextDecoder as typeof global.TextDecoder
 
-const queryCacheMock: QueryCache = mock()
 const apiClientMock: ApiClient = mock()
 const sudoKeyManagerMock: SudoKeyManager = mock()
 const sudoUserClientMock: SudoUserClient = mock()
@@ -129,7 +127,6 @@ class MySubscriber implements SudoSubscriber {
 }
 
 beforeEach(async (): Promise<void> => {
-  reset(queryCacheMock)
   reset(sudoUserClientMock)
   reset(apiClientMock)
   reset(blobCacheMock)
@@ -138,7 +135,6 @@ beforeEach(async (): Promise<void> => {
 })
 
 afterEach(async (): Promise<void> => {
-  reset(queryCacheMock)
   reset(sudoUserClientMock)
   reset(apiClientMock)
   reset(blobCacheMock)

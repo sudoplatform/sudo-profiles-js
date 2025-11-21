@@ -478,7 +478,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
         // create them and watch for sudo changes per `owner`
         if (!this._onCreateSudoSubscriptionManager.watcher) {
           this._onCreateSudoSubscriptionManager.watcher =
-            this._apiClient.subscribeToOnCreateSudo(owner)
+            await this._apiClient.subscribeToOnCreateSudo(owner)
 
           this._onCreateSudoSubscriptionManager.subscription =
             this.executeCreateSudoSubscriptionWatcher()
@@ -494,7 +494,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
         // create them and watch for sudo changes per `owner`
         if (!this._onUpdateSudoSubscriptionManager.watcher) {
           this._onUpdateSudoSubscriptionManager.watcher =
-            this._apiClient.subscribeToOnUpdateSudo(owner)
+            await this._apiClient.subscribeToOnUpdateSudo(owner)
 
           this._onUpdateSudoSubscriptionManager.subscription =
             this.executeUpdateSudoSubscriptionWatcher()
@@ -510,7 +510,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
         // create them and watch for sudo changes per `owner`
         if (!this._onDeleteSudoSubscriptionManager.watcher) {
           this._onDeleteSudoSubscriptionManager.watcher =
-            this._apiClient.subscribeToOnDeleteSudo(owner)
+            await this._apiClient.subscribeToOnDeleteSudo(owner)
 
           this._onDeleteSudoSubscriptionManager.subscription =
             this.executeDeleteSudoSubscription()
@@ -552,10 +552,13 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
 
   public async pushSymmetricKey(keyId: string, key: string): Promise<void> {
     // Add new symmetric key to key store.
-    await this._keyManager.addSymmetricKey(new TextEncoder().encode(key), keyId)
+    await this._keyManager.addSymmetricKey(
+      new TextEncoder().encode(key).buffer,
+      keyId,
+    )
     // Set this key as the current default symmetric key to use.
     await this._keyManager.addSymmetricKey(
-      new TextEncoder().encode(keyId),
+      new TextEncoder().encode(keyId).buffer,
       DefaultSudoProfilesClient.Constants.defaultSymmetricKeyId,
     )
   }
@@ -608,7 +611,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
                 if (cachedItems) {
                   cachedItems.push(items[0])
 
-                  this._apiClient.replaceCachedQueryItems(cachedItems)
+                  await this._apiClient.replaceCachedQueryItems(cachedItems)
                 }
 
                 this._onCreateSudoSubscriptionManager.sudoChanged(
@@ -722,7 +725,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
                 )
                 if (cachedItems) {
                   cachedItems.push(items[0])
-                  this._apiClient.replaceCachedQueryItems(cachedItems)
+                  await this._apiClient.replaceCachedQueryItems(cachedItems)
                 }
 
                 this._onUpdateSudoSubscriptionManager.sudoChanged(
@@ -785,7 +788,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
                   `Found ${cachedItems?.length} in listsudosquery cache`,
                 )
                 if (cachedItems) {
-                  this._apiClient.replaceCachedQueryItems(
+                  await this._apiClient.replaceCachedQueryItems(
                     cachedItems.filter((element) => {
                       return element.id !== sudo.id
                     }),
@@ -939,7 +942,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
 
     const encryptedData = await this._keyManager.encryptWithSymmetricKeyName(
       keyId,
-      byteArray,
+      byteArray.buffer,
       { iv },
     )
     const input: SecureClaimInput = {

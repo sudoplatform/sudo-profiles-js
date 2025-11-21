@@ -61,7 +61,13 @@ describe('s3ClientIntegrationTests', () => {
       // Upload file
       const objectId = `integration-test-${v4()}`
       const fileData = FS.readFileSync(path.resolve(__dirname, './jordan.png'))
-      const key = await s3Client.upload(fileData, objectId)
+      const key = await s3Client.upload(
+        fileData.buffer.slice(
+          fileData.byteOffset,
+          fileData.byteOffset + fileData.byteLength,
+        ),
+        objectId,
+      )
       expect(key).toBeTruthy()
 
       // Download file

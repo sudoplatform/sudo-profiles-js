@@ -6,7 +6,7 @@
 
 import { SudoSubscriber, ChangeType, ConnectionState } from './sudo-subscriber'
 import { Sudo } from './sudo'
-import { Observable } from 'apollo-client/util/Observable'
+import Observable from 'zen-observable'
 
 export type SubscriptionResult<T> = { data: T }
 

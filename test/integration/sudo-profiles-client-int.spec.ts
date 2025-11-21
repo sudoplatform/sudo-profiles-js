@@ -23,7 +23,7 @@ import { delay, deregister, registerAndSignIn } from './test-helper'
 global.WebSocket = require('ws')
 // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
 global.crypto = require('crypto').webcrypto
-global.TextEncoder = TextEncoder
+global.TextEncoder = TextEncoder as typeof global.TextEncoder
 global.TextDecoder = TextDecoder as typeof global.TextDecoder
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 require('isomorphic-fetch')
@@ -318,7 +318,7 @@ describe('sudoProfilesClientIntegrationTests', () => {
       const fileData = FS.readFileSync(
         path.resolve(__dirname, '../integration/jordan.png'),
       )
-      newSudo.setAvatar(fileData)
+      newSudo.setAvatar(fileData.buffer)
       when(blobCacheMock.setItem(anything(), fileData)).thenResolve()
       const createdSudo = await sudoProfilesClient.createSudo(newSudo)
       expect(createdSudo.id).toBeTruthy()
@@ -433,5 +433,23 @@ describe('sudoProfilesClientIntegrationTests', () => {
       )
       expect(listDeletedSudos).toEqual([])
     }, 120000)
+  })
+
+  describe.skip('error generation tests', () => {
+    it('should handle 401 when token expires', async () => {
+      expectSetupComplete()
+
+      // Create a sudo first
+      const id = v4()
+      const newSudo = new Sudo()
+      newSudo.title = `dummy_title_${id}`
+
+      const createdSudo = await sudoProfilesClient.createSudo(newSudo)
+
+      // Now try to update - should get 401
+      createdSudo.title = 'updated_title'
+
+      await expect(sudoProfilesClient.updateSudo(createdSudo)).rejects.toThrow() // Should throw NotAuthorizedError
+    }, 30000)
   })
 })

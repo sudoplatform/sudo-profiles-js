@@ -5,13 +5,14 @@
  */
 
 import {
-  AppSyncError,
   InsufficientEntitlementsError,
   Logger,
   ServiceError,
   UnknownGraphQLError,
   VersionMismatchError,
 } from '@sudoplatform/sudo-common'
+import { GraphQLError } from 'graphql'
+
 export const GRAPHQL_ERROR_SUDO_NOT_FOUND = 'sudoplatform.sudo.SudoNotFound'
 export const GRAPHQL_ERROR_INSUFFICIENT_ENTITLEMENTS_ERROR =
   'sudoplatform.InsufficientEntitlementsError'
@@ -105,11 +106,11 @@ export class InvalidConfigError extends Error {
 }
 
 export function graphQLErrorsToClientError(
-  error: AppSyncError,
+  error: { errorType: string } | GraphQLError,
   logger: Logger,
 ): Error {
   logger.error('GraphQL call failed.', { error })
-  const errorType = error.errorType
+  const errorType = 'errorType' in error ? error.errorType : error.message
 
   switch (errorType) {
     case GRAPHQL_ERROR_SUDO_NOT_FOUND:
@@ -119,7 +120,7 @@ export function graphQLErrorsToClientError(
     case GRAPHQL_ERROR_CONDITIONAL_CHECK_FAILED:
       return new VersionMismatchError()
     case GRAPHQL_ERROR_SERVER_ERROR:
-      return new ServiceError(error.message)
+      return new ServiceError(errorType)
     default:
       return new UnknownGraphQLError(error)
   }
