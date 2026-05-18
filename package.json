@@ -57,12 +57,12 @@
     "io-ts": "^2.2.22",
     "io-ts-types": "^0.5.19",
     "localforage": "^1.10.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.18.1",
     "monocle-ts": "^2.3.13",
     "newtype-ts": "^0.3.5",
     "tslib": "^2.8.1",
-    "uuid": "^11.1.0",
-    "ws": "^8.18.3"
+    "uuid": "^11.1.1",
+    "ws": "^8.20.1"
   },
   "devDependencies": {
     "@graphql-codegen/add": "^6.0.0",
@@ -104,6 +104,7 @@
     "@sudoplatform/sudo-user": "^16.0.0"
   },
   "resolutions": {
+    "fast-xml-parser": "^5.7.1",
     "graphql": "^16.12.0",
     "tmp": "^0.2.3"
   },
@@ -113,14 +114,214 @@
   "packageManager": "yarn@4.12.0+sha512.f45ab632439a67f8bc759bf32ead036a1f413287b9042726b7cc4818b7b49e14e9423ba49b18f9e06ea4941c1ad062385b1d8760a8d5091a1a31e5f6219afca8",
   "auditSuppressions": {
     "1111987": {
-      "until": 1771385970,
-      "untilISO": "2026-02-18T03:39:30Z",
-      "reason": "Waiting for patch @smithy/config-resolver"
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "@smithy/config-resolver transitive via old @aws-sdk pinned by @aws-sdk/client-s3"
     },
-    "1112148": {
-      "until": 1771385989,
-      "untilISO": "2026-02-18T03:39:49Z",
-      "reason": "Waiting for fix diff"
+    "1113190": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "markdown-it ReDoS, transitive via typedoc dev dep"
+    },
+    "1113375": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "tar hardlink traversal, transitive via node-gyp"
+    },
+    "1113459": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "minimatch ReDoS, transitive via eslint-plugin-import"
+    },
+    "1113465": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "minimatch ReDoS, transitive via typedoc"
+    },
+    "1113466": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "minimatch ReDoS, transitive via glob"
+    },
+    "1113538": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "minimatch ReDoS, transitive via eslint-plugin-import"
+    },
+    "1113544": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "minimatch ReDoS, transitive via typedoc"
+    },
+    "1113545": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "minimatch ReDoS, transitive via glob"
+    },
+    "1113546": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "minimatch ReDoS, transitive via eslint-plugin-import"
+    },
+    "1113552": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "minimatch ReDoS, transitive via typedoc"
+    },
+    "1113553": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "minimatch ReDoS, transitive via glob"
+    },
+    "1113569": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "fast-xml-parser DoS, transitive via @aws-sdk/core"
+    },
+    "1113714": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "ajv ReDoS, transitive via eslint"
+    },
+    "1114153": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "fast-xml-parser stack overflow, transitive via @aws-sdk/core"
+    },
+    "1114200": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "tar path traversal, transitive via node-gyp"
+    },
+    "1114302": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "tar symlink traversal, transitive via node-gyp"
+    },
+    "1114526": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "flatted DoS, transitive via flat-cache/eslint"
+    },
+    "1115339": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "fast-xml-parser entity expansion, transitive via @aws-sdk/core"
+    },
+    "1115357": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "flatted prototype pollution, transitive via flat-cache/eslint"
+    },
+    "1115538": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "handlebars JS injection, transitive via ts-jest"
+    },
+    "1115539": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "handlebars JS injection, transitive via ts-jest"
+    },
+    "1115540": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "brace-expansion DoS, transitive via minimatch"
+    },
+    "1115541": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "brace-expansion DoS, transitive via minimatch"
+    },
+    "1115544": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "handlebars prototype pollution, transitive via ts-jest"
+    },
+    "1115549": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "picomatch method injection, transitive via micromatch"
+    },
+    "1115551": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "picomatch method injection, transitive via tinyglobby"
+    },
+    "1115552": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "picomatch ReDoS, transitive via micromatch"
+    },
+    "1115554": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "picomatch ReDoS, transitive via tinyglobby"
+    },
+    "1115556": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "yaml stack overflow, transitive via graphql-codegen and typedoc"
+    },
+    "1115588": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "handlebars prototype access, transitive via ts-jest"
+    },
+    "1115589": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "handlebars property access bypass, transitive via ts-jest"
+    },
+    "1115693": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "handlebars JS injection via dynamic partial, transitive via ts-jest"
+    },
+    "1115694": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "handlebars DoS via decorator syntax, transitive via ts-jest"
+    },
+    "1115806": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "lodash code injection via _.template, direct dep pinned at 4.17.23"
+    },
+    "1115810": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "lodash prototype pollution, direct dep pinned at 4.17.23"
+    },
+    "1116307": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "fast-xml-parser entity expansion bypass, transitive via @aws-sdk/core"
+    },
+    "1117066": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "immutable prototype pollution, transitive via @ardatan/relay-compiler"
+    },
+    "1117465": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "handlebars CLI injection, transitive via ts-jest"
+    },
+    "1117637": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "uuid buffer bounds check, direct dep"
+    },
+    "1117911": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "fast-xml-parser XML injection, transitive via @aws-sdk/core"
+    },
+    "1118827": {
+      "until": 1781664114,
+      "untilISO": "2026-06-17T02:41:54Z",
+      "reason": "ip-address XSS, transitive via socks"
     }
   }
 }
