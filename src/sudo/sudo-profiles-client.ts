@@ -55,14 +55,43 @@ import { ChangeType, ConnectionState, SudoSubscriber } from './sudo-subscriber'
 import { WebSudoCryptoProvider } from '@sudoplatform/sudo-web-crypto-provider'
 import { BufferUtil } from '../util/buffer'
 
-export interface SudoProfileOptions {
+const DEFAULT_KEY_NAMESPACE = 'ss'
+
+interface BaseSudoProfileOptions {
   sudoUserClient: SudoUserClient
   apiClient?: ApiClient
   s3Client?: S3Client
   blobCache?: typeof localForage
   logger?: Logger
-  keyManager?: SudoKeyManager
 }
+
+/**
+ * Supply your own key manager. Its namespace is used as is, so `namespace`
+ * cannot be set alongside it.
+ */
+interface CustomKeyManagerOptions {
+  keyManager: SudoKeyManager
+  namespace?: never
+}
+
+/**
+ * Use the default key manager, optionally in a specific namespace.
+ */
+interface DefaultKeyManagerOptions {
+  keyManager?: never
+  /**
+   * Namespace for the cryptographic keys created by the default key manager.
+   * Defaults to 'ss', matching sudo-profiles-ios and sudo-profiles-android.
+   */
+  namespace?: string
+}
+
+/**
+ * Options for {@link DefaultSudoProfilesClient}. `keyManager` and `namespace`
+ * are mutually exclusive.
+ */
+export type SudoProfileOptions = BaseSudoProfileOptions &
+  (CustomKeyManagerOptions | DefaultKeyManagerOptions)
 
 export enum ClaimVisibility {
   /**
@@ -251,7 +280,7 @@ export class DefaultSudoProfilesClient implements SudoProfilesClient {
       this._keyManager = options?.keyManager
     } else {
       const cryptoProvider = new WebSudoCryptoProvider(
-        'SudoProfilesClient',
+        options?.namespace ?? DEFAULT_KEY_NAMESPACE,
         'com.sudoplatform.appservicename',
       )
       this._keyManager = new DefaultSudoKeyManager(cryptoProvider)

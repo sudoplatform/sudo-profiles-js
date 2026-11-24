@@ -1,11 +1,13 @@
 import {
   DefaultConfigurationManager,
+  DefaultSudoKeyManager,
   IllegalArgumentError,
   IllegalStateError,
   NotSignedInError,
   SudoKeyManager,
 } from '@sudoplatform/sudo-common'
 import { DefaultSudoUserClient, SudoUserClient } from '@sudoplatform/sudo-user'
+import { WebSudoCryptoProvider } from '@sudoplatform/sudo-web-crypto-provider'
 import FS from 'fs'
 import * as path from 'path'
 import { instance, mock, reset, verify, when } from 'ts-mockito'
@@ -143,6 +145,85 @@ afterEach(async (): Promise<void> => {
 })
 
 describe('SudoProfilesClient', () => {
+  describe('key namespace', () => {
+    it("should default to 'ss'", () => {
+      const client = new DefaultSudoProfilesClient({
+        sudoUserClient: sudoUserClient,
+        apiClient: apiClientMock,
+      })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect((client as any)._keyManager.namespace).toBe('ss')
+    })
+
+    it('should use the namespace option when provided', () => {
+      const client = new DefaultSudoProfilesClient({
+        sudoUserClient: sudoUserClient,
+        apiClient: apiClientMock,
+        namespace: 'custom',
+      })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect((client as any)._keyManager.namespace).toBe('custom')
+    })
+
+    it('should use the provided key manager and its namespace', () => {
+      const client = new DefaultSudoProfilesClient({
+        sudoUserClient: sudoUserClient,
+        apiClient: apiClientMock,
+        keyManager: keyManager,
+      })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect((client as any)._keyManager).toBe(keyManager)
+    })
+
+    it('should not allow namespace and keyManager together', () => {
+      const providedKeyManager = new DefaultSudoKeyManager(
+        new WebSudoCryptoProvider('provided', 'com.sudoplatform.test'),
+      )
+      // @ts-expect-error namespace and keyManager are mutually exclusive
+      const client = new DefaultSudoProfilesClient({
+        sudoUserClient: sudoUserClient,
+        apiClient: apiClientMock,
+        keyManager: providedKeyManager,
+        namespace: 'ignored',
+      })
+      // If the types are bypassed, the provided key manager still wins and
+      // the namespace option is ignored.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const used = (client as any)._keyManager
+      expect(used).toBe(providedKeyManager)
+      expect(used.namespace).toBe('provided')
+    })
+
+    it("should export keys in the 'ss' namespace by default", async () => {
+      const client = new DefaultSudoProfilesClient({
+        sudoUserClient: sudoUserClient,
+        apiClient: apiClientMock,
+      })
+      await client.pushSymmetricKey('1234', '14A9B3C3540142A11E70ACBB1BD8969F')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const exported = await (client as any)._keyManager.exportKeys()
+      expect(exported.length).toBeGreaterThan(0)
+      exported.forEach((key: { namespace: string }) =>
+        expect(key.namespace).toBe('ss'),
+      )
+    })
+
+    it('should export keys in the configured namespace', async () => {
+      const client = new DefaultSudoProfilesClient({
+        sudoUserClient: sudoUserClient,
+        apiClient: apiClientMock,
+        namespace: 'custom',
+      })
+      await client.pushSymmetricKey('1234', '14A9B3C3540142A11E70ACBB1BD8969F')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const exported = await (client as any)._keyManager.exportKeys()
+      expect(exported.length).toBeGreaterThan(0)
+      exported.forEach((key: { namespace: string }) =>
+        expect(key.namespace).toBe('custom'),
+      )
+    })
+  }) // key namespace
+
   describe('createSudo()', () => {
     it('should throw IllegalStateError when symmetric key id not set', async () => {
       const sudoProfilesClientUnit = new DefaultSudoProfilesClient({

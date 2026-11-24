@@ -1,10 +1,16 @@
 import { DefaultApiClientManager } from '@sudoplatform/sudo-api-client'
 import {
   DefaultConfigurationManager,
+  DefaultSudoKeyManager,
+  IllegalStateError,
   VersionMismatchError,
 } from '@sudoplatform/sudo-common'
 import { DefaultSudoEntitlementsClient } from '@sudoplatform/sudo-entitlements'
 import { DefaultSudoUserClient } from '@sudoplatform/sudo-user'
+import {
+  AsyncStore,
+  WebSudoCryptoProvider,
+} from '@sudoplatform/sudo-web-crypto-provider'
 import FS from 'fs'
 import * as path from 'path'
 import { anything, mock, when } from 'ts-mockito'
@@ -41,6 +47,56 @@ class MySubscriber implements SudoSubscriber {
   connectionStatusChanged(state: ConnectionState): void {
     this.connectionState = state
   }
+}
+
+/**
+ * In-memory key store that can be shared by several key managers, standing in
+ * for a persistent store that outlives a single client instance.
+ */
+class SharedMemoryStore implements AsyncStore {
+  readonly data = new Map<string, unknown>()
+
+  getKeys(): Promise<string[]> {
+    return Promise.resolve([...this.data.keys()])
+  }
+  getItem(key: string): Promise<unknown> {
+    return Promise.resolve(this.data.get(key) ?? null)
+  }
+  setItem(key: string, value: unknown): Promise<void> {
+    this.data.set(key, value)
+    return Promise.resolve()
+  }
+  removeItem(key: unknown): Promise<void> {
+    this.data.delete(key as string)
+    return Promise.resolve()
+  }
+  clear(): Promise<void> {
+    this.data.clear()
+    return Promise.resolve()
+  }
+}
+
+function newKeyManager(
+  namespace: string,
+  store: AsyncStore,
+): DefaultSudoKeyManager {
+  return new DefaultSudoKeyManager(
+    new WebSudoCryptoProvider(
+      namespace,
+      'com.sudoplatform.appservicename',
+      store,
+    ),
+  )
+}
+
+function newDummySudo(id: string): Sudo {
+  const sudo = new Sudo()
+  sudo.title = `dummy_title_${id}`
+  sudo.firstName = `dummy_first_name_${id}`
+  sudo.lastName = `dummy_last_name_${id}`
+  sudo.label = `dummy_label_${id}`
+  sudo.notes = `dummy_notes_${id}`
+  return sudo
 }
 
 let sudoEntitlements: DefaultSudoEntitlementsClient
@@ -359,6 +415,90 @@ describe('sudoProfilesClientIntegrationTests', () => {
         FetchOption.RemoteOnly,
       )
       expect(listDeletedSudos).toEqual([])
+    }, 120000)
+  })
+
+  describe('key namespace', () => {
+    const symmetricKeyId = 'namespace-test-key'
+    const symmetricKey = '0F1E2D3C4B5A69788796A5B4C3D2E1F0'
+
+    it('should create and read back a sudo with a caller-supplied key manager', async () => {
+      expectSetupComplete()
+      const store = new SharedMemoryStore()
+
+      const writer = new DefaultSudoProfilesClient({
+        sudoUserClient: sudoUser,
+        blobCache: blobCacheMock,
+        keyManager: newKeyManager('ss', store),
+      })
+      await writer.pushSymmetricKey(symmetricKeyId, symmetricKey)
+
+      const id = v4()
+      const created = await writer.createSudo(newDummySudo(id))
+      expect(created.id).toBeTruthy()
+
+      // A new client instance over the same store and namespace, as an app
+      // would have after a restart, can decrypt what the first one wrote.
+      const reader = new DefaultSudoProfilesClient({
+        sudoUserClient: sudoUser,
+        blobCache: blobCacheMock,
+        keyManager: newKeyManager('ss', store),
+      })
+      const sudos = await reader.listSudos(FetchOption.RemoteOnly)
+      expect(sudos.length).toBe(1)
+      expect(sudos[0].id).toBe(created.id)
+      expect(sudos[0].title).toBe(`dummy_title_${id}`)
+      expect(sudos[0].firstName).toBe(`dummy_first_name_${id}`)
+      expect(sudos[0].lastName).toBe(`dummy_last_name_${id}`)
+      expect(sudos[0].label).toBe(`dummy_label_${id}`)
+      expect(sudos[0].notes).toBe(`dummy_notes_${id}`)
+
+      // Keys are stored under the 'ss' namespace, as on iOS and Android.
+      const storedNames = [...store.data.keys()]
+      expect(storedNames.length).toBeGreaterThan(0)
+      storedNames.forEach((name) => expect(name.startsWith('ss.')).toBe(true))
+    }, 120000)
+
+    it('should not decrypt sudos using keys from a different namespace', async () => {
+      expectSetupComplete()
+      const store = new SharedMemoryStore()
+
+      const ssClient = new DefaultSudoProfilesClient({
+        sudoUserClient: sudoUser,
+        blobCache: blobCacheMock,
+        keyManager: newKeyManager('ss', store),
+      })
+      await ssClient.pushSymmetricKey(symmetricKeyId, symmetricKey)
+
+      const id = v4()
+      const created = await ssClient.createSudo(newDummySudo(id))
+      expect(created.id).toBeTruthy()
+
+      // Same user and same store, but the old web default namespace.
+      const legacyClient = new DefaultSudoProfilesClient({
+        sudoUserClient: sudoUser,
+        blobCache: blobCacheMock,
+        keyManager: newKeyManager('SudoProfilesClient', store),
+      })
+
+      // It has no current symmetric key, so it cannot create a sudo...
+      await expect(legacyClient.createSudo(newDummySudo(v4()))).rejects.toThrow(
+        IllegalStateError,
+      )
+      // ...and cannot decrypt the sudo created under 'ss'.
+      await expect(
+        legacyClient.listSudos(FetchOption.RemoteOnly),
+      ).rejects.toThrow()
+
+      // A client in the same namespace still can.
+      const sameNamespaceClient = new DefaultSudoProfilesClient({
+        sudoUserClient: sudoUser,
+        blobCache: blobCacheMock,
+        keyManager: newKeyManager('ss', store),
+      })
+      const sudos = await sameNamespaceClient.listSudos(FetchOption.RemoteOnly)
+      expect(sudos.length).toBe(1)
+      expect(sudos[0].title).toBe(`dummy_title_${id}`)
     }, 120000)
   })
 
